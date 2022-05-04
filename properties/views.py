@@ -3,6 +3,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
+from django.http import JsonResponse
 import jwt
 import smtplib, ssl
 
@@ -15,14 +16,16 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 # models 
 from properties.models import Properties, Units
 from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializer
 from register.models import CustomUser
 
 
-
-
+TEST_TOKEN = 'Token 71ed6e07240ac3c48e44b5a43b5c89e453382f2a'
 
 @api_view(['POST'])
 def vacantUnit(request, id):
@@ -85,43 +88,48 @@ def vacantUnit(request, id):
 
 
 class PropertiesViewSet(APIView):
+    
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,) 
+    
+    def get(self, request):
+        """ 
+        Summary: Get all properties a landord has 
+        
+        Args:
+            request (_type_): data sent from front
+
+        Returns:
+            Serializer Class, dictionary, JSON: list of properties that a landlord has
+        """
+        serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id), many=True)
+        return Response(serializer.data)
+    
 
     def post(self, request):
+        """
+        Summary: function to create new property 
 
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
-            
-            try: 
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                landlord = CustomUser.objects.get(id=token['id'])
-                request.data['landlord'] = landlord.id
-
-                serializer =  PropertiesSerializer(data=request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response({'error':False, "mensaje": "propiedad registrada"}, status=status.HTTP_201_CREATED)
-                else:
-                    return Response({'error': True, 'mensaje': 'Error al registrar propiedad'}, status=status.HTTP_402_PAYMENT_REQUIRED)
-            except CustomUser.DoesNotExist:
-                return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
+        Returns:
+            JSON: saying if it was a success
+        """
     
-            except:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_401_UNAUTHORIZED)
-           
+        request.data['landlord'] = request.user.id
+        serializer =  PropertiesSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'error':False, "message": "The property has already been registered"}, status=status.HTTP_201_CREATED)
         else:
-            Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED)   
+            return Response({'error': True, 'message': 'serializer is not valid'}, status=status.HTTP_402_PAYMENT_REQUIRED)
     
     
     def put(self, request, id):
-
-       
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
+        
             try:
                 propertie = Properties.objects.get(id=id)
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                landlord = CustomUser.objects.get(id=token['id'])
-                request.data['landlord'] = landlord.id
+                request.data['landlord'] = request.user.id
+                
                 propertie = PropertiesSerializer(instance=propertie, data=request.data)
 
                 if propertie.is_valid():
@@ -132,150 +140,109 @@ class PropertiesViewSet(APIView):
 
             except Properties.DoesNotExist:
                 return Response({'error': True, 'mensaje': 'propiedad no existente'}, status=status.HTTP_404_NOT_FOUND)
-            except:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_401_UNAUTHORIZED)
-        
-        else:
-            Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED) 
-    
-    
-    def get(self,request):
-
-        if 'Authorization' in request.headers and request.headers != '' :
-            token = request.headers['Authorization']
-            try:
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                serializer = PropertiesSerializer(Properties.objects.filter(landlord = token['id']), many=True)
-                return Response(serializer.data)
-               
-            except:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_402_PAYMENT_REQUIRED)
-
-        else:
-            Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED) 
     
     
     def delete(self, request,id):
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
-            try:
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                propertie = Properties.objects.get(id=id)
-                propertie.delete()
-                return Response({'error':False, "mensaje": "propiedad eliminada satifactoriamente"}, status=status.HTTP_201_CREATED)
-            except Properties.DoesNotExist:
-                return Response({'error': True, 'mensaje': 'propiedad no existente'}, status=status.HTTP_404_NOT_FOUND)
-            except jwt.exceptions.InvalidTokenError:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_402_PAYMENT_REQUIRED)
-        else:
-            return Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED)   
+        try:
+            propertie = Properties.objects.get(id=id)
+            propertie.delete()
+            return Response({'error':False, "message": "The property has been eliminated"}, status=status.HTTP_201_CREATED)
+        
+        except Properties.DoesNotExist:  
+            return Response({'error': True, 'mensaje': 'The property does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
 
-     
+# ask about this view
 class  UnitsViewSet(APIView):
+ 
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,) 
     
     def post(self, request):
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
-            try: 
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                landlord =  CustomUser.objects.get(id=token['id'])
-                request.data['landlord'] = landlord.id
-                propertie = Properties.objects.get(id=request.data['landlord'])
-                serializer =  UnitsSerializer(data=request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response({'error':False, "mensaje": "propiedad registrada"}, status=status.HTTP_201_CREATED)
-                else:
-                    return Response({'error': True, 'mensaje': 'Error al registrar propiedad', 'error': serializer.errors}, status=status.HTTP_402_PAYMENT_REQUIRED)
-            except CustomUser.DoesNotExist:
-                return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
-    
-            except:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_401_UNAUTHORIZED)
-           
-        else:
-            Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED) 
+
+        try: 
+            request.data['landlord'] = request.user.id
+            propertie = Properties.objects.get(id=request.data['landlord'])
+            # here can be an error, this should be in the serializer
+            serializer =  UnitsSerializer(data=request.data)
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'error':False, "message": "the property has been registered"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': True, 'message': 'serializer is not valid', 'serializer_error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+       
+        except CustomUser.DoesNotExist:
+            return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
+
     
     def put(self, request, id):
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
-            try:
-                unit = Units.objects.get(id=id)
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                landlord = CustomUser.objects.get(id=token['id'])
-                request.data['landlord'] = landlord.id
-                serializer = UnitsSerializer(instance=unit, data=request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data)
-                else:
-                    return Response(serializer.errors)
-
-            except Units.DoesNotExist:
-                return Response({'error': True, 'mensaje': 'unidad no existente'}, status=status.HTTP_404_NOT_FOUND)
-            except:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_401_UNAUTHORIZED)
         
-        else:
-            Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            unit = Units.objects.get(id=id)
+
+            request.data['landlord'] = request.user.id
+            serializer = UnitsSerializer(instance=unit, data=request.data)
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response({'error': 'True', 'message': 'serializer is not valid', 'serializer_error': serializer.errors})
+
+        except Units.DoesNotExist:
+            return Response({'error': True, 'message': 'the unit does not exist'}, status=status.HTTP_404_NOT_FOUND)
+           
+        
 
     def get(self,request,id):
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
-            try:
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                units = Units.objects.filter(properties_id=id , landlord_id=token['id'])
-                serializer = UnitsSerializer(units, many=True)
-                return Response(serializer.data)
-              
-            except Units.DoesNotExist:
-                return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
-    
-            except:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_401_UNAUTHORIZED)
-           
-        else:
-            Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    def delete(self, request, id):
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
-            try:
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                unit = Units.objects.get(id=id)
-                unit.delete()
-                return Response({'error':False, "mensaje": "unidad eliminada satifactoriamente"}, status=status.HTTP_201_CREATED)
-            except Units.DoesNotExist:
-                return Response({'error': True, 'mensaje': 'unidad no existente'}, status=status.HTTP_404_NOT_FOUND)
-            except jwt.exceptions.InvalidTokenError:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_402_PAYMENT_REQUIRED)
-        else:
-            return Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED) 
+        
+        try:
+            units = Units.objects.filter(properties_id=id , landlord_id=request.user.id)
+            serializer = UnitsSerializer(units, many=True)
+            return Response(serializer.data)
+            
+        except Units.DoesNotExist:
+            return Response({'error': True, 'message ': 'unit does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
 
+
+    def delete(self, request, id):
+        
+        try:
+            unit = Units.objects.get(id=id)
+            unit.delete()
+            return Response({'error':False, "message": "the unit has been eliminated"}, status=status.HTTP_202_ACCEPTED)
+        
+        except Units.DoesNotExist:
+            return Response({'error': True, 'message': 'the unit does not exist'}, status=status.HTTP_404_NOT_FOUND)
+       
+       
 
 
 class TenantViewSet(APIView):
-    def post(self, request):
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
-            try: 
-                token  = jwt.decode(token, "123456", algorithms=["HS256"])
-                landlord =  CustomUser.objects.get(id=token['id'])
-                request.data['landlord'] = landlord.id
-                serializer =  TenantSerializer(data=request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response({'error':False, "mensaje": "tenant registrada"}, status=status.HTTP_201_CREATED)
-                else:
-                    return Response({'error': True, 'mensaje': 'Error al registrar tenant', 'error': serializer.errors}, status=status.HTTP_402_PAYMENT_REQUIRED)
-            except CustomUser.DoesNotExist:
-                return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
     
-            except:
-                return Response({'error':True,'mensaje': 'Invalid Token',},status=status.HTTP_401_UNAUTHORIZED)
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,) 
+    
+    def post(self, request):
+
+        try: 
+            request.data['landlord'] = request.user.id
+            serializer =  TenantSerializer(data=request.data)
            
-        else:
-            Response({'error': True, 'mensaje': 'credentials required'}, status=status.HTTP_401_UNAUTHORIZED) 
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'error':False, "mensaje": "tenant registered"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': True, 'mensaje': 'serializer is not valid', 'serializer_error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        except CustomUser.DoesNotExist:
+            return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    
+    # should here be a view to get the tenants who live in a unit/property?
+      
 
 
         
