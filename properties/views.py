@@ -42,8 +42,8 @@ def vacantUnit(request, id):
 
         Returns:
             Serializer Class, dictionary, JSON: list of properties that a landlord has
+            
         """
-    
     unit = Units.objects.get(id=id)
     unit.rented = not unit.rented
     unit.save()
