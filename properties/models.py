@@ -28,7 +28,6 @@ class Properties(models.Model):
     year_bought = IntegerField()
     
 
-
 class Units(models.Model):
     # foreign keys 
     

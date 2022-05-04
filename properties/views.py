@@ -4,85 +4,107 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
 import smtplib, ssl
+from django.http import JsonResponse
 
 # twilio 
 from twilio.rest import Client
 
 # django 
-from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework import status, authentication, permissions
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+
+from django.db.models import Q
+
 # models 
-from properties.models import Properties, Units
+from properties.models import Properties, Units, Tenants
 from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializer
 from register.models import CustomUser
-
 
 TEST_TOKEN = 'Token 71ed6e07240ac3c48e44b5a43b5c89e453382f2a'
 
 @api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
 def vacantUnit(request, id):
+    
+    """ 
+        Summary: Set the vacant of a unit from rented to free and send a message to the landlord notifiying
+        him and the instructions for moving out to the tenants
+        
+        Args:
+            id (_type_): IntegerField
 
+        Returns:
+            Serializer Class, dictionary, JSON: list of properties that a landlord has
+        """
+    
     unit = Units.objects.get(id=id)
     unit.rented = not unit.rented
     unit.save()
     serializer = UnitsSerializer(unit)
+    
+    tenants_in_unit = Tenants.objects.filter(Q(unit=unit.id))
+    landlord = CustomUser.objects.get(id=unit.landlord.id)
+    
+    # Twilio settings 
+    # this must change to the app twilio account
+    account_sid = "AC169f0dd1f79d9a78e183de54363307bb" 
+    auth_token  = "15c699a3cf3f29fcc776a47259e58593"
 
-
-    #COMUNICACION POR MENSAJE DE TEXTO
-    if unit.rented:
-        return Response({"unit": serializer.data})
-    else:
-        account_sid = "ACe61e701812ddfb138275589f4a556d35"
-        auth_token  = "7c25fe7f3dc40bab21cef73caba5065a"
-
-        client = Client(account_sid, auth_token)
-
-        mensaje =   f"{unit.name} entro en proceso de desalojo"
-        message = client.messages.create(
-            from_="+19035224352", 
-            to="+584120148704",
-            body= mensaje
-        )
-        
-        #COMUNICACION POR EMAIL
-        mensaje = MIMEMultipart('alternative')
-        mensaje['Subject'] = 'Move-out Instructions'
-        mensaje['From']='hello@orinocoventures.com'
-        mensaje['To']='acampos@utalkto.com'
+    # twilio client
+    client = Client(account_sid, auth_token)
+    
+    twilio_message =  f"The proccess for moving out has started in the next unit:, {unit.name}"
+    twilio_message = client.messages.create(
+        from_="+19704897499", 
+        to=landlord.phone,
+        body= twilio_message
+    )
+    
+    # email settings
+    email_message = MIMEMultipart('alternative')
+    email_message['Subject'] = 'Move-out Instructions'
+    email_message['From']='hello@orinocoventures.com'
+    
+    for tenant in tenants_in_unit:
+    
+        # Email communication
+         
+        email_message['To']= tenant.email
         html = f"""
         <html>
             <body>
                 <h1>Eviction instructions</h1>
-          
             </body>
-
         </html>
 
         """
-        parte_html = MIMEText(html,'html')
-        mensaje.attach(parte_html)
+        html_part = MIMEText(html,'html')
+        email_message.attach(html_part)
 
         # AJUNTANDO ARCHIVO DE DESALOJO
-        ajunto = MIMEBase('application', 'octet-stream')
-        ajunto.set_payload(open('test.pdf', 'rb').read())
-        encoders.encode_base64(ajunto)
-        ajunto.add_header('content-Disposition','attachment; filename="test.pdf"')
-        mensaje.attach(ajunto)
-
+        attached = MIMEBase('application', 'octet-stream')
+        attached.set_payload(open('test.pdf', 'rb').read())
+        encoders.encode_base64(attached)
+        attached.add_header('content-Disposition','attachment; filename="test.pdf"')
+        email_message.attach(attached)
 
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL("smtp.hostinger.com", 465, context=context) as server:
             server.login("hello@orinocoventures.com",'Orinoco2022..' )
-            server.sendmail(from_addr="hello@orinocoventures.com", to_addrs="acampos@utalkto.com",msg=mensaje.as_string() )
+            server.sendmail(
+                from_addr="hello@orinocoventures.com", 
+                to_addrs=tenant.email,
+                msg=email_message.as_string())
 
 
-        return Response({"unit": serializer.data})
+    return Response({"unit": serializer.data})
 
 
 class PropertiesViewSet(APIView):
@@ -208,7 +230,8 @@ class  UnitsViewSet(APIView):
             
         except Units.DoesNotExist:
             return Response(
-                {'error': True, 
+                {
+                'error': True, 
                  'message ': 'unit does not exist'
                 }, 
                 status=status.HTTP_404_NOT_FOUND)
@@ -218,9 +241,11 @@ class  UnitsViewSet(APIView):
 
         try: 
             request.data['landlord'] = request.user.id
+            
             # !!! 
-            propertie = Properties.objects.get(id=request.data['landlord'])
-            # here can be an error, this should be in the serializer
+            _property = Properties.objects.get(id=request.data['landlord'])
+            # here can be an error, this should be in the serializer?
+            
             serializer =  UnitsSerializer(data=request.data)
             
             if serializer.is_valid():
@@ -312,7 +337,8 @@ class TenantViewSet(APIView):
                     status=status.HTTP_201_CREATED)
             else:
                 return Response(
-                    {'error': True, 
+                    {
+                    'error': True, 
                      'message': 'serializer is not valid', 
                      'serializer_error': serializer.errors
                     }, 
@@ -322,8 +348,6 @@ class TenantViewSet(APIView):
         except CustomUser.DoesNotExist:
             return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
         
-    
-    # should here be a view to get the tenants who live in a unit/property?
       
 
 
