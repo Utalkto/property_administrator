@@ -8,14 +8,13 @@ class Properties(models.Model):
     
     # ------------------------------
     # fields 
-    address = CharField(max_length=100)
+    address = CharField(max_length=400)
     coordinates = models.JSONField()
     
     country = CharField(max_length=50)
     city = CharField(max_length=100)
     
-    img = CharField(max_length=50, default='') # change to image field
-    
+    img = models.ImageField(upload_to='properties')
     maps_url =  models.URLField(default='')
 
     name = CharField(max_length=100, default='')
@@ -23,11 +22,12 @@ class Properties(models.Model):
     price_paid = DecimalField(max_digits=19, decimal_places=2, default=0, null=False)
     photos = models.JSONField()
     
-    properie_type = CharField(max_length=100)
+    property_type = CharField(max_length=100)
     
-    year_built = CharField(max_length=100,default="")
-    year_bought = CharField(max_length=100,default="")
+    year_built = IntegerField()
+    year_bought = IntegerField()
     
+
 
 class Units(models.Model):
     # foreign keys 
@@ -45,7 +45,7 @@ class Units(models.Model):
     
     deposit_amount = DecimalField(max_digits=19, decimal_places=2)
     details = models.JSONField()
-    date_deposit_received = DateField(default='2022/05/02')
+    date_deposit_received = DateField()
     
     extra_resident_price = DecimalField(max_digits=5, decimal_places=2, default=0)
     extra_resident = IntegerField(default=0)
@@ -80,7 +80,6 @@ class Units(models.Model):
     tenant = models.IntegerField(default=0)
     
     unit_type = CharField(max_length=100) 
-
 
 
 class Tenants(models.Model):

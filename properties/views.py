@@ -3,8 +3,6 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
-from django.http import JsonResponse
-import jwt
 import smtplib, ssl
 
 # twilio 
@@ -16,7 +14,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 # models 
@@ -108,7 +106,7 @@ class PropertiesViewSet(APIView):
 
     def post(self, request):
         """
-        Summary: function to create new property 
+        Summary: create new property 
 
         Returns:
             JSON: saying if it was a success
@@ -119,37 +117,78 @@ class PropertiesViewSet(APIView):
         
         if serializer.is_valid():
             serializer.save()
-            return Response({'error':False, "message": "The property has already been registered"}, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "message": "property created with success"
+                }, 
+                status=status.HTTP_201_CREATED)
         else:
-            return Response({'error': True, 'message': 'serializer is not valid'}, status=status.HTTP_402_PAYMENT_REQUIRED)
+            return Response(
+                {
+                    'error': True, 
+                    'message': 'serializer is not valid', 
+                    'serializer_error': serializer.errors
+                }, 
+                status=status.HTTP_400_BAD_REQUEST)
     
     
     def put(self, request, id):
         
-            try:
-                propertie = Properties.objects.get(id=id)
-                request.data['landlord'] = request.user.id
-                
-                propertie = PropertiesSerializer(instance=propertie, data=request.data)
+        """
+        Summary: update a property
 
-                if propertie.is_valid():
-                    propertie.save()
-                    return Response(propertie.data)
-                else:
-                    return Response(propertie.errors)
-
-            except Properties.DoesNotExist:
-                return Response({'error': True, 'mensaje': 'propiedad no existente'}, status=status.HTTP_404_NOT_FOUND)
-    
-    
-    def delete(self, request,id):
+        Returns:
+            JSON, dictionary: saying if it was a success
+        """
+        
         try:
-            propertie = Properties.objects.get(id=id)
-            propertie.delete()
-            return Response({'error':False, "message": "The property has been eliminated"}, status=status.HTTP_201_CREATED)
+            _property = Properties.objects.get(id=id)
+            request.data['landlord'] = request.user.id
+            
+            _property = PropertiesSerializer(instance=_property, data=request.data)
+
+            if _property.is_valid():
+                _property.save()
+                Response(
+                    {
+                        'message': 'the property was updated successfully', 
+                        'data': _property.data
+                    }, 
+                    status=status.HTTP_200_OK)
+            else:
+                return  Response(
+                    {
+                        'error': True, 
+                        'message': 'serializer is not valid', 
+                        'serializer_error': _property.errors
+                    }, 
+                    status=status.HTTP_400_BAD_REQUEST)
+
+        except Properties.DoesNotExist:
+            return Response(
+                {
+                    'error': True, 
+                    'message': 'property does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
+    
+    
+    def delete(self, request, id):
+        try:
+            _property = Properties.objects.get(id=id)
+            _property.delete()
+            return Response(
+                {
+                 "message": "The property has been deleted"
+                }, 
+                status=status.HTTP_200_OK)
         
         except Properties.DoesNotExist:  
-            return Response({'error': True, 'mensaje': 'The property does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'error': True, 
+                 'mensaje': 'The property does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
         
 
 # ask about this view
@@ -158,20 +197,49 @@ class  UnitsViewSet(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
     
+    def get(self,request,id):
+        
+        try:
+            units = Units.objects.filter(properties_id=id , landlord_id=request.user.id)
+            serializer = UnitsSerializer(units, many=True)
+            return Response(
+                serializer.data, 
+                status=status.HTTP_200_OK)
+            
+        except Units.DoesNotExist:
+            return Response(
+                {'error': True, 
+                 'message ': 'unit does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
+        
+    
     def post(self, request):
 
         try: 
             request.data['landlord'] = request.user.id
+            # !!! 
             propertie = Properties.objects.get(id=request.data['landlord'])
             # here can be an error, this should be in the serializer
             serializer =  UnitsSerializer(data=request.data)
             
             if serializer.is_valid():
                 serializer.save()
-                return Response({'error':False, "message": "the property has been registered"}, status=status.HTTP_201_CREATED)
+                return Response(
+                    {
+                     "message": "the property has been registered Successfully"
+                    }, 
+                    status=status.HTTP_201_CREATED)
             else:
-                return Response({'error': True, 'message': 'serializer is not valid', 'serializer_error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {
+                        'error': True, 
+                        'message': 'serializer is not valid', 
+                        'serializer_error': serializer.errors
+                    }, 
+                    status=status.HTTP_400_BAD_REQUEST)
        
+       # !!! 
         except CustomUser.DoesNotExist:
             return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -188,23 +256,20 @@ class  UnitsViewSet(APIView):
                 serializer.save()
                 return Response(serializer.data)
             else:
-                return Response({'error': 'True', 'message': 'serializer is not valid', 'serializer_error': serializer.errors})
+                return Response(
+                    {
+                        'error': True, 
+                        'message': 'serializer is not valid', 
+                        'serializer_error': serializer.errors
+                    },
+                    status=status.HTTP_400_BAD_REQUEST)
 
         except Units.DoesNotExist:
-            return Response({'error': True, 'message': 'the unit does not exist'}, status=status.HTTP_404_NOT_FOUND)
-           
-        
-
-    def get(self,request,id):
-        
-        try:
-            units = Units.objects.filter(properties_id=id , landlord_id=request.user.id)
-            serializer = UnitsSerializer(units, many=True)
-            return Response(serializer.data)
-            
-        except Units.DoesNotExist:
-            return Response({'error': True, 'message ': 'unit does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {'error': True, 
+                 'message': 'the unit does not exist'
+                 }, 
+                status=status.HTTP_404_NOT_FOUND)
 
 
     def delete(self, request, id):
@@ -212,13 +277,20 @@ class  UnitsViewSet(APIView):
         try:
             unit = Units.objects.get(id=id)
             unit.delete()
-            return Response({'error':False, "message": "the unit has been eliminated"}, status=status.HTTP_202_ACCEPTED)
+            return Response(
+                {
+                    "message": "the unit has been eliminated successfully"
+                }, 
+                status=status.HTTP_200_OK)
         
         except Units.DoesNotExist:
-            return Response({'error': True, 'message': 'the unit does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'error': True, 
+                 'message': 'the unit does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
        
        
-
 
 class TenantViewSet(APIView):
     
@@ -233,13 +305,23 @@ class TenantViewSet(APIView):
            
             if serializer.is_valid():
                 serializer.save()
-                return Response({'error':False, "mensaje": "tenant registered"}, status=status.HTTP_201_CREATED)
+                return Response(
+                    {
+                     'message': 'tenant registered successfully'
+                    }, 
+                    status=status.HTTP_201_CREATED)
             else:
-                return Response({'error': True, 'mensaje': 'serializer is not valid', 'serializer_error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'error': True, 
+                     'message': 'serializer is not valid', 
+                     'serializer_error': serializer.errors
+                    }, 
+                    status=status.HTTP_400_BAD_REQUEST)
         
+        #!!! why is this here?
         except CustomUser.DoesNotExist:
             return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
-    
+        
     
     # should here be a view to get the tenants who live in a unit/property?
       

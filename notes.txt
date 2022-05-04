@@ -1,0 +1,19 @@
+fields to create a new property
+
+
+{
+    "landlord": "example11@email.com",
+    "address": "address",
+    "coordinates": {"x": "1562189728", "y": "464647287"},
+    "country": "Venezuela",
+    "city": "Caracas",
+    "maps_url": "http://localhost:8000/admin/properties/properties/add/",
+    "name": "name",
+    "price_paid": 500.00,
+    "property_type": "duplex",
+    "photos": {"photos": "photos"},
+    "year_built": 2000,
+    "year_bought": 2000,
+
+    "img": this field is a file
+}
