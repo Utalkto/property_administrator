@@ -70,7 +70,7 @@ class Units(models.Model):
     pet_policy= CharField(max_length=100, default='')
     pets_living = models.CharField(max_length=50, default='')
     
-    rented = BooleanField(default=True) 
+    rented = BooleanField(default=False) 
     rent = DecimalField(max_digits=19, decimal_places=2, default=0, null=False) 
     rooms = IntegerField(default=0)
     

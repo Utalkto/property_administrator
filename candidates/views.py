@@ -97,6 +97,7 @@ def get_candidate_score(unit_capacity:int, form_data:dict) -> int:
         
     return total_score 
     
+# ------------------------------------------------------
 
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
@@ -206,7 +207,7 @@ def send_invitations_to_candidates(request, unit_id, minimun_score, calendar_lin
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
-def approve_candidates(request, candidate_id:int, candidate_status:int):
+def approve_candidate(request, candidate_id:int, candidate_status:int):
     
     """
     
@@ -221,6 +222,8 @@ def approve_candidates(request, candidate_id:int, candidate_status:int):
     emails_sent_to:dict = {}
     
     if candidate_status == 1:
+        attach_file = None
+        
         email_subject = 'References'
         email_html = f"""
                     <html>
@@ -234,14 +237,14 @@ def approve_candidates(request, candidate_id:int, candidate_status:int):
                     
     # the payment info must be attached 
     elif candidate_status == 2:
-        email_subject = 'Congratulations'
+        attach_file = 'payment-info.pdf'
         
+        email_subject = 'Congratulations'
         email_html = f"""
                     <html>
                         <body>
                             <h1>Dear {candidate.adults_information[adult]['name']}, you have been approved to live in our unit</h1>
                             <p>Now the next step is to pay the necessary stuff to continue</p>
-                            <p>Payment info</p>
                         </body>
                     </html>
                     """
@@ -255,7 +258,9 @@ def approve_candidates(request, candidate_id:int, candidate_status:int):
         SendEmail(
             send_to= candidate.adults_information[adult]['email'],
             subject= email_subject,
-            html=email_html)
+            html=email_html,
+            attach_file=attach_file
+            )
     
     return Response(
         {

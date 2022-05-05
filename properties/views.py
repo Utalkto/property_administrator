@@ -17,10 +17,12 @@ from django.db.models import Q
 # models 
 from properties.models import Properties, Units, Tenants
 from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializer
+
 from register.models import CustomUser
 
-# modules created for the app
+from candidates.models import Candidate
 
+# modules created for the app
 from app_modules.send_email import SendEmail
 
 TEST_TOKEN = 'Token 71ed6e07240ac3c48e44b5a43b5c89e453382f2a'
@@ -35,7 +37,7 @@ def vacantUnit(request, id):
         him and the instructions for moving out to the tenants
         
         Args:
-            id (_type_): IntegerField
+            id int: unit id
 
         Returns:
             Serializer Class, dictionary, JSON: list of properties that a landlord has
@@ -85,6 +87,57 @@ def vacantUnit(request, id):
 
     return Response({"unit": serializer.data})
 
+
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def set_unit_rented(request, candidate_id):
+    
+    """
+    
+    Documentation here
+    
+    
+    """
+    
+    candidate = Candidate.objects.get(id=candidate_id)
+    candidate.status = 2
+    candidate.save()
+    
+    unit = Units.objects.get(id=candidate.unit.id)
+    unit.rented = True
+    unit.save()
+    
+    
+    # TODO: put the unit out of market (facebook marketplace and kijiji)
+    
+    emails_sent_to: dict = {}
+    
+    for index, adult in enumerate(candidate.adults_information):
+        
+        emails_sent_to[f'adult{index}'] = candidate.adults_information[adult]['email']
+
+        SendEmail(
+            send_to= candidate.adults_information[adult]['email'],
+            subject= 'Move in instructions',
+            html= f"""
+                    <html>
+                        <body>
+                            <h1>Dear {candidate.adults_information[adult]['name']}, here are attached the move in information</h1>
+                        </body>
+                    </html>
+                    """,
+            attach_file='move-in-instructions.pdf'
+            )
+    
+    return Response(
+        {
+            'message': 'email(s) sent successfully',
+            'sent_to': emails_sent_to
+        }, status=status.HTTP_200_OK)
+
+
+# CLASSES --------------------------------------
 
 class PropertiesViewSet(APIView):
     
@@ -190,9 +243,8 @@ class PropertiesViewSet(APIView):
                  'mensaje': 'The property does not exist'
                 }, 
                 status=status.HTTP_404_NOT_FOUND)
-        
+    
 
-# ask about this view
 class  UnitsViewSet(APIView):
  
     permission_classes = (IsAuthenticated,) 
@@ -292,8 +344,7 @@ class  UnitsViewSet(APIView):
                 {'error': True, 
                  'message': 'the unit does not exist'
                 }, 
-                status=status.HTTP_404_NOT_FOUND)
-       
+                status=status.HTTP_404_NOT_FOUND)       
        
 
 class TenantViewSet(APIView):
