@@ -28,11 +28,12 @@ class Candidate(models.Model):
     family_income = models.DecimalField(max_digits=19, decimal_places=2, null=False)
     
     length_of_time_at_current_address = models.CharField(max_length=400)
-        
+    
+    max_score = models.IntegerField()      
     number_of_adults = models.IntegerField(null=False)
     number_of_children = models.IntegerField(null=False)
 
-    pets = models.CharField() 
+    pets = models.CharField(max_length=100) 
 
     previous_unit_time = models.CharField(max_length=255)
     preferred_move_in_date = models.DateField(null=False)
@@ -41,7 +42,7 @@ class Candidate(models.Model):
     relevant_information = models.TextField(null=False)
     
     score = models.IntegerField()
-    max_score = models.IntegerField()
+    status = models.IntegerField(default=0)
     
     
     def __str__(self) -> str:

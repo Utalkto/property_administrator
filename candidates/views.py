@@ -53,6 +53,7 @@ SCORE_FOR_NUMBER_OF_RESIDENTS = {
     '4': {'score': 10 } # equal to number of rooms - 3 or less
 }
 
+
 STATIC_FORM_MAX_SCORE = 80
 
 # functions  ------------------------------------------
@@ -97,7 +98,6 @@ def get_candidate_score(unit_capacity:int, form_data:dict) -> int:
     return total_score 
     
 
-
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
@@ -125,6 +125,9 @@ def candidates_form(request, unit_id):
     request.data['expected_renting_duration'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['expected_renting_duration']['str_part']]
     request.data['length_of_time_at_current_address'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['length_of_time_at_current_address']['str_part']]
     request.data['max_score'] = STATIC_FORM_MAX_SCORE
+    
+    # setting the candidate status to default 0
+    request.data['status'] = 0
     
     
     serializer = FormForCandiatesSerializer(request.data)
@@ -163,7 +166,7 @@ def candidates_form(request, unit_id):
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
-def send_invitation_to_candidate(request, unit_id, minimun_score, calendar_link):
+def send_invitations_to_candidates(request, unit_id, minimun_score, calendar_link):
     
     """
     
@@ -198,4 +201,64 @@ def send_invitation_to_candidate(request, unit_id, minimun_score, calendar_link)
             'message': 'invitations sent successfully',
             'sent_to': emails_sent_to
         },status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def approve_candidates(request, candidate_id:int, candidate_status:int):
     
+    """
+    
+    Documentation here
+    
+    """
+    
+    candidate = Candidate.objects.get(id=candidate_id)
+    candidate.status = candidate_status
+    candidate.save()
+    
+    emails_sent_to:dict = {}
+    
+    if candidate_status == 1:
+        email_subject = 'References'
+        email_html = f"""
+                    <html>
+                        <body>
+                            <h1>Dear {candidate.adults_information[adult]['name']}, please send the following references:</h1>
+                            <p>reference 1</p>
+                            <p>reference 2</p>
+                        </body>
+                    </html>
+                    """
+                    
+    # the payment info must be attached 
+    elif candidate_status == 2:
+        email_subject = 'Congratulations'
+        
+        email_html = f"""
+                    <html>
+                        <body>
+                            <h1>Dear {candidate.adults_information[adult]['name']}, you have been approved to live in our unit</h1>
+                            <p>Now the next step is to pay the necessary stuff to continue</p>
+                            <p>Payment info</p>
+                        </body>
+                    </html>
+                    """
+        
+    
+    # (O n time)
+    for index, adult in enumerate(candidate.adults_information):
+        
+        emails_sent_to[f'adult{index}'] = candidate.adults_information[adult]['email']
+
+        SendEmail(
+            send_to= candidate.adults_information[adult]['email'],
+            subject= email_subject,
+            html=email_html)
+    
+    return Response(
+        {
+            'message': 'email(s) sent successfully',
+            'sent_to': emails_sent_to
+        },status=status.HTTP_200_OK)
