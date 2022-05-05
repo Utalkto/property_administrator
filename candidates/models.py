@@ -32,8 +32,7 @@ class Candidate(models.Model):
     number_of_adults = models.IntegerField(null=False)
     number_of_children = models.IntegerField(null=False)
 
-    will_be_pets = models.BooleanField(null=False)
-    pets = models.JSONField()
+    pets = models.CharField() 
 
     previous_unit_time = models.CharField(max_length=255)
     preferred_move_in_date = models.DateField(null=False)
