@@ -1,6 +1,5 @@
 fields to create a new property
 
-
 {
     "landlord": "example11@email.com",
     "address": "address",

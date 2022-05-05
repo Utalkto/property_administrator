@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     
     'register',
     'properties',
+    'candidates',
     
     # third party apps
     

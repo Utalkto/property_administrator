@@ -1,11 +1,4 @@
 # python 
-from email.mime.base import MIMEBase
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email import encoders
-import smtplib, ssl
-from django.http import JsonResponse
-
 # twilio 
 from twilio.rest import Client
 
@@ -25,6 +18,10 @@ from django.db.models import Q
 from properties.models import Properties, Units, Tenants
 from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializer
 from register.models import CustomUser
+
+# modules created for the app
+
+from app_modules.send_email import SendEmail
 
 TEST_TOKEN = 'Token 71ed6e07240ac3c48e44b5a43b5c89e453382f2a'
 
@@ -67,42 +64,24 @@ def vacantUnit(request, id):
         body= twilio_message
     )
     
+
     # email settings
-    email_message = MIMEMultipart('alternative')
-    email_message['Subject'] = 'Move-out Instructions'
-    email_message['From']='hello@orinocoventures.com'
-    
+
     for tenant in tenants_in_unit:
-    
-        # Email communication
-         
-        email_message['To']= tenant.email
+        
+        SendEmail(
+        send_to= tenant.email,
+        subject= f'Move-out Instructions',
         html = f"""
-        <html>
-            <body>
-                <h1>Eviction instructions</h1>
-            </body>
-        </html>
-
-        """
-        html_part = MIMEText(html,'html')
-        email_message.attach(html_part)
-
-        # AJUNTANDO ARCHIVO DE DESALOJO
-        attached = MIMEBase('application', 'octet-stream')
-        attached.set_payload(open('test.pdf', 'rb').read())
-        encoders.encode_base64(attached)
-        attached.add_header('content-Disposition','attachment; filename="test.pdf"')
-        email_message.attach(attached)
-
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL("smtp.hostinger.com", 465, context=context) as server:
-            server.login("hello@orinocoventures.com",'Orinoco2022..' )
-            server.sendmail(
-                from_addr="hello@orinocoventures.com", 
-                to_addrs=tenant.email,
-                msg=email_message.as_string())
-
+                <html>
+                    <body>
+                        <h1>Eviction instructions</h1>
+                    </body>
+                </html>
+                """,
+        attach_file = 'test.pdf'
+        )
+    
 
     return Response({"unit": serializer.data})
 
@@ -135,7 +114,7 @@ class PropertiesViewSet(APIView):
         """
     
         request.data['landlord'] = request.user.id
-        serializer =  PropertiesSerializer(data=request.data)
+        serializer = PropertiesSerializer(data=request.data)
         
         if serializer.is_valid():
             serializer.save()
