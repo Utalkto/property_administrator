@@ -178,3 +178,4 @@ cython_debug/
 # other files
 
 test.pdf
+asana_test.py
