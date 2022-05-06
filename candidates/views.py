@@ -51,11 +51,11 @@ DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION  = {
 
 
 SCORE_FOR_NUMBER_OF_RESIDENTS = {
-    '0': {'score': 0 }, # exceds number of rooms in unit
-    '1': {'score': 3 }, # equal to number of rooms in unit
-    '2': {'score': 6 }, # equal to number of rooms - 1 
-    '3': {'score': 8 }, # equal to number of rooms - 2
-    '4': {'score': 10 } # equal to number of rooms - 3 or less
+    '0': 0, # exceds number of rooms in unit
+    '1': 3, # equal to number of rooms in unit
+    '2': 6, # equal to number of rooms - 1 
+    '3': 8, # equal to number of rooms - 2
+    '4': 10 # equal to number of rooms - 3 or less
 }
 
 
@@ -75,10 +75,10 @@ def get_candidate_score(unit_capacity:int, form_data:dict) -> int:
     
     total_score:int = 0
     
-    total_score += DATA_FOR_HOUSEHOLD[form_data['family_income']['score']]
-    total_score += DATA_FOR_CANDIDATE_PET[form_data['pets']['score']]    
-    total_score += form_data['length_of_time_at_current_address']
-    total_score += form_data['expected_rent_duration']
+    total_score += DATA_FOR_HOUSEHOLD[form_data['family_income']]['score']
+    total_score += DATA_FOR_CANDIDATE_PET[form_data['pets']]['score']   
+    total_score += DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[form_data['length_of_time_at_current_address']]['score']   
+    total_score += DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[form_data['expected_renting_duration']]['score']  
     
 
     number_of_residents = int(form_data['number_of_adults']) + int(form_data['number_of_children']) 
@@ -129,24 +129,22 @@ def candidates_form(request, unit_id):
     
     # converting the data from the form to string so that it can be saved in the databse
     
-    request.data['family_income'] = DATA_FOR_HOUSEHOLD[request.data['family_income']['str_part']]
-    request.data['pets'] = DATA_FOR_CANDIDATE_PET[request.data['pets']['str_part']]
+    request.data['family_income'] = DATA_FOR_HOUSEHOLD[request.data['family_income']]['str_part']
+    request.data['pets'] = DATA_FOR_CANDIDATE_PET[request.data['pets']]['str_part']
     
-    request.data['expected_renting_duration'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['expected_renting_duration']['str_part']]
-    request.data['length_of_time_at_current_address'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['length_of_time_at_current_address']['str_part']]
+    request.data['expected_renting_duration'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['expected_renting_duration']]['str_part']
+    request.data['length_of_time_at_current_address'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['length_of_time_at_current_address']]['str_part']
     request.data['max_score'] = STATIC_FORM_MAX_SCORE
     
     # setting the candidate status to default 0
     request.data['status'] = 0
     
     
-    serializer = FormForCandiatesSerializer(request.data)
-    
-    
+    serializer = FormForCandiatesSerializer(data=request.data)
     
     if serializer.is_valid():
         serializer.save()
-        property_manager_email = current_unit.property_manager # this returns the email of the property manager
+        property_manager_email = current_unit.property_manager.email 
         
         SendEmail(
             send_to= property_manager_email,
@@ -193,6 +191,9 @@ def send_invitations_to_candidates(request, unit_id, minimun_score, calendar_lin
     for candidate in candidates:  
         for index, adult in enumerate(candidate.adults_information):
             
+            
+            
+            
             emails_sent_to[f'adult{index}'] = candidate.adults_information[adult]['email']
 
             SendEmail(
@@ -231,40 +232,40 @@ def approve_candidate(request, candidate_id:int, candidate_status:int):
     candidate.save()
     
     emails_sent_to:dict = {}
-    
-    if candidate_status == 1:
-        attach_file = None
-        
-        email_subject = 'References'
-        email_html = f"""
-                    <html>
-                        <body>
-                            <h1>Dear {candidate.adults_information[adult]['name']}, please send the following references:</h1>
-                            <p>reference 1</p>
-                            <p>reference 2</p>
-                        </body>
-                    </html>
-                    """
-                    
-    # the payment info must be attached 
-    elif candidate_status == 2:
-        attach_file = 'payment-info.pdf'
-        
-        email_subject = 'Congratulations'
-        email_html = f"""
-                    <html>
-                        <body>
-                            <h1>Dear {candidate.adults_information[adult]['name']}, you have been approved to live in our unit</h1>
-                            <p>Now the next step is to pay the necessary stuff to continue</p>
-                        </body>
-                    </html>
-                    """
         
     
     # (O n time)
     for index, adult in enumerate(candidate.adults_information):
         
         emails_sent_to[f'adult{index}'] = candidate.adults_information[adult]['email']
+        
+        if candidate_status == 1:
+            attach_file = None
+            
+            email_subject = 'References'
+            email_html = f"""
+                        <html>
+                            <body>
+                                <h1>Dear {candidate.adults_information[adult]['name']}, please send the following references:</h1>
+                                <p>reference 1</p>
+                                <p>reference 2</p>
+                            </body>
+                        </html>
+                        """
+                        
+        # the payment info must be attached 
+        elif candidate_status == 2:
+            attach_file = 'test.pdf'
+            
+            email_subject = 'Congratulations'
+            email_html = f"""
+                        <html>
+                            <body>
+                                <h1>Dear {candidate.adults_information[adult]['name']}, you have been approved to live in our unit</h1>
+                                <p>Now the next step is to pay the necessary stuff to continue</p>
+                            </body>
+                        </html>
+                    """
 
         SendEmail(
             send_to= candidate.adults_information[adult]['email'],

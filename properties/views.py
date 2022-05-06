@@ -30,32 +30,48 @@ from drf_yasg.utils import swagger_auto_schema
 
 TEST_TOKEN = 'Token 71ed6e07240ac3c48e44b5a43b5c89e453382f2a'
 
+
+# other fucntions
+
+def put_candidate_as_tenant(candidate):
+    
+    for adult in candidate.adults_information:
+        new_tenant = Tenants(
+            landlord=Units.objects.get(id=candidate.unit.id).properties.landlord,
+            unit=Units.objects.get(id=candidate.unit.id),
+            email=candidate.adults_information[adult]['email'],
+            name=candidate.adults_information[adult]['name']
+            )
+        
+        new_tenant.save()
+    return "created"
+
+
 @swagger_auto_schema(
     method='post',
     responses={200: UnitsSerializer()})
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
-def vacantUnit(request, id):
+def vacantUnit(request, unit_id):
     
     """ 
         Summary: Set the vacant of a unit from rented to free and send a message to the landlord notifiying
         him and the instructions for moving out to the tenants
         
         Args:
-            id int: unit id
+            unit_id int: unit unit_id
 
         Returns:
             Serializer Class, dictionary, JSON: list of properties that a landlord has
             
         """
-    unit = Units.objects.get(id=id)
+    unit = Units.objects.get(id=unit_id)
     unit.rented = not unit.rented
     unit.save()
-    serializer = UnitsSerializer(unit)
     
     tenants_in_unit = Tenants.objects.filter(Q(unit=unit.id))
-    landlord = CustomUser.objects.get(id=unit.landlord.id)
+    landlord = CustomUser.objects.get(id=unit.properties.landlord.id) # There is a type here
     
     # Twilio settings 
     # this must change to the app twilio account
@@ -65,7 +81,7 @@ def vacantUnit(request, id):
     # twilio client
     client = Client(account_sid, auth_token)
     
-    twilio_message =  f"The proccess for moving out has started in the next unit:, {unit.name}"
+    twilio_message =  f"The proccess for moving out has started in the next unit:s {unit.name}"
     twilio_message = client.messages.create(
         from_="+19704897499", 
         to=landlord.phone,
@@ -74,8 +90,11 @@ def vacantUnit(request, id):
     
 
     # email settings
-
-    for tenant in tenants_in_unit:
+    emails_sent_to:dict = {}
+    
+    for index, tenant in enumerate(tenants_in_unit):
+        
+        emails_sent_to[f'tenat{index}'] = [tenant.email]
         
         SendEmail(
         send_to= tenant.email,
@@ -91,7 +110,7 @@ def vacantUnit(request, id):
         )
     
 
-    return Response({"unit": serializer.data})
+    return Response({"unit": 'status changed successfully', 'emails_sent_to': emails_sent_to})
 
 
 @api_view(['POST'])
@@ -100,24 +119,36 @@ def vacantUnit(request, id):
 def set_unit_rented(request, candidate_id):
     
     """
-    
     Documentation here
-    
-    
     """
     
     candidate = Candidate.objects.get(id=candidate_id)
-    candidate.status = 2
+    candidate.status = 3
     candidate.save()
     
     unit = Units.objects.get(id=candidate.unit.id)
     unit.rented = True
+    
+    unit.number_of_residents = candidate.number_of_children + candidate.number_of_adults
+    unit.number_of_pets = candidate.pets[0]
+    unit.pets_living = candidate.pets[1:]
+    
+    extra_residents = unit.rooms * 2 - len(candidate.adults_information.keys())
+    
+    if extra_residents < 0:
+        unit.extra_resident = abs(extra_residents)
+    else:
+        unit.extra_resident = 0
     unit.save()
+    
+    
+    put_candidate_as_tenant(candidate) 
     
     
     # TODO: put the unit out of market (facebook marketplace and kijiji)
     
     emails_sent_to: dict = {}
+    
     
     for index, adult in enumerate(candidate.adults_information):
         
@@ -133,7 +164,7 @@ def set_unit_rented(request, candidate_id):
                         </body>
                     </html>
                     """,
-            attach_file='move-in-instructions.pdf'
+            attach_file='test.pdf'
             )
     
     return Response(

@@ -23,9 +23,9 @@ class Candidate(models.Model):
     
     duratin_of_lease = models.CharField(max_length=25, null=False)
     
-    expected_renting_duration = models.IntegerField(null=False)
+    expected_renting_duration = models.CharField(null=False, max_length=100)
     
-    family_income = models.DecimalField(max_digits=19, decimal_places=2, null=False)
+    family_income = models.CharField(max_length=50)
     
     length_of_time_at_current_address = models.CharField(max_length=400)
     

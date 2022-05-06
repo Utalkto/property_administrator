@@ -95,26 +95,26 @@ class Tenants(models.Model):
     date_deposit_received = models.DateField(default=None ,null=True)
     
     email = CharField(max_length=50, default='')
-    email2 = CharField(max_length=50 ,null=True)
-    emergency_contact = CharField(max_length=50, default='phone')
-    emergency_contact_name = CharField(max_length=50,default='', null=True)
+    email2 = CharField(max_length=50, null=True)
+    emergency_contact = CharField(max_length=50, default='')
+    emergency_contact_name = CharField(max_length=50, default='', null=True)
     
-    lease_start_date = models.DateField(default=None ,null=True)
-    lease_expiration_date = models.DateField(default=None ,null=True)
+    lease_start_date = models.DateField(default=None, null=True)
+    lease_expiration_date = models.DateField(default=None, null=True)
     
     payments_delay = IntegerField(default=0)
     payments_on_time = IntegerField(default=0)
     
     name = CharField(max_length=50) 
     
-    phone = CharField(max_length=50, null=False, default='')
-    phone2 = CharField(max_length=50 ,null=True)
+    phone = CharField(max_length=50, null=False)
+    phone2 = CharField(max_length=50 ,null=True, default=None)
     preferred_communications = CharField(max_length=20, default='')
     
-    role= CharField(max_length=50, default='')
+    role = CharField(max_length=50, default='')
     
-    secondary_communications = CharField(max_length=20, default='')
-    standing_qualification=models.IntegerField(default=0 )
+    secondary_communications = CharField(max_length=20, null=True, default=None)
+    standing_qualification=models.IntegerField(default=0)
     
     tenant_type = CharField(max_length=50, default='main')
     
