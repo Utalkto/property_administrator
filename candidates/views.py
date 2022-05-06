@@ -15,6 +15,11 @@ from .models import Candidate
 # modules created for the app
 from app_modules.send_email import SendEmail
 
+
+# swagger
+from drf_yasg.utils import swagger_auto_schema
+
+
 # CONSTANTS
 
 DATA_FOR_HOUSEHOLD = {
@@ -98,7 +103,9 @@ def get_candidate_score(unit_capacity:int, form_data:dict) -> int:
     return total_score 
     
 # ------------------------------------------------------
-
+@swagger_auto_schema(
+    method='post',
+    responses={200: FormForCandiatesSerializer()})
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
@@ -106,12 +113,14 @@ def candidates_form(request, unit_id):
     
     """
     
-    Documentation here     
+    documentation here
+      
     
     
     note: the optional fields that are sent to this view must have a number associated with them 
     
     """
+    
     
     current_unit = Units.objects.get(id=unit_id)
         
@@ -132,6 +141,8 @@ def candidates_form(request, unit_id):
     
     
     serializer = FormForCandiatesSerializer(request.data)
+    
+    
     
     if serializer.is_valid():
         serializer.save()

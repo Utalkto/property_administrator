@@ -25,8 +25,14 @@ from candidates.models import Candidate
 # modules created for the app
 from app_modules.send_email import SendEmail
 
+from drf_yasg.utils import swagger_auto_schema
+
+
 TEST_TOKEN = 'Token 71ed6e07240ac3c48e44b5a43b5c89e453382f2a'
 
+@swagger_auto_schema(
+    method='post',
+    responses={200: UnitsSerializer()})
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
@@ -143,7 +149,8 @@ class PropertiesViewSet(APIView):
     
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
-    
+    @swagger_auto_schema(
+    responses={200: PropertiesSerializer()})
     def get(self, request):
         """ 
         Summary: Get all properties a landord has 
@@ -158,6 +165,8 @@ class PropertiesViewSet(APIView):
         return Response(serializer.data)
     
 
+    @swagger_auto_schema(
+    responses={200: PropertiesSerializer()})
     def post(self, request):
         """
         Summary: create new property 
@@ -186,6 +195,8 @@ class PropertiesViewSet(APIView):
                 status=status.HTTP_400_BAD_REQUEST)
     
     
+    @swagger_auto_schema(
+    responses={200: PropertiesSerializer()})
     def put(self, request, id):
         
         """
@@ -233,14 +244,15 @@ class PropertiesViewSet(APIView):
             _property.delete()
             return Response(
                 {
-                 "message": "The property has been deleted"
+                'message': 'The property has been deleted'
                 }, 
                 status=status.HTTP_200_OK)
         
         except Properties.DoesNotExist:  
             return Response(
-                {'error': True, 
-                 'mensaje': 'The property does not exist'
+                {
+                'error': True, 
+                'mensaje': 'The property does not exist'
                 }, 
                 status=status.HTTP_404_NOT_FOUND)
     
@@ -250,6 +262,8 @@ class  UnitsViewSet(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
     
+    @swagger_auto_schema(
+    responses={200: UnitsSerializer()})
     def get(self,request,id):
         
         try:
@@ -268,14 +282,14 @@ class  UnitsViewSet(APIView):
                 status=status.HTTP_404_NOT_FOUND)
         
     
+    @swagger_auto_schema(
+    responses={200: UnitsSerializer()})
     def post(self, request):
 
         try: 
             request.data['landlord'] = request.user.id
             
-            # !!! 
             _property = Properties.objects.get(id=request.data['landlord'])
-            # here can be an error, this should be in the serializer?
             
             serializer =  UnitsSerializer(data=request.data)
             
@@ -300,6 +314,8 @@ class  UnitsViewSet(APIView):
             return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
 
     
+    @swagger_auto_schema(
+    responses={200: UnitsSerializer()})
     def put(self, request, id):
         
         try:
@@ -327,7 +343,6 @@ class  UnitsViewSet(APIView):
                  }, 
                 status=status.HTTP_404_NOT_FOUND)
 
-
     def delete(self, request, id):
         
         try:
@@ -352,6 +367,8 @@ class TenantViewSet(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
     
+    @swagger_auto_schema(
+    responses={200: TenantSerializer()})
     def post(self, request):
 
         try: 

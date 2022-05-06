@@ -30,8 +30,9 @@ class Properties(models.Model):
 
 class Units(models.Model):
     # foreign keys 
-    
-    landlord = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
+     
+    # here used to be landlord
+    property_manager = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
     # property_manager = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
     
     properties = models.ForeignKey(Properties, null=False, blank=False ,on_delete=models.CASCADE)
