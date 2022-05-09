@@ -3,7 +3,6 @@
 from rest_framework.response import Response
 from rest_framework import status, authentication, permissions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from django.db.models import Q
 
 # serializers 
 from .serializers import FormForCandiatesSerializer
@@ -101,6 +100,7 @@ def get_candidate_score(unit_capacity:int, form_data:dict) -> int:
         total_score += SCORE_FOR_NUMBER_OF_RESIDENTS['4']
         
     return total_score 
+   
     
 # ------------------------------------------------------
 @swagger_auto_schema(

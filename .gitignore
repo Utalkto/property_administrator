@@ -177,5 +177,7 @@ cython_debug/
 
 # other files
 
-test.pdf
+test-converted.pdf
 asana_test.py
+calendly_api_test.py
+savvy_test.py

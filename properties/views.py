@@ -87,7 +87,7 @@ def vacantUnit(request, unit_id):
         to=landlord.phone,
         body= twilio_message
     )
-    
+
 
     # email settings
     emails_sent_to:dict = {}
