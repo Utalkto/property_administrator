@@ -2,17 +2,28 @@ from django.db import models
 from django.db.models.fields import CharField, BooleanField, IntegerField, TextField, DecimalField, DateField
 from register.models import CustomUser
 
+# main tables 
+
+class Countries(models.Model):
+    country = models.CharField(max_length=100)
+    
+
+class Cities(models.Model):
+    # Foreign key
+    country = models.ForeignKey(Countries, null=False, blank=False, on_delete=models.CASCADE)
+    # --------------------------------
+    # fields
+    city = models.CharField(max_length=100)    
+
+
 class Properties(models.Model):
     # foreign keys 
     landlord = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
-    
+    city = models.ForeignKey(Cities, null=False, blank=False ,on_delete=models.CASCADE, default=1)
     # ------------------------------
     # fields 
     address = CharField(max_length=400)
     coordinates = models.JSONField()
-    
-    country = CharField(max_length=50)
-    city = CharField(max_length=100)
     
     img = models.ImageField(upload_to='properties')
     maps_url =  models.URLField(default='')
@@ -35,7 +46,7 @@ class Units(models.Model):
     property_manager = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
     # property_manager = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
     
-    properties = models.ForeignKey(Properties, null=False, blank=False ,on_delete=models.CASCADE)
+    property = models.ForeignKey(Properties, null=False, blank=False ,on_delete=models.CASCADE)
     
     #  ------------------------------------
     #  fields
@@ -79,7 +90,7 @@ class Units(models.Model):
     square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
     shed = BooleanField(default=False)
     
-    tenant = models.IntegerField(default=0)
+    tenant_id = models.IntegerField(default=0)
     
     unit_type = CharField(max_length=100) 
 
@@ -118,4 +129,16 @@ class Tenants(models.Model):
     
     tenant_type = CharField(max_length=50, default='main')
     
+
+class Links(models.Model):
+    
+    # Foreign key
+    unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    # --------------------------------
+    # fields
+    
+    
+    link = models.CharField(max_length=500)
+    link_name = models.CharField(max_length=150)
+    link_type = models.CharField(max_length=150)
     

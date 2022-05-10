@@ -63,7 +63,7 @@ def vacantUnit(request, unit_id):
             unit_id int: unit unit_id
 
         Returns:
-            Serializer Class, dictionary, JSON: list of properties that a landlord has
+            Serializer Class, dictionary, JSON: list of properties that a landlord has # change here 
             
         """
     unit = Units.objects.get(id=unit_id)
@@ -71,7 +71,7 @@ def vacantUnit(request, unit_id):
     unit.save()
     
     tenants_in_unit = Tenants.objects.filter(Q(unit=unit.id))
-    landlord = CustomUser.objects.get(id=unit.properties.landlord.id) # There is a type here
+    landlord = CustomUser.objects.get(id=unit.properties.landlord.id) # There is a typo here
     
     # Twilio settings 
     # this must change to the app twilio account
@@ -373,6 +373,7 @@ class  UnitsViewSet(APIView):
                  'message': 'the unit does not exist'
                  }, 
                 status=status.HTTP_404_NOT_FOUND)
+
 
     def delete(self, request, id):
         

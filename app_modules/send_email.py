@@ -37,9 +37,9 @@ class SendEmail:
 
         # gmail app password : xbttxlrqhiwrdxux
         context = ssl.create_default_context()
+        
         with smtplib.SMTP_SSL("smtp.hostinger.com", 465, context=context) as server:
             server.login("hello@orinocoventures.com",'OrinocoV2022..' )
-            server.login("andresruse18@gmail.com",'xbttxlrqhiwrdxux' )
             
             server.sendmail(
                 from_addr="hello@orinocoventures.com", 
@@ -49,16 +49,5 @@ class SendEmail:
         return 'email sent'
    
 
-SendEmail(
-        send_to= 'andresruse18@hotmail.com',
-        subject= f'Move-out Instructions',
-        html = f"""
-                <html>
-                    <body>
-                        <h1>Eviction instructions</h1>
-                    </body>
-                </html>
-                """,
-        attach_file = 'test-converted.pdf'
-        )
+
 

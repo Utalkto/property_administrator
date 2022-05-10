@@ -65,8 +65,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     username = models.CharField(max_length=255, unique=True)
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username", "first_name", "last_name"]
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["first_name", "last_name", "email"]
 
     def get_full_name(self):
         return f"{self.first_name} - {self.last_name}"

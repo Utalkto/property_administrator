@@ -1,19 +1,29 @@
+# python
+
+import email
+import validators
+import requests
+
 # django
 
 from rest_framework.response import Response
 from rest_framework import status, authentication, permissions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+from django.core.exceptions import ObjectDoesNotExist
 
 # serializers 
-from .serializers import FormForCandiatesSerializer
+from .serializers import CandiatesSerializer
 
-# modules
-from properties.models import Units
+# models
+from properties.models import Units, Links
 from .models import Candidate
 
 # modules created for the app
 from app_modules.send_email import SendEmail
-
 
 # swagger
 from drf_yasg.utils import swagger_auto_schema
@@ -60,9 +70,13 @@ SCORE_FOR_NUMBER_OF_RESIDENTS = {
 
 STATIC_FORM_MAX_SCORE = 80
 
+
+CALENDLY_ACCESS_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNjUxODYzNzc5LCJqdGkiOiIzZDA2ZWJhNy02MmI0LTQwZjQtOTg2NC05MDVhMTNkMWIyYjkiLCJ1c2VyX3V1aWQiOiI1YzljOGZhOS0zODZkLTQxZWUtOWRkYi1jOGNlMGMzMzU4OWEifQ.2WNLz3DYgd8vq-FXg7RiECGnL5lON879bOgVVnLApMk'
+CALENDLY_USER_ID = '5c9c8fa9-386d-41ee-9ddb-c8ce0c33589a'
+
 # functions  ------------------------------------------
 
-def get_candidate_score(unit_capacity:int, form_data:dict) -> int: 
+def get_candidate_score_from_form(unit_capacity:int, form_data:dict) -> int: 
     
     """
     
@@ -101,100 +115,113 @@ def get_candidate_score(unit_capacity:int, form_data:dict) -> int:
         
     return total_score 
    
+
+def get_candidates_with_viewing(unit_id:int) -> list:
     
+    candidates_to_event = []
+    
+    # first get the event that were set in calendly 
+    list_event_url = "https://api.calendly.com/scheduled_events"
+    querystring = {"user":f"https://api.calendly.com/users/{CALENDLY_USER_ID}","count":"40"}
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNjUxODYzNzc5LCJqdGkiOiIzZDA2ZWJhNy02MmI0LTQwZjQtOTg2NC05MDVhMTNkMWIyYjkiLCJ1c2VyX3V1aWQiOiI1YzljOGZhOS0zODZkLTQxZWUtOWRkYi1jOGNlMGMzMzU4OWEifQ.2WNLz3DYgd8vq-FXg7RiECGnL5lON879bOgVVnLApMk"
+    }
+
+    event_response = requests.request("GET", list_event_url, headers=headers, params=querystring).json()['collection']
+    
+    candidates = list(Candidate.objects.filter(unit=unit_id))
+    
+    # iterate through each event to get info
+    for event in event_response:
+        
+        event_id = event['uri'][42:]
+        event_id_url = f"https://api.calendly.com/scheduled_events/{event_id}/invitees"
+        
+        date = event['start_time']
+        
+        # we get the invitee email and look for it in the database
+        invitee_email = requests.request("GET", event_id_url, headers=headers).json()['collection'][0]['email']
+        
+        found = False
+        
+        for index, candidate in enumerate(candidates):
+            for adult in candidate.adults_information:
+                if invitee_email == candidate.adults_information[adult]['email']:
+                    candidate_to_event = {
+                    'date': date,
+                    'candidate': CandiatesSerializer(candidate).data
+                    }
+                    candidates_to_event.append(candidate_to_event)
+                    candidates.pop(index)
+                    found = True
+                    break
+                
+            if found:
+                break
+        
+        if not found:
+            candidate_to_event = {
+                'date': None,
+                'candidate': f'the following email {invitee_email} is not associeted with no candidates'
+                }
+        
+            candidates_to_event.append(candidate_to_event)
+    
+    return candidates_to_event
+   
 # ------------------------------------------------------
-@swagger_auto_schema(
-    method='post',
-    responses={200: FormForCandiatesSerializer()})
-@api_view(['POST'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
-def candidates_form(request, unit_id):
-    
-    """
-    
-    documentation here
-      
-    
-    
-    note: the optional fields that are sent to this view must have a number associated with them 
-    
-    """
-    
-    
-    current_unit = Units.objects.get(id=unit_id)
-        
-    # calculating the score a candidate has gotten
-    request.data['score'] = get_candidate_score(unit_capacity= current_unit.rooms * 2, form_data=request.data)
-    
-    # converting the data from the form to string so that it can be saved in the databse
-    
-    request.data['family_income'] = DATA_FOR_HOUSEHOLD[request.data['family_income']]['str_part']
-    request.data['pets'] = DATA_FOR_CANDIDATE_PET[request.data['pets']]['str_part']
-    
-    request.data['expected_renting_duration'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['expected_renting_duration']]['str_part']
-    request.data['length_of_time_at_current_address'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['length_of_time_at_current_address']]['str_part']
-    request.data['max_score'] = STATIC_FORM_MAX_SCORE
-    
-    # setting the candidate status to default 0
-    request.data['status'] = 0
-    
-    
-    serializer = FormForCandiatesSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        serializer.save()
-        property_manager_email = current_unit.property_manager.email 
-        
-        SendEmail(
-            send_to= property_manager_email,
-            subject= f'There is a new canditate interested in {current_unit.name}',
-            html = f"""
-                    <html>
-                        <body>
-                            <h1>New candidate interested to rent a unit</h1>
-                        </body>
-                    </html>
-                    """
-            )
-            
-        return Response(
-            {
-                'message': 'Form received'
-            }, 
-            status=status.HTTP_200_OK
-            )
-            
-    else:
-        return Response({
-            'error': True,
-            'message': 'serializer is not valid',
-            'serializer_error': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
-def send_invitations_to_candidates(request, unit_id, minimun_score, calendar_link):
+def send_invitations_to_candidates(request, unit_id, minimun_score, candidate_id):
     
     """
     
-    Documentation here 
+    summary: send invation to one or more candiate to view the unit
+    
+    calendar_link <str> : the link provided by the property manager that is going to use to send
+    to the candidates, this str has to be a valid url, in case it is not a valid url, it must be a
+    number indicating the id of the link previously provided and is stored in the data base (properties.Links) 
     
     """
     
-    candidates = Candidate.objects.filter(unit=unit_id, score__gte=minimun_score)
+    # test link : 'https://calendly.com/amelendes-1/viewing-test'
+    
+    calendar_link = request.data['calendar_link']
+    
+    if not validators.url(calendar_link):
+        try:
+            calendar_link = Links.objects.get(id=int(calendar_link))
+        except ObjectDoesNotExist:
+            return Response(
+                {
+                    'error': True,
+                    'message':'the provided link is no valid'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if 'save_link' in request.data.keys():
+            calendar_link.save()
+            
+    # getting just one candiate to invite to the viewing
+    if int(candidate_id) != 0:
+        candidates = Candidate.objects.filter(id=candidate_id)
+    
+    # getting more than one candidate to invite to the viewing 
+    else:
+        candidates = Candidate.objects.filter(unit=unit_id, score__gte=minimun_score)
+        
     emails_sent_to:dict = {}
     
     # (O n time)
-    for candidate in candidates:  
+    for candidate_index, candidate in enumerate(candidates):  
+        emails_sent_to[f'candidate{candidate_index}'] = {}
         for index, adult in enumerate(candidate.adults_information):
             
-            
-            
-            
-            emails_sent_to[f'adult{index}'] = candidate.adults_information[adult]['email']
+            emails_sent_to[f'candidate{candidate_index}'][f'adult{index}'] = candidate.adults_information[adult]['email']
 
             SendEmail(
                 send_to= candidate.adults_information[adult]['email'],
@@ -254,7 +281,7 @@ def approve_candidate(request, candidate_id:int, candidate_status:int):
                         """
                         
         # the payment info must be attached 
-        elif candidate_status == 2:
+        elif candidate_status == 3:
             attach_file = 'test.pdf'
             
             email_subject = 'Congratulations'
@@ -279,3 +306,162 @@ def approve_candidate(request, candidate_id:int, candidate_status:int):
             'message': 'email(s) sent successfully',
             'sent_to': emails_sent_to
         },status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def manual_information_review(request, candidate_id, candidate_score):
+    
+    candidate = Candidate.objects.get(id=candidate_id)
+    candidate.manual_questions_reviewed = True
+    candidate.score += candidate_score 
+    candidate.save()
+    
+    return Response(
+        {
+            'message': 'successfull'
+        }, status=status.HTTP_200_OK)
+
+
+class CandidatesViewSet(APIView):
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,) 
+    
+    @swagger_auto_schema(
+    responses={200: CandiatesSerializer()})
+    def get(self, request, unit_id):
+        
+        if request.data['have_viewing_appoinments']:
+            candidates = get_candidates_with_viewing(unit_id=unit_id)
+            return Response({'candidates': candidates})
+        
+        if request.data['pending_payments']:
+            candidates = Candidate.objects.filter(unit=unit_id, status=3)
+            return Response({'candidates': candidates.data})
+        else:
+            try:
+                if int(request.data['rejected']) == 0:
+                    candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'])
+                else:
+                    candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'], rejected=True)
+            
+            except ObjectDoesNotExist:
+                return Response(
+                    {
+                        'message': 'the candidate does not exits'
+                    }, status=status.HTTP_200_OK)
+
+        if len(candidates) > 1:
+            many = True
+        else:
+            many = False
+        
+        
+        serializer = CandiatesSerializer(candidates, many=many)
+        return Response({'candidates': serializer.data}, status=status.HTTP_200_OK)
+    
+    
+    
+    @swagger_auto_schema(
+    responses={200: CandiatesSerializer()})
+    def post(self, request, unit_id):
+        """
+        
+        note: the optional fields that are sent to this view must have a number associated with them 
+        
+        """
+        try:
+            current_unit = Units.objects.get(id=unit_id)
+        except ObjectDoesNotExist:
+            return Response(
+                {
+                    'error': True,
+                    'message': f'unit with id {unit_id} does not exist'
+                }, status=status.HTTP_404_NOT_FOUND
+                )
+            
+        # calculating the score a candidate has gotten
+        request.data['score'] = get_candidate_score_from_form(unit_capacity=current_unit.rooms * 2, form_data=request.data)
+        
+        # converting the data from the form to string so that it can be saved in the databse
+        request.data['family_income'] = DATA_FOR_HOUSEHOLD[request.data['family_income']]['str_part']
+        request.data['pets'] = DATA_FOR_CANDIDATE_PET[request.data['pets']]['str_part']
+        
+        request.data['expected_renting_duration'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['expected_renting_duration']]['str_part']
+        request.data['length_of_time_at_current_address'] = DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION[request.data['length_of_time_at_current_address']]['str_part']
+        request.data['max_score'] = STATIC_FORM_MAX_SCORE
+        
+        # setting the candidate status to default 0
+        request.data['status'] = 0
+        
+        serializer = CandiatesSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            property_manager_email = current_unit.property_manager.email 
+            
+            SendEmail(
+                send_to= property_manager_email,
+                subject= f'There is a new canditate interested in {current_unit.name}',
+                html = f"""
+                        <html>
+                            <body>
+                                <h1>New candidate interested to rent a unit</h1>
+                            </body>
+                        </html>
+                        """
+                )
+                
+            return Response(
+                {
+                    'message': 'Form received'
+                }, 
+                status=status.HTTP_200_OK
+                )
+                
+        else:
+            return Response({
+                'error': True,
+                'message': 'serializer is not valid',
+                'serializer_error': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    def put(self, request, candidate_id):
+        
+        """
+        
+        _summary_ : update a candidate, here the candidates can be set to rejected or in case the 
+        references where checked or anything that is needed
+
+        Returns:
+            _type_: _description_
+        """
+        
+        candidate = Units.objects.get(id=candidate_id)
+        serializer = CandiatesSerializer(instance=candidate, data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(
+                {
+                    'error': True, 
+                    'message': 'serializer is not valid', 
+                    'serializer_error': serializer.errors
+                },
+                status=status.HTTP_400_BAD_REQUEST)
+            
+            
+    def delete(self, request, unit_id, candidate_id):
+        if int(candidate_id) == 0:
+            Candidate.objects.filter(unit=unit_id).delete()
+        else:
+            c = Candidate.objects.get(id=candidate_id)
+            c.delete()
+        
+        return Response({'message: candidate(s) deleted successfully'}, status=status.HTTP_200_OK)
+        
+        
