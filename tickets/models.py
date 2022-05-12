@@ -4,51 +4,53 @@ from properties.models import Tenants, Units
 # ID OF EACH TABLE (EXCEPT FOR TICKET) WILL BE THE VALUE IN THE OPTIONS DISPLAYED IN FRONT 
 
 class TicketType(models.Model):
-    ticket_type = models.CharField(max_length=120)
+    _string = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return self.ticket_type
+        return self._string
 
    
 # tables for maintanence  
    
 class MaintanenceType(models.Model):
     ticket_type = models.ForeignKey(TicketType, null=False, on_delete=models.CASCADE)
-    maintanence_type = models.CharField(max_length=120)
+    
+    _string = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return self.maintanence_type
+        return self._string
     
 
 class MaintanenceIssueType(models.Model):
     maintanence_type = models.ForeignKey(MaintanenceType, null=False, on_delete=models.CASCADE)
-    issue_type = models.CharField(max_length=120)
+    
+    _string = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return self.issue_type
+        return self._string
     
 
 # here would be the part of the appliance that is failing 
 class MaintanenceSubIssueType(models.Model):
-    maintanence_issue_sub_type = models.ForeignKey(MaintanenceIssueType, null=False, on_delete=models.CASCADE)
-    sub_issue_description = models.CharField(max_length=120)
+    maintanence_issue_type = models.ForeignKey(MaintanenceIssueType, null=False, on_delete=models.CASCADE)
+    _string = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return self.sub_issue_description   
+        return self._string   
     
     
 class MaintanenceIssueDescription(models.Model):
-    maintanence_issue_type = models.ForeignKey(MaintanenceSubIssueType, null=False, on_delete=models.CASCADE)
-    issue_description = models.CharField(max_length=120)
+    maintanence_issue_sub_type = models.ForeignKey(MaintanenceSubIssueType, null=False, on_delete=models.CASCADE)
+    _string = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return self.issue_description
+        return self._string
 
 # ----------------------------------------
 
 class TicketAction(models.Model):
     issue_description = models.ForeignKey(MaintanenceIssueDescription, null=False, on_delete=models.CASCADE, default=1)
-    action = models.CharField(max_length=120)
+    _string = models.CharField(max_length=120)
     
     # action_id = models.CharField(max_length=120, default=(str(uuid.uuid4)))
     

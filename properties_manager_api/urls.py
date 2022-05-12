@@ -41,7 +41,7 @@ urlpatterns = [
    # path('api/v1/', include('payments.urls')),
    
    # tickets module with django 
-   path('tickets', include('tickets.urls')),
+   path('tickets/', include('tickets.urls')),
    
     
    # drf urls

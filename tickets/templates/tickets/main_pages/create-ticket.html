@@ -1,0 +1,77 @@
+{% extends 'tickets/templates/base.html' %}
+
+{% block title %}
+Create tickets
+{% endblock %}
+
+<!-- LOCAL FILES -->
+{% load static  %}
+
+{% block local_files %}
+<link href="{% static '/plugins/jquery-steps/css/jquery.steps.css' %}" rel="stylesheet">
+<link href="{% static 'css/style.css' %}" rel="stylesheet">
+{% endblock %}
+
+<!-- MAIN CONTENT -->
+
+{% block main_content %}
+
+{% csrf_token %}
+<!--**********************************
+    Content body start
+***********************************-->
+<div class="content-body">
+
+    <div class="row page-titles mx-0">
+        <div class="col p-md-0">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+            </ol>
+        </div>
+    </div>
+    <!-- row -->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <form action="#" id="step-form-horizontal" class="step-form-horizontal">
+                    <div>
+                        <h4 id="section-name">Maintenance Type</h4>
+                        <section id="section-fields">
+
+                            <div class="row" id="buttons-section">
+                                {% for key, value in form_fields.items %}
+
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <button onclick="nextStage(_nextStage=2, optionSelected='{{value.id}}', branchSelected='{{branch_selected}}')" type="button" class="form-control" style="cursor: pointer;">{{value.string}}</button>
+                                    </div>
+                                </div>
+
+                                {% endfor %}
+                            </div>
+
+                        </section>
+            
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- #/ container -->
+</div>
+<!--**********************************
+    Content body end
+***********************************-->
+{% endblock %}
+
+{% block local_js %}
+<script src="{% static 'plugins/jquery-steps/build/jquery.steps.min.js' %}"></script>
+<script src="{% static 'plugins/jquery-validation/jquery.validate.min.js' %}"></script>
+<!-- <script src="{% static 'js/plugins-init/jquery-steps-init.js' %}"></script> -->
+
+<script src="{% static 'js/create-ticket/createTicket.js' %}"></script>
+
+{% endblock %}
+

@@ -62,6 +62,8 @@ class Properties(models.Model):
     year_built = IntegerField()
     year_bought = IntegerField()
     
+    # TODO: add new field, how many properties there are
+    
 
 class Units(models.Model):
     # foreign keys 
