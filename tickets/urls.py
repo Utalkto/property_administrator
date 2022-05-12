@@ -1,10 +1,10 @@
 from django.urls import path
 
-from .views import main_dashboard
+from .views import home
 
 urlpatterns = [
     
-    path('', main_dashboard)
+    path('', home)
     
     # path('properties',PropertiesViewSet.as_view()),
     # path('properties/<int:id>',PropertiesViewSet.as_view()),

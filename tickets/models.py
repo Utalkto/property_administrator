@@ -5,18 +5,59 @@ from properties.models import Tenants, Units
 
 class TicketType(models.Model):
     ticket_type = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return self.ticket_type
 
    
-class SubTicketType(models.Model):
-    sub_ticket_type = models.CharField(max_length=120)
+# tables for maintanence  
+   
+class MaintanenceType(models.Model):
+    ticket_type = models.ForeignKey(TicketType, null=False, on_delete=models.CASCADE)
+    maintanence_type = models.CharField(max_length=120)
     
-    
-class TicketIssue(models.Model):
-    issue = models.CharField(max_length=120)
+    def __str__(self) -> str:
+        return self.maintanence_type
     
 
+class MaintanenceIssueType(models.Model):
+    maintanence_type = models.ForeignKey(MaintanenceType, null=False, on_delete=models.CASCADE)
+    issue_type = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return self.issue_type
+    
+
+# here would be the part of the appliance that is failing 
+class MaintanenceSubIssueType(models.Model):
+    maintanence_issue_sub_type = models.ForeignKey(MaintanenceIssueType, null=False, on_delete=models.CASCADE)
+    sub_issue_description = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return self.sub_issue_description   
+    
+    
+class MaintanenceIssueDescription(models.Model):
+    maintanence_issue_type = models.ForeignKey(MaintanenceSubIssueType, null=False, on_delete=models.CASCADE)
+    issue_description = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return self.issue_description
+
+# ----------------------------------------
+
 class TicketAction(models.Model):
+    issue_description = models.ForeignKey(MaintanenceIssueDescription, null=False, on_delete=models.CASCADE, default=1)
     action = models.CharField(max_length=120)
+    
+    # action_id = models.CharField(max_length=120, default=(str(uuid.uuid4)))
+    
+    def __str__(self) -> str:
+        return self.action
+    
+
+# class TicketIssue(models.Model):
+#     issue = models.CharField(max_length=120)
     
 
 class Ticket(models.Model):

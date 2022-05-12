@@ -206,9 +206,12 @@ class PropertiesViewSet(APIView):
         Returns:
             JSON: saying if it was a success
         """
-    
-        request.data['landlord'] = request.user.id
-        serializer = PropertiesSerializer(data=request.data)
+        data = request.data.copy()
+        
+        data['landlord'] =  request.user.id
+        
+        
+        serializer = PropertiesSerializer(data=data)
         
         if serializer.is_valid():
             serializer.save()
