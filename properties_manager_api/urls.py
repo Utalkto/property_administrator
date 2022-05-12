@@ -38,6 +38,11 @@ urlpatterns = [
    path('api/v1/', include('register.urls')),
    path('api/v1/', include('properties.urls')),
    path('api/v1/', include('candidates.urls')),
+   # path('api/v1/', include('payments.urls')),
+   
+   # tickets module with django 
+   path('tickets', include('tickets.urls')),
+   
     
    # drf urls
     

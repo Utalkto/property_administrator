@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'register',
     'properties',
     'candidates',
+    'payments',
+    'tickets',
     
     # third party apps
     
