@@ -18,6 +18,6 @@ from rest_framework.response import Response
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def get_role(request, format=None):
-    data = {'role': request.user.role}
+    data = {'role': request.user.role.role}
     return Response(data, status=status.HTTP_200_OK)
     

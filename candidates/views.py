@@ -1,6 +1,5 @@
 # python
 
-import email
 import validators
 import requests
 
@@ -14,6 +13,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from django.core.exceptions import ObjectDoesNotExist
+
+from register.models import CustomUser
 
 # serializers 
 from .serializers import CandiatesSerializer
@@ -173,46 +174,64 @@ def get_candidates_with_viewing(unit_id:int) -> list:
    
 # ------------------------------------------------------
 
-
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
-def send_invitations_to_candidates(request, unit_id, minimun_score, candidate_id):
+def send_invitations_to_candidates(request, unit_id):
     
     """
     
     summary: send invation to one or more candiate to view the unit
     
-    calendar_link <str> : the link provided by the property manager that is going to use to send
-    to the candidates, this str has to be a valid url, in case it is not a valid url, it must be a
-    number indicating the id of the link previously provided and is stored in the data base (properties.Links) 
+    unit_id <int> : the united id the candidate is applying to 
     
+    
+    body : { 
+        calendar_link <str> <required> : the link provided by the property manager that is going to use to send
+        to the candidates, this str has to be a valid url, in case it is not a valid url, it must be a
+        number indicating the id of the link previously provided and is stored in the data base (CutsomUser.Links) 
+        
+        
+        save_link <bool> <optional> : field in case the user wants to save the link in the database
+        
+        minimun_score <int> <optional> : when the property manager wants to invite more than one candidate at the same time,
+        the minimun score of the candidates that will receive the invitation must be provided
+        
+        candidate_id <int> <optional> : it must be provided to invitate one specific candidate
+
+        }
     """
     
-    # test link : 'https://calendly.com/amelendes-1/viewing-test'
+    # link test : 'https://calendly.com/amelendes-1/viewing-test'
     
     calendar_link = request.data['calendar_link']
     
-    if not validators.url(calendar_link):
+    if not validators.url(str(calendar_link)):
         try:
             calendar_link = Links.objects.get(id=int(calendar_link))
         except ObjectDoesNotExist:
             return Response(
                 {
                     'error': True,
-                    'message':'the provided link is no valid'
+                    'message':'the selected link does not exist'
                 }, status=status.HTTP_400_BAD_REQUEST)
         
-        if 'save_link' in request.data.keys():
-            calendar_link.save()
+    if 'save_link' in request.data.keys():
+        new_link = Links(
+            owner=CustomUser.objects.get(id=request.user.id),
+            link=calendar_link, 
+            link_name=request.data['link_name'], 
+            link_type='invitation_link')
+        new_link.save()
             
-    # getting just one candiate to invite to the viewing
-    if int(candidate_id) != 0:
-        candidates = Candidate.objects.filter(id=candidate_id)
+    # getting just one candiate to invitate to the viewing
+    # used filter here to be able to perform the for loop without changing so much 
+    if 'candidate_id' in request.data.keys():
+        candidates = Candidate.objects.filter(id=int(request.data['candidate_id']))
     
-    # getting more than one candidate to invite to the viewing 
+    # getting more than one candidate to invitate to the viewing 
     else:
-        candidates = Candidate.objects.filter(unit=unit_id, score__gte=minimun_score)
+        candidates = Candidate.objects.filter(unit=unit_id, score__gte=int(request.data['minimun_score']))
         
     emails_sent_to:dict = {}
     
@@ -332,35 +351,29 @@ class CandidatesViewSet(APIView):
     responses={200: CandiatesSerializer()})
     def get(self, request, unit_id):
         
-        if request.data['have_viewing_appoinments']:
+        if 'have_viewing_appoinments' in request.data.keys():
             candidates = get_candidates_with_viewing(unit_id=unit_id)
             return Response({'candidates': candidates})
         
-        if request.data['pending_payments']:
+        if 'pending_payments' in request.data.keys():
             candidates = Candidate.objects.filter(unit=unit_id, status=3)
             return Response({'candidates': candidates.data})
         else:
-            try:
-                if int(request.data['rejected']) == 0:
-                    candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'])
-                else:
-                    candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'], rejected=True)
             
-            except ObjectDoesNotExist:
-                return Response(
-                    {
-                        'message': 'the candidate does not exits'
-                    }, status=status.HTTP_200_OK)
+            if 'rejected' in request.data.keys():
+                candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'], rejected=True)
+            else:
+                candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'])
 
-        if len(candidates) > 1:
-            many = True
-        else:
-            many = False
+        if not candidates:
+            return Response(
+                {
+                    'message': 'no candidates meet the provided requirements'
+                }, status=status.HTTP_404_NOT_FOUND)
+
         
-        
-        serializer = CandiatesSerializer(candidates, many=many)
+        serializer = CandiatesSerializer(candidates, many=True)
         return Response({'candidates': serializer.data}, status=status.HTTP_200_OK)
-    
     
     
     @swagger_auto_schema(
@@ -432,15 +445,18 @@ class CandidatesViewSet(APIView):
         
         """
         
-        _summary_ : update a candidate, here the candidates can be set to rejected or in case the 
-        references where checked or anything that is needed
-
+        _summary_ : function to update a candidate
         Returns:
             _type_: _description_
         """
         
-        candidate = Units.objects.get(id=candidate_id)
-        serializer = CandiatesSerializer(instance=candidate, data=request.data)
+        candidate = Candidate.objects.get(id=candidate_id)
+
+        if 'score' in request.data.keys():
+            request.data['score'] += candidate.score
+        
+        
+        serializer = CandiatesSerializer(candidate, data=request.data, partial=True)
         
         if serializer.is_valid():
             serializer.save()

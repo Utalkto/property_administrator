@@ -4,24 +4,48 @@ from register.models import CustomUser
 
 # main tables 
 
-class Countries(models.Model):
+class PropertyTypes(models.Model):
+    property_type = models.CharField(max_length=100)
+    
+    def __str__(self) -> str:
+        return self.property_type
+
+
+class UnitTypes(models.Model):
+    unit_type = models.CharField(max_length=100)
+    
+    def __str__(self) -> str:
+        return self.unit_type
+
+
+class PropertyCountries(models.Model):
     country = models.CharField(max_length=100)
     
+    def __str__(self) -> str:
+        return self.country
+    
 
-class Cities(models.Model):
+class PropertyCities(models.Model):
     # Foreign key
-    country = models.ForeignKey(Countries, null=False, blank=False, on_delete=models.CASCADE)
+    country = models.ForeignKey(PropertyCountries, null=False, blank=False, on_delete=models.CASCADE)
     # --------------------------------
     # fields
-    city = models.CharField(max_length=100)    
+    
+    city = models.CharField(max_length=100)   
+    
+    def __str__(self) -> str:
+        return self.city 
 
 
 class Properties(models.Model):
     # foreign keys 
     landlord = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
-    city = models.ForeignKey(Cities, null=False, blank=False ,on_delete=models.CASCADE, default=1)
+    city = models.ForeignKey(PropertyCities, null=False, blank=False ,on_delete=models.CASCADE)
+    _property_type = models.ForeignKey(PropertyTypes, null=False, blank=False, on_delete=models.CASCADE, default=1)
+    
     # ------------------------------
     # fields 
+    
     address = CharField(max_length=400)
     coordinates = models.JSONField()
     
@@ -42,11 +66,10 @@ class Properties(models.Model):
 class Units(models.Model):
     # foreign keys 
      
-    # here used to be landlord
-    property_manager = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
-    # property_manager = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
+    property_manager = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
+    property = models.ForeignKey(Properties, null=False, blank=False, on_delete=models.CASCADE)
+    unit_type = models.ForeignKey(UnitTypes, null=False, blank=False, on_delete=models.CASCADE)
     
-    property = models.ForeignKey(Properties, null=False, blank=False ,on_delete=models.CASCADE)
     
     #  ------------------------------------
     #  fields
@@ -57,6 +80,7 @@ class Units(models.Model):
     bathrooms = IntegerField(default=0)
     
     deposit_amount = DecimalField(max_digits=19, decimal_places=2)
+    debt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     details = models.JSONField()
     date_deposit_received = DateField()
     
@@ -90,15 +114,12 @@ class Units(models.Model):
     square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
     shed = BooleanField(default=False)
     
-    tenant_id = models.IntegerField(default=0)
     
-    unit_type = CharField(max_length=100) 
-
 
 class Tenants(models.Model):
     # foreign keys
     
-    landlord = models.ForeignKey(CustomUser, default=1, null=False, blank=False ,on_delete=models.CASCADE)
+    landlord = models.ForeignKey(CustomUser, default=1, null=False, blank=False, on_delete=models.CASCADE)
     unit = models.ForeignKey(Units, null=False, blank=False ,on_delete=models.CASCADE)
     
     # -------------------------------------------------------
@@ -133,10 +154,9 @@ class Tenants(models.Model):
 class Links(models.Model):
     
     # Foreign key
-    unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
     # --------------------------------
     # fields
-    
     
     link = models.CharField(max_length=500)
     link_name = models.CharField(max_length=150)

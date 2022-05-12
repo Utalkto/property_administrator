@@ -13,7 +13,7 @@ class Candidate(models.Model):
     # ---------------------------------
     # fields
     
-    availability_date = models.JSONField(null=False) # this field is not longer required
+    availability_date = models.JSONField(null=False) 
     adults_information = models.JSONField(null=False) # there can be more than one adult 
     
     current_address = models.CharField(max_length=400, null=False)
@@ -25,6 +25,7 @@ class Candidate(models.Model):
     expected_renting_duration = models.CharField(null=False, max_length=100)
     
     family_income = models.CharField(max_length=50)
+    facebook_account = models.CharField(max_length=500, default='')
     
     length_of_time_at_current_address = models.CharField(max_length=400)
     link_to_schedule_view_sent = models.BooleanField(default=False)
@@ -67,6 +68,3 @@ class CandidateStatus(models.Model):
     string = models.CharField(max_length=100)
 
 
-# TODO: create this tables
-# candidates types
-# plans 

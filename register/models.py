@@ -1,3 +1,9 @@
+# python
+
+import datetime
+
+# django 
+
 from django.db import models
 
 from django.contrib.auth.models import (
@@ -6,10 +12,43 @@ from django.contrib.auth.models import (
     BaseUserManager,
 )
 
+
 # /users/ - to signup a new user,
 # /users/me/ - to get user information,
 # /token/login/ - to get token,
 # /token/logout/ - to logout.
+
+class UserCountries(models.Model):
+    country = models.CharField(max_length=100)
+    
+    def __str__(self) -> str:
+        return self.country
+
+
+class UserCities(models.Model):
+    # Foreign key
+    country = models.ForeignKey(UserCountries, null=False, blank=False, on_delete=models.CASCADE)
+    # --------------------------------
+    # fields
+    city = models.CharField(max_length=100)   
+
+    def __str__(self) -> str:
+        return self.city
+
+
+class UserPlans(models.Model):
+    plan = models.CharField(max_length=100)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    
+    def __str__(self) -> str:
+        return self.plan
+    
+    
+class UserRoles(models.Model):
+    role = models.CharField(max_length=100)
+
+    def __str__(self) -> str:
+        return self.role 
 
 
 class CustomUserManager(BaseUserManager):
@@ -17,11 +56,18 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError("User must have an email")
         email = self.normalize_email(email)
-        user = self.model(email=email, username=username, **extra_fields)
+        user = self.model(
+            email=email, 
+            username=username, 
+            plan=UserPlans.objects.get(id=1), 
+            city=UserCities.objects.get(id=1), 
+            role=UserRoles.objects.get(id=1),  
+            **extra_fields)
         user.set_password(password)
-        user.save(using=self._db)
         
+        user.save(using=self._db)
         return user
+
 
     def create_superuser(self, username, email, password=None, **extra_fields):
         user = self.create_user(username, email, password=password, **extra_fields)
@@ -34,8 +80,22 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     
-    city = models.CharField(null=False, max_length=120, default='')
-    country = models.CharField(null=False, max_length=120, default='')
+    # foreignkeys 
+    
+    plan = models.ForeignKey(UserPlans, null=False, blank=False, on_delete=models.CASCADE) # default is 1 for free
+    city = models.ForeignKey(UserCities, null=False, blank=False, on_delete=models.CASCADE)
+    
+    # roles
+    # free > 1
+    # landlord > 2
+    # property_manager > 3
+    # tenat > 4
+    
+    role = models.ForeignKey(UserRoles, null=False, blank=False, on_delete=models.CASCADE)
+    
+    # -----------------------------------------------------------
+    # fields
+
     
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
@@ -49,19 +109,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
     
     phone = models.CharField(max_length=120, default='')
-    plan = models.IntegerField(default=0) # default is 0 for free
+    
     plan_status = models.BooleanField(default=True)
     
-    plan_expired_on = models.DateField(default='2022-05-03') 
-    registration_date = models.DateField(default='2022-05-03')
-    
-    # roles
-    # free > 0
-    # landlord > 1
-    # property_manager > 2
-    # tenat > 3
-    
-    role = models.IntegerField(default=0) # default is 0 for demo
+    plan_expired_on = models.DateTimeField(default=datetime.datetime.now() + datetime.timedelta(days=7)) 
+    registration_date = models.DateTimeField(default=datetime.datetime.now())
     
     username = models.CharField(max_length=255, unique=True)
 
@@ -81,6 +133,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return True
 
     def __str__(self):
-        return self.email
+        return f'{self.email} - {self.id}'
 
 
