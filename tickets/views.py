@@ -9,7 +9,7 @@ from django.shortcuts import render
 
 # models 
 
-from .models import TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction
+from .models import Ticket, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction
 from .serializers import TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer
 
 # properties
@@ -23,7 +23,25 @@ from properties.serializers import UnitsSerializer, TenantSerializer
 
 
 def home(request):
-    return render(request, 'tickets/main_pages/home.html', {})
+    
+    tickets_open = Ticket.objects.filter(date_closed__isnull=True)
+    
+    maintenance_tickets = Ticket.objects.filter(ticket_type=1).count()
+    payment_tickets = Ticket.objects.filter(ticket_type=2).count()
+    general_info_tickets = Ticket.objects.filter(ticket_type=3).count()
+    
+    return render(
+        request, 
+        'tickets/main_pages/dashboard-main.html', 
+        {
+            
+            'tickets_open': tickets_open, 
+            
+            'quantity_tickets_open': tickets_open.count(),
+            'maintenance_tickets': maintenance_tickets,
+            'payment_tickets': payment_tickets,
+            'general_info_tickets': general_info_tickets,
+        })
 
 
 def create_ticket_main_info(request):
@@ -96,7 +114,7 @@ def create_ticket_options(request, ticket_type:int, tenant_id:int):
     for i, _field in enumerate(list(fields)):
         form_fields[f'field{i}'] = {
             'id': _field.id,
-            'string': _field._string
+            'string': _field.string_part
         }
         
 
@@ -118,8 +136,7 @@ def stage_info(request):
     stage_status = int(request.POST.get('next_stage'))
     option_selected = int(request.POST.get('option_selected'))
     
-    
-    
+
     # branch with id '1' is for maintanance
     if branch_selected == 1:
         
@@ -146,7 +163,7 @@ def stage_info(request):
     for i, _field in enumerate(list(fields)):
         form_fields[f'field{i}'] = {
             'id': _field.id,
-            'string': _field._string
+            'string': _field.string_part
         }
         
     return JsonResponse({

@@ -157,7 +157,7 @@ function addNextInfoInCrationDashboard(data, _nextStage){
 
 
     if (data.next_stage >= 4){
-        titleToShow = value._string;
+        titleToShow = value.string_part;
     }
     else if (data.next_stage == 3){
     } 
