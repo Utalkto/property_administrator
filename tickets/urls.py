@@ -1,11 +1,11 @@
 from django.urls import path
 
-from .views import home, create_ticket, stage_info
+from .views import home, create_ticket_main_info, stage_info, create_ticket_options
 
 urlpatterns = [
-    
-    path('', home),
-    path('create-ticket/', create_ticket),
+    path('', home, name='home'),
+    path('create-ticket-main-info/', create_ticket_main_info, name='create_ticket_main_info'),
+    path('create-ticket-options/<int:ticket_type>/<int:tenant_id>', create_ticket_options, name='create_ticket_options'),
     path('stage-info/', stage_info),
     
     # path('properties',PropertiesViewSet.as_view()),

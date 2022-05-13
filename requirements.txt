@@ -6,6 +6,7 @@ charset-normalizer==2.0.12
 coreapi==2.3.3
 coreschema==0.0.4
 cryptography==37.0.2
+decorator==5.1.1
 defusedxml==0.7.1
 Django==4.0.4
 django-cors-headers==3.11.0
@@ -40,3 +41,4 @@ twilio==7.8.2
 tzdata==2022.1
 uritemplate==4.1.1
 urllib3==1.26.9
+validators==0.19.0

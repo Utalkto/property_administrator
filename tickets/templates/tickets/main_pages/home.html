@@ -556,7 +556,8 @@
 
 {% endblock %}
 
-{% local_js %}
+{% block local_js %}
+{% load static %}
 
 <!-- Chartjs -->
 <script src="{% static 'plugins/chart.js/Chart.bundle.min.js' %}"></script>

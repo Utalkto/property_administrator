@@ -5,7 +5,7 @@ from .views import PropertiesViewSet, TenantViewSet, UnitsViewSet, vacantUnit, s
 urlpatterns = [
     
     path('properties',PropertiesViewSet.as_view()),
-    path('properties/<int:id>',PropertiesViewSet.as_view()),
+    path('properties/<int:property_id>',PropertiesViewSet.as_view()),
     
     path('units',UnitsViewSet.as_view()),
     path('units/<int:id>',UnitsViewSet.as_view()),

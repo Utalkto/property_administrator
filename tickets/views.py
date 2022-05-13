@@ -1,38 +1,116 @@
+# python 
+
+import datetime
+
+# django
+
 from django.http import JsonResponse
 from django.shortcuts import render
-from .models import TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction
+
+# models 
+
+from .models import TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction
+from .serializers import TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer
+
+# properties
+from properties.models import Properties, Tenants, Units
+from properties.serializers import UnitsSerializer, TenantSerializer
 
 # Create your views here.
 
+# It is possible to create more nodes if in the future the app would allow to add more ticket types
+
+
+
 def home(request):
-    return render(request, 'tickets/main_pages/home.html', {'variable1': ['uno', 'dos', 'tres']})
+    return render(request, 'tickets/main_pages/home.html', {})
+
+
+def create_ticket_main_info(request):
+    
+    next_stage = request.GET.get('next_stage')
+
+    
+    if next_stage == '1':
+        
+        units = UnitsSerializer(Units.objects.filter(property=int(request.GET.get('option_id'))), many=True)
+        return JsonResponse({'options': units.data, 'stage_title': 'Select Unit', 'next_stage': 2} )
+    
+    elif next_stage == '2':
+        
+        tenants = TenantSerializer(Tenants.objects.filter(unit=int(request.GET.get('option_id'))), many=True)
+        return JsonResponse( {'options': tenants.data, 'stage_title': 'Select Tenant', 'next_stage': 3} )
+    
+    
+    elif next_stage == '3':
+        
+        tickets = TicketTypeSerializer(TicketType.objects.all(), many=True)
+        return JsonResponse( {'options': tickets.data, 'stage_title': 'Select Type of issue', 'next_stage': 4} )
+    
+    elif next_stage == '4':
+        priorities = TicketPrioritySerializer(TicketPriority.objects.all(), many=True)
+        return JsonResponse( {'options':  priorities.data, 'next_stage': 5})
+    
+    
+    elif next_stage == '5':
+        ### start ticket creation ###
+        tenant_id = int(request.GET.get('tenant_id'))
+        ticket_priority = int(request.GET.get('option_id'))
+        data = {
+            'created_by': tenant_id,
+            'ticket_type': int(request.GET.get('ticket_type')),
+            'unit': Tenants.objects.get(id=tenant_id).unit.id,
+            'date_opened' : datetime.datetime.now(),
+            'priority': ticket_priority
+        }
+        
+        serializer = TicketSerializer(data=data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse( {'message': 'created'})
+        else:
+            return JsonResponse( {'message': 'serializer is not valid', 'serializer_error': serializer.errors})
+        
+        
+        
+
+    properties = Properties.objects.all()
+    
+    return render(
+        request,
+        'tickets/main_pages/create-ticket-dashboard.html',
+        {
+            'properties': properties, 
+        })
 
 
 
-def create_ticket(request):
+def create_ticket_options(request, ticket_type:int, tenant_id:int):
     
-    # ticket_type = TicketType.objects.all()
-    
-    maintenance_type = MaintanenceType.objects.all()
-    
+    if ticket_type == 1:
+        fields = MaintanenceType.objects.all()
+        
     form_fields = {}
-    
-    for i, _field in enumerate(maintenance_type):
+
+    for i, _field in enumerate(list(fields)):
         form_fields[f'field{i}'] = {
             'id': _field.id,
             'string': _field._string
         }
-    
-    return render(
-        request,
-        'tickets/main_pages/create-ticket.html',
+        
+
+    return render( request,
+        'tickets/main_pages/create-ticket-options.html', 
         {
-            'form_fields': form_fields,
-            'branch_selected' : 1,
-            
+            'form_fields': form_fields, 
+            'branch_selected': ticket_type, 
+            'tenant_id':tenant_id
         })
 
 
+
+# JSON RESPONSES --------------------------------------------
 
 def stage_info(request): 
     
@@ -40,14 +118,13 @@ def stage_info(request):
     stage_status = int(request.POST.get('next_stage'))
     option_selected = int(request.POST.get('option_selected'))
     
+    
+    
     # branch with id '1' is for maintanance
     if branch_selected == 1:
         
         # this will return the initial options <<maintanence_type>>
-        if stage_status == 1:
-            fields = MaintanenceType.objects.all()
-        
-        elif stage_status == 2:
+        if stage_status == 2:
             fields = MaintanenceIssueType.objects.filter(maintanence_type=option_selected)
             stage_title = 'Maintanence Issue'
         

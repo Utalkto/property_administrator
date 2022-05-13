@@ -183,7 +183,7 @@ class PropertiesViewSet(APIView):
     authentication_classes = (TokenAuthentication,) 
     @swagger_auto_schema(
     responses={200: PropertiesSerializer()})
-    def get(self, request):
+    def get(self, request, property_id):
         """ 
         Summary: Get all properties a landord has 
         
@@ -193,7 +193,13 @@ class PropertiesViewSet(APIView):
         Returns:
             Serializer Class, dictionary, JSON: list of properties that a landlord has
         """
-        serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id), many=True)
+        
+        if property_id == 0:
+            serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id), many=True)
+        
+        else:
+            serializer = PropertiesSerializer(Properties.objects.filter(id = property_id), many=True)
+        
         return Response(serializer.data)
     
 
@@ -217,7 +223,8 @@ class PropertiesViewSet(APIView):
             serializer.save()
             return Response(
                 {
-                    "message": "property created with success"
+                    "message": "property created with success",
+                    'property': serializer.data
                 }, 
                 status=status.HTTP_201_CREATED)
         else:
@@ -299,10 +306,10 @@ class  UnitsViewSet(APIView):
     
     @swagger_auto_schema(
     responses={200: UnitsSerializer()})
-    def get(self,request,id):
+    def get(self, request, id):
         
         try:
-            units = Units.objects.filter(properties_id=id , landlord_id=request.user.id)
+            units = Units.objects.filter(properties_id=id , property_manager=request.user.id)
             serializer = UnitsSerializer(units, many=True)
             return Response(
                 serializer.data, 
