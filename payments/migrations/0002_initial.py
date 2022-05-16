@@ -12,18 +12,18 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('properties', '0001_initial'),
-        ('candidates', '0001_initial'),
+        ('payments', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='candidate',
-            name='property_manager',
+            model_name='userpayments',
+            name='Tenant',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
-            model_name='candidate',
-            name='unit',
+            model_name='unitpayments',
+            name='Unit',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='properties.units'),
         ),
     ]

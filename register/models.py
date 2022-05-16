@@ -82,8 +82,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     # foreignkeys 
     
-    plan = models.ForeignKey(UserPlans, null=False, blank=False, on_delete=models.CASCADE) # default is 1 for free
-    city = models.ForeignKey(UserCities, null=False, blank=False, on_delete=models.CASCADE)
+    plan = models.ForeignKey(UserPlans, null=False, blank=False, on_delete=models.CASCADE, default=1) # default is 1 for free
+    city = models.ForeignKey(UserCities, null=False, blank=False, on_delete=models.CASCADE, default=1)
     
     # roles
     # free > 1
@@ -91,11 +91,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # property_manager > 3
     # tenat > 4
     
-    role = models.ForeignKey(UserRoles, null=False, blank=False, on_delete=models.CASCADE)
+    role = models.ForeignKey(UserRoles, null=False, blank=False, on_delete=models.CASCADE, default=1)
     
     # -----------------------------------------------------------
-    # fields
-
+    # fields 
+ 
     
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)

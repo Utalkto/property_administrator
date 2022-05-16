@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from django.db import models
 from properties.models import Tenants, Units
 
@@ -48,14 +49,13 @@ class MaintanenceIssueDescription(models.Model):
 
 # ----------------------------------------
 
+def get_default_something():
+    return {'action1': 'do this'}
+
 class TicketAction(models.Model):
     issue_description = models.ForeignKey(MaintanenceIssueDescription, null=False, on_delete=models.CASCADE, default=1)
-    string_part = models.CharField(max_length=120)
+    action_to_do = models.JSONField()
     
-    # action_id = models.CharField(max_length=120, default=(str(uuid.uuid4)))
-    
-    def __str__(self) -> str:
-        return self.string_part
     
 
 # class TicketIssue(models.Model):
@@ -65,14 +65,30 @@ class TicketPriority(models.Model):
     string_part = models.CharField(max_length=120)
 
 
+class TicketStatus(models.Model):
+    
+    # foreign keys 
+    
+    ticket_type = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE, default=1)
+    
+    # --------------------------------------------
+    # fields
+    
+    string_part = models.CharField(max_length=120)
+    info = models.CharField(max_length=1000, default='', null=True)
+    action_link = models.URLField(max_length=120, default='', null=True)
+
+
+
 class Ticket(models.Model):
     # foreignKeys 
     created_by = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE)
     ticket_type = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
     unit =  models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
-    priority =  models.ForeignKey(TicketPriority, null=False, blank=False, on_delete=models.CASCADE, default=1)
-    
-    
+    priority =  models.ForeignKey(TicketPriority, null=False, blank=False, on_delete=models.CASCADE)
+    ticket_status =  models.ForeignKey(TicketStatus, null=False, blank=False, on_delete=models.CASCADE)
+    action_to_do = models.ForeignKey(TicketAction, null=False, blank=False, on_delete=models.CASCADE)
+
     # ------------------------------------
     # fields 
     
@@ -97,7 +113,6 @@ class Ticket(models.Model):
     
     quoted_price = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=True)
     
-    status = models.CharField(max_length=50, default=1)
     stimated_time_for_solution = models.IntegerField(null=True)
     specialty = models.CharField(max_length=50, null=True)
     
@@ -105,8 +120,8 @@ class Ticket(models.Model):
     
     target_completion_date = models.DateField(null=True)
     
-    def __str__(self) -> str:
-        return self.status
+    # def __str__(self) -> str:
+    #     return self.status
 
     
 

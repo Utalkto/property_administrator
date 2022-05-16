@@ -6,10 +6,11 @@ import datetime
 
 from django.http import JsonResponse
 from django.shortcuts import render
+from rest_framework import status
 
 # models 
 
-from .models import Ticket, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction
+from .models import Ticket, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketStatus
 from .serializers import TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer
 
 # properties
@@ -71,6 +72,7 @@ def create_ticket_main_info(request):
     
     
     elif next_stage == '5':
+        
         ### start ticket creation ###
         tenant_id = int(request.GET.get('tenant_id'))
         ticket_priority = int(request.GET.get('option_id'))
@@ -79,16 +81,24 @@ def create_ticket_main_info(request):
             'ticket_type': int(request.GET.get('ticket_type')),
             'unit': Tenants.objects.get(id=tenant_id).unit.id,
             'date_opened' : datetime.datetime.now(),
-            'priority': ticket_priority
+            'priority': ticket_priority,
+            'ticket_status': 1,
         }
         
         serializer = TicketSerializer(data=data)
         
         if serializer.is_valid():
+            print(data)
             serializer.save()
             return JsonResponse( {'message': 'created'})
         else:
-            return JsonResponse( {'message': 'serializer is not valid', 'serializer_error': serializer.errors})
+            return JsonResponse(
+                {
+                    'message': 'serializer is not valid', 
+                    'serializer_error': serializer.errors
+                }, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
         
         
         
@@ -101,7 +111,6 @@ def create_ticket_main_info(request):
         {
             'properties': properties, 
         })
-
 
 
 def create_ticket_options(request, ticket_type:int, tenant_id:int):
@@ -118,7 +127,8 @@ def create_ticket_options(request, ticket_type:int, tenant_id:int):
         }
         
 
-    return render( request,
+    return render( 
+        request,
         'tickets/main_pages/create-ticket-options.html', 
         {
             'form_fields': form_fields, 
@@ -127,10 +137,30 @@ def create_ticket_options(request, ticket_type:int, tenant_id:int):
         })
 
 
+def ticket_info(request, ticket_id):
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    ticket_statuses = TicketStatus.objects.filter(ticket_type=ticket.ticket_type.id).order_by('id')
+    
+    # here the link to identify the problem must be sent with the ticket id 
+        
+        
+    current_status = ticket_statuses[ticket.ticket_status.id]
+    
+    
+    return render(
+        request, 
+        'tickets/main_pages/view-ticket-detail.html',
+        {
+            'ticket': ticket,
+            'ticket_statuses': ticket_statuses,
+            'current_status' : current_status,
+        }
+        )
+
 
 # JSON RESPONSES --------------------------------------------
 
-def stage_info(request): 
+def ticket_tree_stage_info(request): 
     
     branch_selected = int(request.POST.get('branch_selected'))
     stage_status = int(request.POST.get('next_stage'))

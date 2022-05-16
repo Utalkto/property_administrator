@@ -22,6 +22,7 @@ function nextStage(_nextStage, optionSelected, branchSelected){
         },
         error: function (response) {
             alert('An error has ocurred with your message, please try again.');
+            console.log(response.serializer_error);
         }
     });
 
@@ -131,6 +132,7 @@ function getNextInfo(_nextStage, option_id) {
         },
         error: function (response) {
             alert('An error has ocurred with your message, please try again.');
+            console.log(response.serializer_error);
         }
     });
 

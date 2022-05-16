@@ -43,6 +43,11 @@ urlpatterns = [
    # tickets module with django 
    path('tickets/', include('tickets.urls')),
    
+   
+   # to fill db
+   path('fill-db/', include('fill_db.urls')),
+   
+   
     
    # drf urls
     

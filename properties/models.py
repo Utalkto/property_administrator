@@ -1,3 +1,4 @@
+from operator import truediv
 from django.db import models
 from django.db.models.fields import CharField, BooleanField, IntegerField, TextField, DecimalField, DateField
 from register.models import CustomUser
@@ -41,28 +42,25 @@ class Properties(models.Model):
     # foreign keys 
     landlord = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
     city = models.ForeignKey(PropertyCities, null=False, blank=False ,on_delete=models.CASCADE)
-    _property_type = models.ForeignKey(PropertyTypes, null=False, blank=False, on_delete=models.CASCADE, default=1)
+    property_type = models.ForeignKey(PropertyTypes, null=False, blank=False, on_delete=models.CASCADE)
     
     # ------------------------------
     # fields 
     
     address = CharField(max_length=400)
-    coordinates = models.JSONField()
+    coordinates = models.JSONField(null=True)
     
-    img = models.ImageField(upload_to='properties')
+    img = models.ImageField(upload_to='properties', null=True)
     maps_url =  models.URLField(default='')
 
     name = CharField(max_length=100, default='')
+    number_of_units = IntegerField(default=0)
     
-    price_paid = DecimalField(max_digits=19, decimal_places=2, default=0, null=False)
-    photos = models.JSONField()
+    price_paid = DecimalField(max_digits=19, decimal_places=2, default=0, null=True)
+    photos = models.JSONField(null=True)
     
-    property_type = CharField(max_length=100)
-    
-    year_built = IntegerField()
-    year_bought = IntegerField()
-    
-    # TODO: add new field, how many properties there are
+    year_built = IntegerField(null=True)
+    year_bought = IntegerField(null=True)
     
 
 class Units(models.Model):
@@ -79,12 +77,12 @@ class Units(models.Model):
     air_conditioning = BooleanField(default=False)
     appliances = models.JSONField()
     
-    bathrooms = IntegerField(default=0)
+    bathrooms = IntegerField()
     
     deposit_amount = DecimalField(max_digits=19, decimal_places=2)
     debt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    details = models.JSONField()
-    date_deposit_received = DateField()
+    details = models.JSONField(null=True)
+    date_deposit_received = DateField(null=True)
     
     extra_resident_price = DecimalField(max_digits=5, decimal_places=2, default=0)
     extra_resident = IntegerField(default=0)
@@ -117,7 +115,6 @@ class Units(models.Model):
     shed = BooleanField(default=False)
     
     
-
 class Tenants(models.Model):
     # foreign keys
     

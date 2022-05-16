@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'candidates',
     'payments',
     'tickets',
+    'fill_db',
     
     # third party apps
     
@@ -98,7 +99,7 @@ WSGI_APPLICATION = 'properties_manager_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test_db',
+        'NAME': 'test_db2',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',
