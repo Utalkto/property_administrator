@@ -1,11 +1,12 @@
 # python 
 
 import datetime
+from operator import truediv
 
 # django
 
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from rest_framework import status
 
 # models 
@@ -83,20 +84,23 @@ def create_ticket_main_info(request):
             'date_opened' : datetime.datetime.now(),
             'priority': ticket_priority,
             'ticket_status': 1,
+            'action_to_do': 1,
         }
         
         serializer = TicketSerializer(data=data)
         
         if serializer.is_valid():
-            print(data)
             serializer.save()
             return JsonResponse( {'message': 'created'})
         else:
+            print(serializer.errors)
+            
             return JsonResponse(
                 {
                     'message': 'serializer is not valid', 
                     'serializer_error': serializer.errors
                 }, 
+                
                 status=status.HTTP_400_BAD_REQUEST
                 )
         
@@ -113,7 +117,7 @@ def create_ticket_main_info(request):
         })
 
 
-def create_ticket_options(request, ticket_type:int, tenant_id:int):
+def create_ticket_options(request, ticket_type:int, tenant_id:int, ticket_id:int):
     
     if ticket_type == 1:
         fields = MaintanenceType.objects.all()
@@ -133,7 +137,8 @@ def create_ticket_options(request, ticket_type:int, tenant_id:int):
         {
             'form_fields': form_fields, 
             'branch_selected': ticket_type, 
-            'tenant_id':tenant_id
+            'tenant_id':tenant_id,
+            'ticket_id': ticket_id,
         })
 
 
@@ -184,8 +189,16 @@ def ticket_tree_stage_info(request):
             stage_title = 'Maintanence Issue Description'
         
         elif stage_status == 5:
-            fields = TicketAction.objects.filter(issue_description=option_selected)
-            stage_title = 'Action to do'
+            
+            ticket_id = int(request.POST.get('ticket_id'))
+            
+            ticket = Ticket.objects.get(id=ticket_id)
+            ticket.ticket_status = TicketStatus.objects.get(id=2)
+            ticket.action_to_do = TicketAction.objects.get(issue_description=option_selected)
+            
+            ticket.save()
+            
+            return JsonResponse({'completed': True})
             
     
     form_fields = {}

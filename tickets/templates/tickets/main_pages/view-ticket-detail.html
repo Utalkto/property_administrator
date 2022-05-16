@@ -156,8 +156,16 @@
                 <h5 class="m-b-15">Hi, User, here is what you need to do next</h5>
                 <p>{{current_status.info}}</p>
 
+                <h4>Action to do</h4>
+
+                {% for key, value in ticket.action_to_do.action_to_do.items %}
+
+                <p> <strong>{{key}}</strong> : {{value}}</p>
+
+                {% endfor %}
+
                 <a class="badge badge-primary badge-sm m-t-5" 
-                href="{{current_status.action_link}}{{ticket.ticket_type.id}}/{{ticket.created_by.id}}">
+                href="{{current_status.action_link}}{{ticket.ticket_type.id}}/{{ticket.created_by.id}}/{{ticket.id}}">
                   {{current_status.string_part}}
                 </a>
 

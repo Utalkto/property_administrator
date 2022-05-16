@@ -8,6 +8,7 @@ function nextStage(_nextStage, optionSelected, branchSelected){
         'branch_selected': branchSelected,
         'next_stage': _nextStage,
         'option_selected': optionSelected,
+        'ticket_id': $('#ticket-id').val(),
         'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
     }
 
@@ -16,6 +17,11 @@ function nextStage(_nextStage, optionSelected, branchSelected){
         url: '/tickets/stage-info/',
         data: jsonData,
         success: function (response) {
+            
+            if (response.completed == true) {
+                window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#ticket-id').val()}`;
+            }
+
             
             addFields(response);
 
@@ -102,8 +108,6 @@ function getNextInfo(_nextStage, option_id) {
         ticketType = option_id;
     }
 
-
-
     if (_nextStage == 5) {
         jsonData['tenant_id'] = tenantId
         jsonData['ticket_type'] = ticketType
@@ -119,7 +123,7 @@ function getNextInfo(_nextStage, option_id) {
 
             if (_nextStage == 5) {
 
-                window.location.href = `http://localhost:8000/tickets/create-ticket-options/${ticketType}/${tenantId}`;
+                window.location.href = `http://localhost:8000/tickets/ticket-info/${3}`;
                 
             } 
             else {
@@ -137,6 +141,7 @@ function getNextInfo(_nextStage, option_id) {
     });
 
 }
+
 
 function addNextInfoInCrationDashboard(data, _nextStage){
 

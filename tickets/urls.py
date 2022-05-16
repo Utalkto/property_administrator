@@ -5,7 +5,7 @@ from .views import home, create_ticket_main_info, create_ticket_options, ticket_
 urlpatterns = [
     path('', home, name='home'),
     path('create-ticket-main-info/', create_ticket_main_info, name='create_ticket_main_info'),
-    path('create-ticket-options/<int:ticket_type>/<int:tenant_id>', create_ticket_options, name='create_ticket_options'),
+    path('create-ticket-options/<int:ticket_type>/<int:tenant_id>/<int:ticket_id>', create_ticket_options, name='create_ticket_options'),
     
     path('stage-info/', ticket_tree_stage_info),
     

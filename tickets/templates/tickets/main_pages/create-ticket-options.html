@@ -12,7 +12,11 @@
 
 <!-- MAIN CONTENT -->
 
-{% block main_content %} {% csrf_token %}
+{% block main_content %} 
+
+{% csrf_token %}
+
+<input type="hidden" value="{{ticket_id}}" id="ticket-id">
 <!--**********************************
     Content body start
 ***********************************-->
