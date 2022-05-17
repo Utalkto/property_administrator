@@ -123,7 +123,8 @@ function getNextInfo(_nextStage, option_id) {
 
             if (_nextStage == 5) {
 
-                window.location.href = `http://localhost:8000/tickets/ticket-info/${3}`;
+                // sending the user to the info ticket with the ticket id t
+                window.location.href = `http://localhost:8000/tickets/ticket-info/${response.ticket_id}`;
                 
             } 
             else {
@@ -219,5 +220,12 @@ function addNextInfoInCrationDashboard(data, _nextStage){
 
     $('#stage-name').text(data.stage_title)
 
+
+}
+
+
+function setTenantInModalTabId(tenant_id){
+
+    $('#input-tenant-id').val(tenant_id)
 
 }

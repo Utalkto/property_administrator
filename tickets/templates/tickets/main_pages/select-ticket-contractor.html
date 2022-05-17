@@ -1,0 +1,112 @@
+{% extends 'tickets/templates/base.html' %} 
+{% block main_content %}
+
+<div class="content-body">
+  {% csrf_token %}
+
+
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <div class="bootstrap-modal">
+                <div class="modal fade" id="modal-contact-supplier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modal-contact-supplier-label">Contact supplier</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="" method="post">
+
+                                    {% csrf_token %}
+                                    
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="col-form-label">Subject:</label>
+                                        <input type="text" class="form-control" id="message_subject">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="message-text" class="col-form-label">Message:</label>
+                                        <textarea class="form-control" id="message_text"></textarea>
+                                    </div>
+        
+                                    <input type="hidden" id="input-ticket-id" name="ticket_id" value="{{ticket_id}}">
+                                    <input type="hidden" id="input-supplier-id" name="supplier_id">
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Send message</button>
+                                    </div>
+                                 
+                                </form>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+  <div class="container-fluid mt-3">
+    <!-- Main table -->
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="active-member">
+              <div class="table-responsive">
+                <table class="table table-xs mb-0">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Email</th>
+                      <th>Times Hired</th>
+                      <th>Last Time Hired</th>
+                      <th>Rating</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for contractor in contractors %} 
+                    
+                    <tr>
+                    
+                      <td>{{contractor.name}}</td>
+                      <td>{{contractor.role}}</td>
+                      <td>{{contractor.email}}</td>
+                      <td>{{contractor.times_hired}}</td>
+                      <td>{{contractor.last_time_hired}}</td>
+                      <td>{{contractor.rating}}</td>
+                      <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" onclick="setSupplierInModalTabId('{{contractor.id}}')"
+                        data-target="#modal-contact-supplier" data-whatever="@mdo">Contact</button>
+                      </td>
+                    </tr>
+                   {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% load static %}
+
+{% block local_js %}
+
+<script src="{% static 'js/create-ticket/selectSupplier.js' %}"></script>
+
+
+{% endblock %}

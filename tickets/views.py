@@ -1,17 +1,20 @@
 # python 
 
 import datetime
-from operator import truediv
 
 # django
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from rest_framework import status
 
+from django.db.models import Q
+
+
 # models 
 
-from .models import Ticket, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketStatus
+from .models import Ticket, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
+
 from .serializers import TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer
 
 # properties
@@ -26,24 +29,82 @@ from properties.serializers import UnitsSerializer, TenantSerializer
 
 def home(request):
     
-    tickets_open = Ticket.objects.filter(date_closed__isnull=True)
+    all_tickets_open = Ticket.objects.filter(date_closed__isnull=True)
+    
+    tickets_priority_low = Ticket.objects.filter(priority=3, date_closed__isnull=True)
+    tickets_priority_normal = Ticket.objects.filter(priority=2, date_closed__isnull=True)
+    tickets_priority_emergency = Ticket.objects.filter(priority=1, date_closed__isnull=True)
+    
+    tickets_open = [ 
+            { 'string':  'Priority Emergency', 'tickets': tickets_priority_emergency},
+            { 'string':  'Priority Normal', 'tickets': tickets_priority_normal},
+            { 'string':  'Priority Low', 'tickets': tickets_priority_low }] 
+            
+            
+            
+            
+        
+    
     
     maintenance_tickets = Ticket.objects.filter(ticket_type=1).count()
     payment_tickets = Ticket.objects.filter(ticket_type=2).count()
     general_info_tickets = Ticket.objects.filter(ticket_type=3).count()
+    ticket_statuses = TicketSteps.objects.all().order_by('id')
     
     return render(
         request, 
         'tickets/main_pages/dashboard-main.html', 
         {
             
-            'tickets_open': tickets_open, 
+            'tickets_open': tickets_open,
             
-            'quantity_tickets_open': tickets_open.count(),
+            'quantity_tickets_open': all_tickets_open.count(),
             'maintenance_tickets': maintenance_tickets,
             'payment_tickets': payment_tickets,
             'general_info_tickets': general_info_tickets,
+            'ticket_statuses': ticket_statuses,
         })
+
+
+
+def open_ticket(request):
+    
+    if request.method == 'POST':
+    
+        
+        tenant_id = int(request.POST.get('tenant_id'))
+        ticket_priority = int(request.POST.get('ticket_priority')) 
+        
+        data = {
+            'created_by': tenant_id,
+            'ticket_type': int(request.POST.get('ticket_type')),
+            'unit': Tenants.objects.get(id=tenant_id).unit.id,
+            'date_opened' : datetime.datetime.now(),
+            'priority': ticket_priority,
+            'ticket_status': 1,
+            'owner': request.user.id
+        }
+        
+        serializer = TicketSerializer(data=data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return redirect('ticket_info', ticket_id=serializer.data['id'])
+        
+        else:
+            return HttpResponse(serializer.errors)
+
+    
+    return render(
+        request, 
+        'tickets/main_pages/create-ticket-with-search.html',
+        {
+            'tenants': Tenants.objects.all(),
+            'ticket_types': TicketType.objects.all(),
+            'ticket_priorities': TicketPriority.objects.all(),
+        }
+        ) 
 
 
 def create_ticket_main_info(request):
@@ -84,14 +145,19 @@ def create_ticket_main_info(request):
             'date_opened' : datetime.datetime.now(),
             'priority': ticket_priority,
             'ticket_status': 1,
-            'action_to_do': 1,
+            # 'action_to_do': 1,
         }
         
         serializer = TicketSerializer(data=data)
         
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse( {'message': 'created'})
+            
+            print(serializer.data)
+            
+            return JsonResponse( {'ticket_id': serializer.data['id']})
+
+            
         else:
             print(serializer.errors)
             
@@ -117,7 +183,7 @@ def create_ticket_main_info(request):
         })
 
 
-def create_ticket_options(request, ticket_type:int, tenant_id:int, ticket_id:int):
+def create_ticket_options(request, ticket_type:int, ticket_id:int):
     
     if ticket_type == 1:
         fields = MaintanenceType.objects.all()
@@ -137,20 +203,17 @@ def create_ticket_options(request, ticket_type:int, tenant_id:int, ticket_id:int
         {
             'form_fields': form_fields, 
             'branch_selected': ticket_type, 
-            'tenant_id':tenant_id,
             'ticket_id': ticket_id,
         })
 
 
 def ticket_info(request, ticket_id):
     ticket = Ticket.objects.get(id=int(ticket_id))
-    ticket_statuses = TicketStatus.objects.filter(ticket_type=ticket.ticket_type.id).order_by('id')
+    ticket_statuses = TicketSteps.objects.filter(ticket_type=ticket.ticket_type.id).order_by('id')
     
     # here the link to identify the problem must be sent with the ticket id 
         
-        
-    current_status = ticket_statuses[ticket.ticket_status.id]
-    
+    next_to_do = ticket_statuses[ticket.ticket_status.id]
     
     return render(
         request, 
@@ -158,9 +221,46 @@ def ticket_info(request, ticket_id):
         {
             'ticket': ticket,
             'ticket_statuses': ticket_statuses,
-            'current_status' : current_status,
+            'next_to_do' : next_to_do,
         }
         )
+
+
+def select_ticket_contractor(request, ticket_type, ticket_id):
+    
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    
+    
+    if request.method == 'POST':
+        
+        # TODO: Send message (email or with tiwlio) to supplier
+        
+            json_model = ticket.contractors_contacted
+            
+            n = (ticket.contractors_contacted.keys())
+            json_model[f'contractor_{n}'] = request.POST.get('supplier_id')
+            ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1) 
+            ticket.save()
+            
+            return redirect ('ticket_info', ticket_id=ticket.id)
+            
+    
+    contractors_contacted = list()
+    
+    for contractor_id in ticket.contractors_contacted:
+        contractors_contacted.append(ticket.contractors_contacted[contractor_id]) 
+    
+    contractors = Suppliers.objects.filter(role=int(ticket_type)).filter(~Q(id__in=contractors_contacted))
+
+    return render (
+        request,
+        'tickets/main_pages/select-ticket-contractor.html',
+        {
+            'contractors': contractors,
+            'tikcet': ticket,
+        }
+        )
+    
 
 
 # JSON RESPONSES --------------------------------------------
@@ -193,7 +293,7 @@ def ticket_tree_stage_info(request):
             ticket_id = int(request.POST.get('ticket_id'))
             
             ticket = Ticket.objects.get(id=ticket_id)
-            ticket.ticket_status = TicketStatus.objects.get(id=2)
+            ticket.ticket_status = TicketSteps.objects.get(id=2)
             ticket.action_to_do = TicketAction.objects.get(issue_description=option_selected)
             
             ticket.save()

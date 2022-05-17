@@ -73,8 +73,7 @@ def create_property_dependecy():
         ci = PropertyCities(country=c, city=fake.unique.city())
         ci.save()
         
-        
-        
+    
 
 def crear_propiedades():
 
@@ -245,4 +244,8 @@ def crear_candidatos():
         print(serializer.errors)
 
 
-
+def tickets():
+    
+    tipos_de_mantenimiento = ['appliance', 'electrical']
+    
+    

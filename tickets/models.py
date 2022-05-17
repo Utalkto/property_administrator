@@ -1,6 +1,7 @@
-from asyncio.windows_events import NULL
 from django.db import models
-from properties.models import Tenants, Units
+from properties.models import Tenants, Units, PropertyCities
+
+from register.models import CustomUser
 
 # ID OF EACH TABLE (EXCEPT FOR TICKET) WILL BE THE VALUE IN THE OPTIONS DISPLAYED IN FRONT 
 
@@ -49,9 +50,6 @@ class MaintanenceIssueDescription(models.Model):
 
 # ----------------------------------------
 
-def get_default_something():
-    return {'action1': 'do this'}
-
 class TicketAction(models.Model):
     issue_description = models.ForeignKey(MaintanenceIssueDescription, null=False, on_delete=models.CASCADE, default=1)
     action_to_do = models.JSONField()
@@ -65,7 +63,7 @@ class TicketPriority(models.Model):
     string_part = models.CharField(max_length=120)
 
 
-class TicketStatus(models.Model):
+class TicketSteps(models.Model):
     
     # foreign keys 
     
@@ -79,15 +77,16 @@ class TicketStatus(models.Model):
     action_link = models.URLField(max_length=120, default='', null=True)
 
 
-
 class Ticket(models.Model):
     # foreignKeys 
     created_by = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE)
     ticket_type = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
     unit =  models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
     priority =  models.ForeignKey(TicketPriority, null=False, blank=False, on_delete=models.CASCADE)
-    ticket_status =  models.ForeignKey(TicketStatus, null=False, blank=False, on_delete=models.CASCADE)
-    action_to_do = models.ForeignKey(TicketAction, null=False, blank=False, on_delete=models.CASCADE)
+    ticket_status =  models.ForeignKey(TicketSteps, null=False, blank=False, on_delete=models.CASCADE)
+    action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE)
+    owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
+
 
     # ------------------------------------
     # fields 
@@ -100,6 +99,7 @@ class Ticket(models.Model):
     followed_up_commnets = models.CharField(max_length=250, null=True)
     
     contractor_availability = models.DateField(null=True)
+    contractors_contacted = models.JSONField(default=dict)
     comments_for_approval = models.TextField(null=True)
     
     date_opened = models.DateTimeField()
@@ -123,5 +123,33 @@ class Ticket(models.Model):
     # def __str__(self) -> str:
     #     return self.status
 
+
+
+class Suppliers(models.Model):
+    # foreign keys
     
+    city = models.ForeignKey(PropertyCities, null=False, blank=False, on_delete=models.CASCADE)
+    role = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
+    
+    # --------------------------
+    # fields
+
+    email = models.CharField(max_length=100)
+    
+    last_time_hired = models.DateField(null=True, default=None)
+    
+    name = models.CharField(max_length=50)
+    
+    phone = models.CharField(max_length=100)
+    
+    rating = models.IntegerField()
+    
+    times_hired = models.IntegerField(default=0)
+    
+    
+    def __str__(self) -> str:
+        return f'{self.name} - {self.id}'
+    
+    
+   
 

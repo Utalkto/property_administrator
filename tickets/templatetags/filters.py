@@ -27,3 +27,8 @@ def get_item(dictionary, key):
 def update_variable(value):
     """Allows to update existing variable in template"""
     return value
+
+
+@register.filter
+def index(indexable, i):
+    return indexable[i]

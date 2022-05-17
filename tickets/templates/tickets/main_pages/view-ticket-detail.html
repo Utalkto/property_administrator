@@ -40,7 +40,8 @@
 
 
               </div>
-              <h5 class="mt-5 m-b-10">Categories</h5>
+
+              <!-- <h5 class="mt-5 m-b-10">Categories</h5>
               <div class="list-group mail-list">
                 <a href="#" class="list-group-item border-0"
                   ><span class="fa fa-briefcase f-s-14 mr-2"></span>Work</a
@@ -54,7 +55,7 @@
                 <a href="#" class="list-group-item border-0"
                   ><span class="fa fa-tags f-s-14 mr-2"></span>Social</a
                 >
-              </div>
+              </div> -->
             </div>
             <div class="email-right-box">
               <div class="toolbar" role="toolbar">
@@ -149,12 +150,12 @@
                   <div class="media-body">
                     <span class="float-right"></span>
                     <h4 class="m-0 text-primary">
-                      {{ current_status.string_part }}
+                      {{ next_to_do.string_part }}
                     </h4>
                   </div>
                 </div>
                 <h5 class="m-b-15">Hi, User, here is what you need to do next</h5>
-                <p>{{current_status.info}}</p>
+                <p>{{next_to_do.info}}</p>
 
                 <h4>Action to do</h4>
 
@@ -165,8 +166,8 @@
                 {% endfor %}
 
                 <a class="badge badge-primary badge-sm m-t-5" 
-                href="{{current_status.action_link}}{{ticket.ticket_type.id}}/{{ticket.created_by.id}}/{{ticket.id}}">
-                  {{current_status.string_part}}
+                href="{{next_to_do.action_link}}{{ticket.ticket_type.id}}/{{ticket.id}}">
+                  {{next_to_do.string_part}}
                 </a>
 
                 <hr />
@@ -176,10 +177,9 @@
                 <p>Kumbio</p>
                 <hr />
 
-                <h6 class="p-t-15">
-                  <i class="fa fa-download mb-2"></i> Send message to tenant
-                  <span>Email</span>
-                </h6>
+                <h4 class="p-t-15"> Send message to tenant
+                  <span>(Email)</span>
+                </h4>
                 <div class="row m-b-30">
                   <div class="col-auto">
                     <a href="#" class="text-muted">Text message</a>

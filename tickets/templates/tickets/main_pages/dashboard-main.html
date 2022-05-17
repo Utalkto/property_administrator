@@ -61,44 +61,55 @@
         
         <!-- Main table -->
 
+        {% for ticket in tickets_open %}
+
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
                         <div class="active-member">
                             <div class="table-responsive">
+                                <h3>{{ticket.string}}</h3>
                                 <table class="table table-xs mb-0">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
                                             <th>Property</th>
                                             <th>Tenant</th>
-                                            <th>Priority</th>
+                                            <!-- <th>Priority</th> -->
                                             <th>Date Opened</th>
                                             <th>Status</th>
                                             <th>STS</th>
+                                            <th></th>
                                         </tr>  
                                     </thead>
                                     <tbody>
-                                        {% for ticket in tickets_open %}
-                                        <tr>
-                                            <td><img src="./images/avatar/1.jpg" class=" rounded-circle mr-3" alt="">{{ticket.id}}</td>
-                                            <td>{{ticket.created_by.unit.property.name}}</td>
-                                            <td>
-                                                {{ticket.created_by.name}}
-                                            </td>
-                                            <td>
-                                                {{ticket.priority.string_part}}
+                                            
 
-                                            </td>
-                                            <td>{{ticket.date_opened}}</td>
+                                        {% for ticket_info in ticket.tickets %}
+
+                                        {% with ticket_statuses|index:ticket_info.ticket_status.id as next_to_do %}
+                                        <tr>
+                                            <td><img src="./images/avatar/1.jpg" class=" rounded-circle mr-3" alt="">{{ticket_info.id}}</td>
+                                            <td>{{ticket_info.created_by.unit.property.name}}</td>
                                             <td>
-                                                {{ticket.status}}
+                                                {{ticket_info.created_by.name}}
+                                            </td>
+                                            <td>{{ticket_info.date_opened}}</td>
+                                            <td>
+                                                {{next_to_do.string_part}}
                                             </td>
                                             <td>
-                                                {{ticket.stimated_time_for_solution}}
+                                                {{ticket_info.stimated_time_for_solution}}
+                                            </td>
+                                            <td>
+                                                <a href="ticket-info/{{ticket.id}}" class="badge badge-primary badge-sm m-t-5">
+                                                    View more
+                                                </a>
+                                                
                                             </td>
                                         </tr>
+                                        {% endwith %}
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -108,6 +119,9 @@
                 </div>                        
             </div>
         </div>
+
+        {% endfor %}
+        
 
 
         <!-- other stuff that could be useful -->
