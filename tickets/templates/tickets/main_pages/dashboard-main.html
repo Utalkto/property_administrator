@@ -79,6 +79,7 @@
                                             <!-- <th>Priority</th> -->
                                             <th>Date Opened</th>
                                             <th>Status</th>
+                                            <th>Opened by</th>
                                             <th>STS</th>
                                             <th></th>
                                         </tr>  
@@ -100,10 +101,13 @@
                                                 {{next_to_do.string_part}}
                                             </td>
                                             <td>
+                                                {{ticket_info.owner.get_full_name}}
+                                            </td>
+                                            <td>
                                                 {{ticket_info.stimated_time_for_solution}}
                                             </td>
                                             <td>
-                                                <a href="ticket-info/{{ticket.id}}" class="badge badge-primary badge-sm m-t-5">
+                                                <a href="ticket-info/{{ticket_info.id}}" class="badge badge-primary badge-sm m-t-5">
                                                     View more
                                                 </a>
                                                 

@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-gsi^j*kray(m*ii9*6=r*8d^pkmd-q6i$2hpe#ng$i43h4d2-e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['154.12.240.122', 'localhost']
 
 # Application definition
 
@@ -58,8 +57,10 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://154.12.240.122",
+    "http://localhost:3000"
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -99,7 +100,7 @@ WSGI_APPLICATION = 'properties_manager_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test_db2',
+        'NAME': 'test_db',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',

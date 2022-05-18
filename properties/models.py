@@ -114,6 +114,8 @@ class Units(models.Model):
     square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
     shed = BooleanField(default=False)
     
+    unit = IntegerField(default=1)
+    
     
 class Tenants(models.Model):
     # foreign keys

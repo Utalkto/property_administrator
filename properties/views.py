@@ -306,10 +306,23 @@ class  UnitsViewSet(APIView):
     
     @swagger_auto_schema(
     responses={200: UnitsSerializer()})
-    def get(self, request, id):
+    def get(self, request, unit_id):
+         
+        if unit_id == 0:
+            serializer = UnitsSerializer(Units.objects.filter(property_manager=request.user.id), many=True)
+            
+            #TODO: RETURN THE NAME OF THE TENANT NOT THE ID 
+            
+            print('---------------------------')
+            print(serializer)
+            print('--------------------------------')
+            
+            return Response(
+                serializer.data, 
+                status=status.HTTP_200_OK)
         
         try:
-            units = Units.objects.filter(properties_id=id , property_manager=request.user.id)
+            units = Units.objects.filter(id=unit_id , property_manager=request.user.id)
             serializer = UnitsSerializer(units, many=True)
             return Response(
                 serializer.data, 
@@ -406,12 +419,38 @@ class  UnitsViewSet(APIView):
        
 
 class TenantViewSet(APIView):
-    
+
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
+ 
+
+    def get(self, request, tenant_id, property_id):
+        
+        # to get all tenants send tenant_id == 0
+        if tenant_id == 0:
+            
+            if property_id == 0:
+            
+                serializer = TenantSerializer(
+                    Tenants.objects.filter(
+                        unit__property_manager__id = request.user.id), 
+                    many=True)
+            
+            # get all tenants in a unit 
+            else:
+                serializer = TenantSerializer(
+                    Tenants.objects.filter(
+                        unit__property_manager__id = request.user.id, 
+                        unit__property__id = property_id), 
+                    many=True)
+           
+            return Response(serializer.data)
+
+  
+        serializer = TenantSerializer(Tenants.objects.filter(id=tenant_id, unit__property_manager__id = request.user.id), many=True)
+        return Response(serializer.data)
     
-    @swagger_auto_schema(
-    responses={200: TenantSerializer()})
+    
     def post(self, request):
 
         try: 
@@ -434,11 +473,53 @@ class TenantViewSet(APIView):
                     }, 
                     status=status.HTTP_400_BAD_REQUEST)
         
-        #!!! why is this here?
+      
         except CustomUser.DoesNotExist:
             return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
-        
-      
 
 
+    def put(self, request, id):
+
+        try:
+            unit = Tenants.objects.get(id=id)
+
+            request.data['landlord'] = request.user.id
+            serializer = TenantSerializer(instance=unit, data=request.data)
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response(
+                    {
+                        'error': True, 
+                        'message': 'serializer is not valid', 
+                        'serializer_error': serializer.errors
+                    },
+                    status=status.HTTP_400_BAD_REQUEST)
+
+        except Tenants.DoesNotExist:
+            return Response(
+                {'error': True, 
+                 'message': 'the unit does not exist'
+                 }, 
+                status=status.HTTP_404_NOT_FOUND)
+
+
+    def delete(self, request, id):
+
+        try:
+            tenent = Tenants.objects.get(id=id)
+            tenent.delete()
+            return Response(
+                {
+                    "message": "the tenent has been eliminated successfully"
+                }, 
+                status=status.HTTP_200_OK)
         
+        except Tenants.DoesNotExist:
+            return Response(
+                {'error': True, 
+                 'message': 'the tenent does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)  
