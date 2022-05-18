@@ -1,8 +1,6 @@
 from faker import Faker
 import random
 
-from pytz import country_names
-
 from register.models import UserCountries, UserCities, UserPlans, UserRoles
 
 from properties.models import PropertyTypes, UnitTypes, PropertyCountries, PropertyCities, Properties, Units, Tenants
@@ -188,7 +186,7 @@ def crear_inquilinos():
         "lease_expiration_date": "2025-02-10",
         "payments_delay" : payments_del ,
         "payments_on_time": payments_on_t,
-        "name": "unidad",
+        "name": fake.unique.name(),
         "phone": "+584121419422",
         "phone2" : "+544168174690",
         "preferred_communications": "Telefono",
