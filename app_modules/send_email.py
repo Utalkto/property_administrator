@@ -38,16 +38,30 @@ class SendEmail:
         # gmail app password : xbttxlrqhiwrdxux
         context = ssl.create_default_context()
         
-        with smtplib.SMTP_SSL("smtp.hostinger.com", 465, context=context) as server:
-            server.login("hello@orinocoventures.com",'OrinocoV2022..' )
-            
-            server.sendmail(
-                from_addr="hello@orinocoventures.com", 
-                to_addrs=send_to,
-                msg=email_message.as_string())
-
-        return 'email sent'
-   
+        # we try to send the email
+        try:
+            with smtplib.SMTP_SSL("smtp.hostinger.com", 465, context=context) as server:
+                server.login("hello@orinocoventures.com",'OrinocoV2022..' )
+                
+                server.sendmail(
+                    from_addr="hello@orinocoventures.com", 
+                    to_addrs=send_to,
+                    msg=email_message.as_string())
+        except:
+            # if it fails then we try one moretime
+            try:
+                with smtplib.SMTP_SSL("smtp.hostinger.com", 465, context=context) as server:
+                    server.login("hello@orinocoventures.com",'OrinocoV2022..' )
+                    
+                    server.sendmail(
+                        from_addr="hello@orinocoventures.com", 
+                        to_addrs=send_to,
+                        msg=email_message.as_string())
+            # if it fails again then we raise and exception and the site where the class is being called must 
+            # handle the error
+            except:
+                raise Exception('Cannot send email')
+        
 
 
 

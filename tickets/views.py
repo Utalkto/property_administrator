@@ -287,7 +287,7 @@ def ticket_tree_stage_info(request):
         elif stage_status == 4:
             fields = MaintanenceIssueDescription.objects.filter(maintanence_issue_sub_type=option_selected)
             stage_title = 'Maintanence Issue Description'
-        
+            
         elif stage_status == 5:
             
             ticket_id = int(request.POST.get('ticket_id'))

@@ -43,6 +43,9 @@ urlpatterns = [
    # tickets module with django 
    path('tickets/', include('tickets.urls')),
    
+   # part frontend part api
+   
+   path('communications/', include('communications.urls')),
    
    # to fill db
    path('fill-db/', include('fill_db.urls')),

@@ -169,27 +169,28 @@ def crear_unidades():
 
 def crear_inquilinos():
 
-    units = random.randrange(1,9)
+    units = random.randrange(71,81)
     payments_del  = random.randrange(0, 5)
     payments_on_t = random.randrange(0, 5)
     standing_qualif = random.randrange(1, 10)
+    
 
     data = {
         "landlord" : 1,
         "unit" : units,
         "date_deposit_received" :"2022-04-20",
-        "email" : "email1@gmail.com",
+        "email" : "andresruse18@gmail.com",
         "email2" : "email2qutalkto.com",
         "emergency_contact": "04168174690",
-        "emergency_contact_name" : "Yusmelys",
+        "emergency_contact_name" : "karman the jewish",
         "lease_start_date" : "2020-02-10",
         "lease_expiration_date": "2025-02-10",
         "payments_delay" : payments_del ,
         "payments_on_time": payments_on_t,
         "name": fake.unique.name(),
-        "phone": "+584121419422",
+        "phone": "+584129266703",
         "phone2" : "+544168174690",
-        "preferred_communications": "Telefono",
+        "preferred_communications": random.choice(['phone', 'email']),
         "role": "role",
         "secondary_communications": "correo",
         "standing_qualification" : standing_qualif,

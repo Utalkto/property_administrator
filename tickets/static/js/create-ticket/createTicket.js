@@ -18,12 +18,21 @@ function nextStage(_nextStage, optionSelected, branchSelected){
         data: jsonData,
         success: function (response) {
             
+
+
             if (response.completed == true) {
+
+
+
                 window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#ticket-id').val()}`;
             }
 
+ 
+                addFields(response);
+
             
-            addFields(response);
+
+            
 
         },
         error: function (response) {
@@ -108,7 +117,7 @@ function getNextInfo(_nextStage, option_id) {
         ticketType = option_id;
     }
 
-    if (_nextStage == 5) {
+    if (_nextStage == 6) {
         jsonData['tenant_id'] = tenantId
         jsonData['ticket_type'] = ticketType
     }
@@ -121,7 +130,7 @@ function getNextInfo(_nextStage, option_id) {
         data: jsonData,
         success: function (response) {
 
-            if (_nextStage == 5) {
+            if (_nextStage == 6) {
 
                 // sending the user to the info ticket with the ticket id t
                 window.location.href = `http://localhost:8000/tickets/ticket-info/${response.ticket_id}`;

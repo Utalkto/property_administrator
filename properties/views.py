@@ -198,7 +198,7 @@ class PropertiesViewSet(APIView):
             serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id), many=True)
         
         else:
-            serializer = PropertiesSerializer(Properties.objects.filter(id = property_id), many=True)
+            serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id, id = property_id), many=True)
         
         return Response(serializer.data)
     
