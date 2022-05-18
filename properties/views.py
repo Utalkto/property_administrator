@@ -427,15 +427,26 @@ class TenantViewSet(APIView):
     def get(self, request, tenant_id, property_id):
         
         # to get all tenants send tenant_id == 0
+        
+        data_to_return = list()
+        
         if tenant_id == 0:
             
             if property_id == 0:
-            
-                serializer = TenantSerializer(
-                    Tenants.objects.filter(
-                        unit__property_manager__id = request.user.id), 
-                    many=True)
-            
+                
+                tenants = Tenants.objects.filter(
+                        unit__property_manager__id = request.user.id)
+                
+                for t in tenants:
+                    
+                    serializer = TenantSerializer(t)
+                    tenant_property =  Properties.objects.get(id=t.unit.property.id)
+                    
+                    data = serializer.data
+                    data['property_name'] = tenant_property.name
+                    
+                    data_to_return.append(data)
+
             # get all tenants in a unit 
             else:
                 serializer = TenantSerializer(
@@ -443,12 +454,29 @@ class TenantViewSet(APIView):
                         unit__property_manager__id = request.user.id, 
                         unit__property__id = property_id), 
                     many=True)
+                
+                data = dict()
+                
+                data['tenants'] = serializer.data
+                
+                try :
+                    data['property_name'] = Properties.objects.get(id=property_id).name
+                except Properties.DoesNotExist:
+                    return Response(
+                        {
+                            'error': True,
+                            'message': 'Property does not exist'
+                        }, 
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+                
+                data_to_return = data
            
-            return Response(serializer.data)
+            return Response(data_to_return, status=status.HTTP_200_OK)
 
   
         serializer = TenantSerializer(Tenants.objects.filter(id=tenant_id, unit__property_manager__id = request.user.id), many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     
     def post(self, request):
