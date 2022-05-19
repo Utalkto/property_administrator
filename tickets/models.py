@@ -124,6 +124,17 @@ class Ticket(models.Model):
     #     return self.status
 
 
+class TicketComments(models.Model):
+    # foreignKeys 
+    ticket = models.ForeignKey(Ticket, null=False, blank=False, on_delete=models.CASCADE)
+
+    # ------------------------------------
+    # fields 
+    
+    
+    comment = models.TextField()
+    
+
 
 class Suppliers(models.Model):
     # foreign keys

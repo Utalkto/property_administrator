@@ -11,11 +11,19 @@ from rest_framework import status
 from django.db.models import Q
 
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+
+
 # models 
 
 from .models import Ticket, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
 
-from .serializers import TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer
+from .serializers import TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
 
 # properties
 from properties.models import Properties, Tenants, Units
@@ -315,3 +323,54 @@ def ticket_tree_stage_info(request):
         'current_stage' : stage_status + 1,
         'branch_selected' : branch_selected
         })
+
+
+# API view
+
+
+class TicketCommentApi(APIView):
+    
+      
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+    
+    
+    def get(self, request, ticket_id):
+        
+        ticket_comments =  Ticket.objects.get(id=ticket_id).ticketcomments_set.all()
+        
+        serializer = TicketCommentSerializer(ticket_comments, many=True)
+        
+        return JsonResponse(
+            {'ticket_comments': serializer.data}, status=status.HTTP_200_OK)
+        
+    
+    def post(self, request, ticket_id):
+        
+        request.data['ticket'] = ticket_id
+        
+        serializer = TicketCommentSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            
+            return Response(
+                {
+                    'message': 'comment created successfully',
+                    'comment': serializer.data
+                }, status=status.HTTP_201_CREATED)            
+            
+        else:
+            return Response(
+                {
+                    'error': True,
+                    'message': 'serializer is not valid',
+                    'message_error': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)          
+        
+        
+        
+        
+        
+        

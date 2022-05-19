@@ -24,6 +24,8 @@ function sendMessage(personId, sendByEmail){
         'send_by_email': sendByEmail,
     }
 
+
+
     $.ajax({
         type: 'POST',
         url: '/communications/send-message/',

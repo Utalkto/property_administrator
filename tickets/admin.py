@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Suppliers, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, TicketAction, Ticket, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketSteps
+from .models import Suppliers, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, TicketAction, Ticket, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketSteps, TicketComments
 
 
 admin.site.register(TicketType)
@@ -12,6 +12,8 @@ admin.site.register(TicketPriority)
 admin.site.register(Ticket)
 admin.site.register(TicketSteps)
 admin.site.register(Suppliers)
+admin.site.register(TicketComments)
+
 
 
 

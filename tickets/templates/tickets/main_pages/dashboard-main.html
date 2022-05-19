@@ -80,6 +80,7 @@
                                             <th>Date Opened</th>
                                             <th>Status</th>
                                             <th>Opened by</th>
+                                            <th>Ticket type</th>
                                             <th>STS</th>
                                             <th></th>
                                         </tr>  
@@ -102,6 +103,9 @@
                                             </td>
                                             <td>
                                                 {{ticket_info.owner.get_full_name}}
+                                            </td>
+                                            <td>
+                                                {{ticket_info.ticket_type.string_part}}
                                             </td>
                                             <td>
                                                 {{ticket_info.stimated_time_for_solution}}
