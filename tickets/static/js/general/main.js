@@ -1,4 +1,4 @@
-function sendMessage(personId, sendByEmail){
+function sendMessage(personId=null, sendToTenant, sendByEmail, ){
 
     // Function to send message to a person
     // message <string> : the message to be sent
@@ -7,24 +7,45 @@ function sendMessage(personId, sendByEmail){
     // email <bool> : when true the way to send a message will be with an email
     // phone <bool> : when true the way to send a message will be with a text message (twilio)
 
-    btnSendEmail = $('#send-email-btn')
-    btnSendSms = $('#send-sms-btn')
 
-    btnSendEmail.attr("disabled", true)
-    btnSendEmail.text('Sending...')
+    message = $('#message-text');
+    subject = $('#message-subject');
 
-    btnSendSms.attr("disabled", true)
-    btnSendSms.text('Sending...')
-    
-    jsonData = {
 
-        'message': $('#message-text').val(),
-        'subject': $('#message-subject').val(),
-        'person_id': personId,
-        'send_by_email': sendByEmail,
+    if ( message.val().trim() == ''  || subject.val().trim() == ''){
+        alert('You cannot leave subject or message empty');
+        return
     }
 
 
+    if (personId === null){
+        personId = $('#input-tenant-id').val();
+    }
+
+    btnSendEmail = $('#send-email-btn');
+    btnSendSms = $('#send-sms-btn');
+
+    btnSendEmail.attr("disabled", true);
+    btnSendEmail.text('Sending...');
+
+    btnSendSms.attr("disabled", true);
+    btnSendSms.text('Sending...');
+
+    jsonData = {
+
+        'message': message.val(),
+        'subject': subject.val(),
+        'send_by_email': sendByEmail,
+    }
+
+    // checking if the message will be sent to a supplier or to a tenant 
+
+    if (sendToTenant == true){
+        jsonData.tenant_id = personId
+    } 
+    else {
+        jsonData.supplier_id = personId
+    }
 
     $.ajax({
         type: 'POST',
@@ -35,14 +56,14 @@ function sendMessage(personId, sendByEmail){
 
             alert('Message sent successfully');
 
-            afterSendMessage(success=true)
+            afterSendMessage(success=true);
 
         },
         error: function (response) {
             alert('An error has ocurred with your message, please try again.');
             console.log(response);
 
-            afterSendMessage(success=false)
+            afterSendMessage(success=false);
 
         }
     });
@@ -50,20 +71,23 @@ function sendMessage(personId, sendByEmail){
 }
 
 function afterSendMessage(success){
-    btnSendEmail.attr("disabled", false)
-    btnSendEmail.text('Send message by email')
+    btnSendEmail.attr("disabled", false);
+    btnSendEmail.text('Send message by email');
 
-    btnSendSms.attr("disabled", false)
-    btnSendSms.text('Send message by phone')
+    btnSendSms.attr("disabled", false);
+    btnSendSms.text('Send message by phone');
 
     if (success == true) {
         $('#message-text').val('');
         $('#message-subject').val('');
 
         $('#close-modal').click();
-
     }
+}
 
 
+function setTenantInModalTabId(tenant_id){
+
+    $('#input-tenant-id').val(tenant_id)
 
 }

@@ -1,0 +1,134 @@
+{% extends 'tickets/templates/base.html' %} 
+
+{% block main_content %}
+
+<div class="content-body">
+
+    <!-- Modal to send message -->
+
+
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="bootstrap-modal">
+                    <div class="modal fade" id="modal-send-message" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                                <button id="close-modal" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+
+                            <!-- Input fields -->
+
+                            <input type="hidden" id="input-tenant-id">
+
+
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="message-subject" class="col-form-label">Subject:</label>
+                                    <input type="text" class="form-control" id="message-subject">
+                                </div>
+                                <div class="form-group">
+                                    <label for="message-text" class="col-form-label">Message:</label>
+                                    <textarea class="form-control" id="message-text"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    
+                                <button id="send-sms-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId=null, sendByEmail=false)">
+                                  Send message by phone
+                                </button>
+    
+                                <button id="send-email-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId=null, sendByEmail=true)">
+                                  Send message by email
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Table of contacts -->
+
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Data Table</h4>
+            <div class="table-responsive">
+              <table
+                class="table table-striped table-bordered zero-configuration"
+              >
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Property</th>
+                    <th>Unit ID</th>
+                    <th>Create ticket</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for tenant in tenants %}
+                  <tr>
+                    <td>{{tenant.name}}</td>
+                    <td>{{tenant.unit.property.name}}</td>
+                    <td>{{tenant.unit.id}}</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="setTenantInModalTabId(tenant_id='{{tenant.id}}')"
+                        data-toggle="modal"
+                        data-target="#modal-send-message"
+                        data-whatever="@mdo"
+                      >
+                        Send message
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th>Name</th>
+                    <th>Property</th>
+                    <th>Unit</th>
+                    <th>Create ticket</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block local_js %}
+
+{% load static %}
+
+
+<script src="{% static '/plugins/tables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/tables/js/datatable/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/tables/js/datatable-init/datatable-basic.min.js' %}"></script>
+
+<script src="{% static 'js/general/main.js' %}"></script>
+
+
+{% endblock %}

@@ -28,6 +28,9 @@ from .serializers import MessageSerializer
 # property modules
 
 from properties.models import Tenants
+from properties.serializers import TenantSerializer
+
+from tickets.models import Suppliers
 
 # same app modules 
 
@@ -63,40 +66,61 @@ class CommunicationsAPI(APIView):
 
         # if email then the message will be sent by email
         
+        data_for_serializer = {
+            'user' : request.user.id,
+            'date_time_sent': datetime.datetime.now(),
+            'subject' : subject,
+            'message' : message,
+            
+            'sent_by': 'user',
+        }
+        
+        
+        
         message = request.data['message']
         subject = request.data['subject']
         
-        try:
-            tenant = Tenants.objects.get(id=int(request.data['person_id']))
-        except Tenants.DoesNotExist:
-            return Response(
-                {
-                    'error': True, 
-                    'message': 'Tenant with selected id does not exist'
-                }, status=status.HTTP_404_NOT_FOUND)
+        tenant_id = request.data.get('tenant_id')
+        supplier_id = request.data.get('supplier_id')
+        
+        if tenant_id is None:
+            receiver = 'supplier'
+            data_for_serializer['supplier'] = supplier_id
             
-        data_for_serializer = {
-            'destinatary': tenant.id,
-            'sent_by' : request.user.id,
-            'date_time_sent': datetime.datetime.now(),
-            'subject' : subject,
-            'message' : message
-        }
+            try:
+                send_to = Suppliers.objects.get(id=tenant_id).email
+            except Suppliers.DoesNotExist:
+                return Response(
+                    {
+                        'error': True, 
+                        'message': 'Supplier with selected id does not exist'
+                    }, status=status.HTTP_404_NOT_FOUND)
+            
+        else:
+            receiver = 'tenant'
+            data_for_serializer['tenant'] = tenant_id
+        
+            try:
+                send_to = Tenants.objects.get(id=tenant_id).email
+            except Tenants.DoesNotExist:
+                return Response(
+                    {
+                        'error': True, 
+                        'message': 'Tenant with selected id does not exist'
+                    }, status=status.HTTP_404_NOT_FOUND)
+                
+            
+        data_for_serializer['receiver'] = receiver
         
         serializer = MessageSerializer(data=data_for_serializer)
-        
-        
         send_by_email = convert_to_bool(request.data['send_by_email'])
         
-        
         if send_by_email:
-            
-            destinatary_email = tenant.email
             data_for_serializer['via'] = 'email'
             
             try:
                 SendEmail(
-                    send_to = destinatary_email,
+                    send_to = send_to,
                     subject = subject,
                     html = f"""
                     <html>
@@ -156,8 +180,34 @@ class CommunicationsAPI(APIView):
 
 
 def communication_feed(request):
-    return HttpResponse('here is your response, my friend')
+    
+    t = Tenants.objects.filter(unit__property_manager=request.user.id)
+    
+    return render(
+        request, 
+        'communications/main_pages/communications-dashboard.html', 
+        {
+            'tenants': t,
+        })
 
+
+def messages_details(request, tenant_id):
+    
+    try:
+        tenant = Tenants.objects.get(id=tenant_id)
+    except Tenants.DoesNotExist:
+        return HttpResponse('The user requested does not exist')
+    
+    
+    messages_sent = tenant.messagesent_set.all().count()
+    
+    return render(
+        request, 
+        'communications/main_pages/view-messages.html', 
+        {
+           'tenant': tenant,
+           'messages_sent': messages_sent
+        })
 
 
 

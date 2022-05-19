@@ -31,11 +31,11 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
-                            <button id="send-sms-btn" type="button" class="btn btn-primary" onclick="sendMessage(persoId='{{ticket.created_by.id}}', sendByEmail=false)">
+                            <button id="send-sms-btn" type="button" class="btn btn-primary" onclick="sendMessage(persoId='{{ticket.created_by.id}}', sendToTenant=true, sendByEmail=false)">
                               Send message by phone
                             </button>
 
-                            <button id="send-email-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId='{{ticket.created_by.id}}', sendByEmail=true)">
+                            <button id="send-email-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId='{{ticket.created_by.id}}', sendToTenant=true, sendByEmail=true)">
                               Send message by email
                             </button>
                         </div>

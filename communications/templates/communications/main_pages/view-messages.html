@@ -1,0 +1,110 @@
+{% extends 'tickets/templates/base.html' %} 
+
+
+{% block main_content %}
+
+
+<div class="content-body">
+
+    <!-- row -->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-4 col-xl-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media align-items-center mb-4">
+                            <img class="mr-3" src="images/avatar/11.png" width="80" height="80" alt="">
+                            <div class="media-body">
+                                <h3 class="mb-0">{{tenant.name}}</h3>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-5">
+                            <div class="col">
+                                <div class="card card-profile text-center">
+                                    <span class="mb-1 text-primary"><i class="icon-people"></i></span>
+                                    <h3 class="mb-0">{{messages_sent}}</h3>
+                                    <p class="text-muted px-4">Messages received</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card card-profile text-center">
+                                    <span class="mb-1 text-warning"><i class="icon-user-follow"></i></span>
+                                    <h3 class="mb-0">{{messages_sent}}</h3>
+                                    <p class="text-muted">Messages sent</p>
+                                </div>
+                            </div>
+                
+                        </div>
+
+                        <ul class="card-profile__info">
+                            <li class="mb-1"><strong class="text-dark mr-4">Property</strong> <span>{{tenant.unit.property.name}}</span></li>
+                            <li class="mb-1"><strong class="text-dark mr-4">Mobile</strong> <span>01793931609</span></li>
+                            <li><strong class="text-dark mr-4">Email</strong> <span>name@domain.com</span></li>
+                        </ul>
+
+                    </div>
+                </div>  
+            </div>
+
+            <div class="col-lg-8 col-xl-9">
+                <div class="card">
+                    <div class="card-body">
+                        
+                        <div class="form-group">
+                            <input class="form-control" type="text" id="message-subject" placeholder="Write the subject of your message here">
+                            <br>
+                            <textarea class="form-control" name="textarea" id="message-text" cols="30" rows="2" placeholder="Write your message here"></textarea>
+                        </div>
+
+                        <div class="d-flex align-items-right"
+                        style="
+                        float: right;
+                        overflow: auto;
+                        white-space: nowrap;">
+        
+                            <button class="btn btn-primary px-3 ml-4" id="send-email-btn" onclick="sendMessage(persoId='{{tenant.id}}', sendToTenant=false, sendByEmail=true)">
+                                Send by Email
+                            </button>
+                            <button class="btn btn-primary px-3 ml-4" id="send-sms-btn" onclick="sendMessage(persoId='{{tenant.id}}', sendToTenant=false, sendByEmail=false)">
+                                Send by phone (SMS)
+                            </button>
+                        
+                        </div>
+                       
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="media media-reply">
+                            <div class="media-body">
+                                <div class="d-sm-flex justify-content-between mb-2">
+                                    <h5 class="mb-sm-0">Milan Gbah <small class="text-muted ml-3">about 3 days ago</small></h5>
+                                   
+                                </div>
+                                
+                                <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.</p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #/ container -->
+</div>
+
+
+{% endblock %}
+
+{% load static %}
+
+{% block local_js %}
+
+<script src="{% static 'js/general/main.js' %}"></script>
+
+{% endblock %}

@@ -233,8 +233,3 @@ function addNextInfoInCrationDashboard(data, _nextStage){
 }
 
 
-function setTenantInModalTabId(tenant_id){
-
-    $('#input-tenant-id').val(tenant_id)
-
-}
