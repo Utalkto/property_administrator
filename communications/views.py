@@ -88,7 +88,7 @@ class CommunicationsAPI(APIView):
             data_for_serializer['supplier'] = supplier_id
             
             try:
-                send_to = Suppliers.objects.get(id=tenant_id).email
+                send_to = Suppliers.objects.get(id=tenant_id)
             except Suppliers.DoesNotExist:
                 return Response(
                     {
@@ -101,7 +101,7 @@ class CommunicationsAPI(APIView):
             data_for_serializer['tenant'] = tenant_id
         
             try:
-                send_to = Tenants.objects.get(id=tenant_id).email
+                send_to = Tenants.objects.get(id=tenant_id)
             except Tenants.DoesNotExist:
                 return Response(
                     {
@@ -120,7 +120,7 @@ class CommunicationsAPI(APIView):
             
             try:
                 SendEmail(
-                    send_to = send_to,
+                    send_to = send_to.email,
                     subject = subject,
                     html = f"""
                     <html>
@@ -139,7 +139,6 @@ class CommunicationsAPI(APIView):
                 
             
         else:
-            destinatary_phone = tenant.phone
             data_for_serializer['via'] = 'phone-sms'
             
             
@@ -154,7 +153,7 @@ class CommunicationsAPI(APIView):
             twilio_message =  f"Subject: {subject}. Message: {message}"
             twilio_message = client.messages.create(
                 from_="+19704897499", 
-                to=destinatary_phone,
+                to=send_to.phone,
                 body= twilio_message
             )
             

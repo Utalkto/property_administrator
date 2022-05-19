@@ -8,6 +8,8 @@ function sendMessage(personId=null, sendToTenant, sendByEmail, ){
     // phone <bool> : when true the way to send a message will be with a text message (twilio)
 
 
+
+
     message = $('#message-text');
     subject = $('#message-subject');
 
@@ -91,3 +93,5 @@ function setTenantInModalTabId(tenant_id){
     $('#input-tenant-id').val(tenant_id)
 
 }
+
+
