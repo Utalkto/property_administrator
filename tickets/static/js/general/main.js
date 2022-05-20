@@ -100,6 +100,10 @@ function afterSendMessage(success, comFeed, response) {
 
     if (comFeed == true) {
       addMessageToSent(response);
+
+      messagesSent = $('#messages-sent');
+      messagesSent.text(parseInt(messagesSent.text()) + 1);
+      
     }
 
   }
