@@ -31,6 +31,10 @@ from properties.serializers import UnitsSerializer, TenantSerializer
 # It is possible to create more nodes if in the future the app would allow to add more ticket types
 
 
+# TODO: CREATE APPOINMENTS PART IN DB
+
+
+
 def home(request):
     
     all_tickets_open = Ticket.objects.filter(date_closed__isnull=True)
