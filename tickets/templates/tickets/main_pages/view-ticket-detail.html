@@ -1,51 +1,88 @@
-{% extends 'tickets/templates/base.html' %}
-
-{% block main_content %}
+{% extends 'tickets/templates/base.html' %} {% block main_content %}
 
 <div class="content-body">
   <!-- row -->
 
-
-<div class="col-lg-12">
+  <div class="col-lg-12">
     <div class="card">
-        <div class="card-body">
-            <div class="bootstrap-modal">
-                <div class="modal fade" id="modal-send-message" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">New message</h5>
-                            <button id="close-modal" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="message-subject" class="col-form-label">Subject:</label>
-                                <input type="text" class="form-control" id="message-subject">
-                            </div>
-                            <div class="form-group">
-                                <label for="message-text" class="col-form-label">Message:</label>
-                                <textarea class="form-control" id="message-text"></textarea>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-                            <button id="send-sms-btn" type="button" class="btn btn-primary" onclick="sendMessage(persoId='{{ticket.created_by.id}}', sendToTenant=true, sendByEmail=false)">
-                              Send message by phone
-                            </button>
-
-                            <button id="send-email-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId='{{ticket.created_by.id}}', sendToTenant=true, sendByEmail=true)">
-                              Send message by email
-                            </button>
-                        </div>
-                    </div>
+      <div class="card-body">
+        <div class="bootstrap-modal">
+          <div
+            class="modal fade"
+            id="modal-send-message"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">
+                    New message
+                  </h5>
+                  <button
+                    id="close-modal"
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
                 </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="message-subject" class="col-form-label"
+                      >Subject:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="message-subject"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="message-text" class="col-form-label"
+                      >Message:</label
+                    >
+                    <textarea class="form-control" id="message-text"></textarea>
+                  </div>
                 </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                  >
+                    Close
+                  </button>
+
+                  <button
+                    id="send-sms-btn"
+                    type="button"
+                    class="btn btn-primary sweet-success"
+                    onclick="sendMessage(persoId='{{ticket.created_by.id}}', sendToTenant=true, sendByEmail=false)"
+                  >
+                    Send message by phone
+                  </button>
+
+                  <button
+                    id="send-email-btn"
+                    type="button"
+                    class="btn btn-primary sweet-success"
+                    onclick="sendMessage(personId='{{ticket.created_by.id}}', sendToTenant=true, sendByEmail=true)"
+                  >
+                    Send message by email
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 
   <div class="container-fluid">
     <div class="row">
@@ -53,34 +90,27 @@
         <div class="card">
           <div class="card-body">
             <div class="email-left-box">
-              <button class="btn btn-primary btn-block"
-                >{{ticket.priority.string_part}}</button
-              >
+              <button class="btn btn-primary btn-block">
+                {{ticket.priority.string_part}}
+              </button>
               <div class="mail-list mt-4">
-
-
-                {% for ticket_status in ticket_statuses  %}
-                <a  href="email-inbox.html" class="list-group-item border-0 p-r-0">
+                {% for ticket_status in ticket_statuses %}
+                <a
+                  href="email-inbox.html"
+                  class="list-group-item border-0 p-r-0"
+                >
                   <b>{{ticket_status.string_part}}</b>
                   <!-- <span class="badge badge-primary badge-sm float-right m-t-5">198</span> -->
-
-
 
                   {% if ticket.ticket_status.id >= ticket_status.id %}
 
                   <span class="badge badge-primary badge-sm float-right m-t-5">
-
-                   <i class="fa-solid fa-check"></i>
-
-
+                    <i class="fa-solid fa-check"></i>
                   </span>
 
                   {% endif %}
                 </a>
                 {% endfor %}
-
-
-
               </div>
 
               <!-- <h5 class="mt-5 m-b-10">Categories</h5>
@@ -196,84 +226,90 @@
                     </h4>
                   </div>
                 </div>
-                <h5 class="m-b-15">Hi, User, here is what you need to do next</h5>
+                <h5 class="m-b-15">
+                  Hi, User, here is what you need to do next
+                </h5>
                 <p>{{next_to_do.info}}</p>
 
                 <h4>Action to do</h4>
 
                 {% for key, value in ticket.action_to_do.action_to_do.items %}
 
-                <p> <strong>{{key}}</strong> : {{value}}</p>
+                <p><strong>{{key}}</strong> : {{value}}</p>
 
                 {% endfor %}
 
-                <a class="badge badge-primary badge-sm m-t-5" 
-                href="{{next_to_do.action_link}}{{ticket.ticket_type.id}}/{{ticket.id}}">
+                <a
+                  class="badge badge-primary badge-sm m-t-5"
+                  href="{{next_to_do.action_link}}{{ticket.ticket_type.id}}/{{ticket.id}}"
+                >
                   {{next_to_do.string_part}}
                 </a>
 
                 <hr />
 
-                <button type="button" class="btn mb-1 btn-primary" data-target="#modal-send-message" data-toggle="modal"> 
-                  
-                  Send message to tenant  
+                <button
+                  type="button"
+                  class="btn mb-1 btn-primary"
+                  data-target="#modal-send-message"
+                  data-toggle="modal"
+                >
+                  Send message to tenant
                   <span class="btn-icon-right">
                     <i class="fa-solid fa-envelope"></i>
                   </span>
-
                 </button>
 
                 <hr />
 
-              <div id="comments-section">
+                <div id="comments-section">
+                  <h4 class="p-t-15">Write a comment</h4>
+                  <hr />
 
-
-                <h4 class="p-t-15"> Write a comment </h4>
-                <hr />
-
-                <div class="form-group p-t-15">
-                  <textarea
-                    class="w-100 p-20 l-border-1"
-                    name=""
-                    id="comment-input"
-                    cols="30"
-                    rows="5"
-                    placeholder="Write your comment here"
-                  ></textarea>
+                  <div class="form-group p-t-15">
+                    <textarea
+                      class="w-100 p-20 l-border-1"
+                      name=""
+                      id="comment-input"
+                      cols="30"
+                      rows="5"
+                      placeholder="Write your comment here"
+                    ></textarea>
+                  </div>
                 </div>
-              </div>
-              <div class="text-right">
-                <button class="btn btn-primaryw-md m-b-30" type="button" onclick="makeComment(ticketId='{{ticket.id}}')">
-                  Submmit
-                </button>
-              </div>
+                <div class="text-right">
+                  <button
+                    class="btn btn-primaryw-md m-b-30"
+                    type="button"
+                    onclick="makeComment(ticketId='{{ticket.id}}')"
+                  >
+                    Submmit
+                  </button>
+                </div>
 
-              <hr>
-              
+                <hr />
 
                 {% if comments %}
-              
+
                 <h4 id="ticket-comments-title">Ticket Comments</h4>
 
                 {% endif %}
 
-                <div id="comments-made" >
-
-                {% for comment in comments %}
-                  <hr>
+                <div id="comments-made">
+                  {% for comment in comments %}
+                  <hr />
 
                   <p><strong>Created at : {{comment.date}}</strong></p>
-                  <p><strong>Made by : {{comment.made_by.get_full_name}}</strong></p>
+                  <p>
+                    <strong>Made by : {{comment.made_by.get_full_name}}</strong>
+                  </p>
 
-                
                   <p>{{comment.comment}}</p>
 
-                  <hr>
+                  <hr />
 
-                {% endfor %}
-
+                  {% endfor %}
                 </div>
-
               </div>
             </div>
           </div>
@@ -283,13 +319,10 @@
   </div>
 </div>
 
-{% endblock %}
-
-{% block local_js %} 
-
-{% load static %}
+{% endblock %} {% block local_js %} {% load static %}
 
 <script src="{% static 'js/general/main.js' %}"></script>
 <script src="{% static 'js/create-ticket/ticketInfo.js' %}"></script>
+<script src="{% static 'js/sweetalert.min.js' %}"></script>
 
 {% endblock %}
