@@ -10,14 +10,11 @@ from rest_framework import status
 
 from django.db.models import Q
 
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
-
 
 # models 
 
@@ -32,7 +29,6 @@ from properties.serializers import UnitsSerializer, TenantSerializer
 # Create your views here.
 
 # It is possible to create more nodes if in the future the app would allow to add more ticket types
-
 
 
 def home(request):
@@ -145,6 +141,7 @@ def create_ticket_main_info(request):
             'date_opened' : datetime.datetime.now(),
             'priority': ticket_priority,
             'ticket_status': 1,
+            'work_area' : 5, # TODO: change this here it can be dynamic
             # 'action_to_do': 1,
         }
         
@@ -156,8 +153,7 @@ def create_ticket_main_info(request):
             print(serializer.data)
             
             return JsonResponse( {'ticket_id': serializer.data['id']})
-
-            
+      
         else:
             print(serializer.errors)
             
@@ -170,9 +166,6 @@ def create_ticket_main_info(request):
                 status=status.HTTP_400_BAD_REQUEST
                 )
         
-        
-        
-
     properties = Properties.objects.all()
     
     return render(
@@ -231,6 +224,8 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
     
     ticket = Ticket.objects.get(id=int(ticket_id))
     
+    ticket_work_area = ticket.problem.work_area.id
+    
     
     if request.method == 'POST':
         
@@ -251,7 +246,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
     for contractor_id in ticket.contractors_contacted:
         contractors_contacted.append(ticket.contractors_contacted[contractor_id]) 
     
-    contractors = Suppliers.objects.filter(role=int(ticket_type)).filter(~Q(id__in=contractors_contacted))
+    contractors = Suppliers.objects.filter(work_area=int(ticket_work_area)).filter(~Q(id__in=contractors_contacted))
 
     return render (
         request,
@@ -296,6 +291,7 @@ def ticket_tree_stage_info(request):
             ticket = Ticket.objects.get(id=ticket_id)
             ticket.ticket_status = TicketSteps.objects.get(id=2)
             ticket.action_to_do = TicketAction.objects.get(issue_description=option_selected)
+            ticket.problem = MaintanenceIssueDescription.objects.get(id=option_selected)   
             
             ticket.save()
             

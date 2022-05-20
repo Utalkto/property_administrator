@@ -1,10 +1,50 @@
 from datetime import datetime
+from msilib.schema import CustomAction
 from django.db import models
 from properties.models import Tenants, Units, PropertyCities
 
 from register.models import CustomUser
 
 # ID OF EACH TABLE (EXCEPT FOR TICKET) WILL BE THE VALUE IN THE OPTIONS DISPLAYED IN FRONT 
+
+
+class SupplierWorkArea(models.Model):
+    
+    work_area = models.CharField(max_length=120)
+    # work_area = models.CharField(max_length=120, default='120')
+    
+    
+    def __str__(self) -> str:
+        return f'{self.work_area} - {self.id}'
+    
+
+class Suppliers(models.Model):
+    # foreign keys
+    
+    city = models.ForeignKey(PropertyCities, null=False, blank=False, on_delete=models.CASCADE)
+    # role = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
+    
+    work_area = models.ForeignKey(SupplierWorkArea, null=True, blank=False, on_delete=models.CASCADE, default=None)
+    
+    # --------------------------
+    # fields
+
+    email = models.CharField(max_length=100)
+    
+    last_time_hired = models.DateField(null=True, default=None)
+    
+    name = models.CharField(max_length=50)
+    
+    phone = models.CharField(max_length=100)
+    
+    rating = models.IntegerField()
+    
+    times_hired = models.IntegerField(default=0)
+    
+    
+    def __str__(self) -> str:
+        return f'{self.name} - {self.id}'
+
 
 class TicketType(models.Model):
     string_part = models.CharField(max_length=120)
@@ -21,7 +61,7 @@ class MaintanenceType(models.Model):
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return self.string_part
+        return f'{self.string_part} - {self.id}'
     
 
 class MaintanenceIssueType(models.Model):
@@ -30,7 +70,7 @@ class MaintanenceIssueType(models.Model):
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return self.string_part
+        return f'{self.string_part} - {self.id}'
     
 
 # here would be the part of the appliance that is failing 
@@ -39,15 +79,17 @@ class MaintanenceSubIssueType(models.Model):
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return self.string_part   
+        return f'{self.string_part} - {self.id}'
     
     
 class MaintanenceIssueDescription(models.Model):
     maintanence_issue_sub_type = models.ForeignKey(MaintanenceSubIssueType, null=False, on_delete=models.CASCADE)
+    work_area = models.ForeignKey(SupplierWorkArea, null=False, on_delete=models.CASCADE, default=5)
+
     string_part = models.CharField(max_length=120)
-    
+
     def __str__(self) -> str:
-        return self.string_part
+        return f'{self.string_part} - {self.id}'
 
 # ----------------------------------------
 
@@ -55,13 +97,15 @@ class TicketAction(models.Model):
     issue_description = models.ForeignKey(MaintanenceIssueDescription, null=False, on_delete=models.CASCADE, default=1)
     action_to_do = models.JSONField()
     
-    
 
 # class TicketIssue(models.Model):
 #     issue = models.CharField(max_length=120)
     
 class TicketPriority(models.Model):
     string_part = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return f'{self.string_part} - {self.id}'
 
 
 class TicketSteps(models.Model):
@@ -76,8 +120,11 @@ class TicketSteps(models.Model):
     string_part = models.CharField(max_length=120)
     info = models.CharField(max_length=1000, default='', null=True)
     action_link = models.URLField(max_length=120, default='', null=True)
-
-
+    
+    def __str__(self) -> str:
+        return f'{self.string_part} - {self.id}'
+    
+ 
 class Ticket(models.Model):
     # foreignKeys 
     created_by = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE)
@@ -85,9 +132,9 @@ class Ticket(models.Model):
     unit =  models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
     priority =  models.ForeignKey(TicketPriority, null=False, blank=False, on_delete=models.CASCADE)
     ticket_status =  models.ForeignKey(TicketSteps, null=False, blank=False, on_delete=models.CASCADE)
-    action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE)
     owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
     
+    action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE)       
     problem = models.ForeignKey(MaintanenceIssueDescription, null=True, on_delete=models.CASCADE, default=None)
 
 
@@ -109,6 +156,15 @@ class Ticket(models.Model):
     date_closed = models.DateTimeField(null=True)
     description = models.TextField(null=True)
     
+    
+    # INCLUDE THIS FIELD LATER
+        
+    # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    # last_date_ticket_change = models.DateTimeField(null=True, default=None)
+    # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    
     max_for_approval = models.IntegerField(default=250)
     
     photo = models.ImageField(upload_to='tickets', null=True)
@@ -123,51 +179,42 @@ class Ticket(models.Model):
     
     reparation_day = models.DateField(null=True)
     
-    target_completion_date = models.DateField(null=True)
-    
-    # def __str__(self) -> str:
-    #     return self.status
-
+    target_completion_date = models.DateField(null=True)   
+   
 
 class TicketComments(models.Model):
     # foreignKeys 
     ticket = models.ForeignKey(Ticket, null=False, blank=False, on_delete=models.CASCADE)
     made_by = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
 
-
     # ------------------------------------
     # fields 
     
     date = models.DateTimeField()
     comment = models.TextField()
+
+
+class TicketAppoinment(models.Model):
+    
+    # Foreign keys  
+    created_by = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, null=False, blank=False, on_delete=models.CASCADE)
+    # ------------------------------------------------------------
+    # Fields
+    
+    date = models.DateTimeField(null=False)
+    completed = models.BooleanField(default=False)
+    supplier_attendance = models.BooleanField(default=False)
+    
+    
+    
+    
+    
+    
     
 
 
-class Suppliers(models.Model):
-    # foreign keys
-    
-    city = models.ForeignKey(PropertyCities, null=False, blank=False, on_delete=models.CASCADE)
-    role = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
-    
-    # --------------------------
-    # fields
 
-    email = models.CharField(max_length=100)
-    
-    last_time_hired = models.DateField(null=True, default=None)
-    
-    name = models.CharField(max_length=50)
-    
-    phone = models.CharField(max_length=100)
-    
-    rating = models.IntegerField()
-    
-    times_hired = models.IntegerField(default=0)
-    
-    
-    def __str__(self) -> str:
-        return f'{self.name} - {self.id}'
-    
-    
-   
+
+
 

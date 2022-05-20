@@ -1,5 +1,6 @@
 let tenantId = 0;
 let ticketType = 0;
+let currentStage = 0;
 
 
 function nextStage(_nextStage, optionSelected, branchSelected){
@@ -12,12 +13,14 @@ function nextStage(_nextStage, optionSelected, branchSelected){
         'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
     }
 
+
     $.ajax({
         type: 'POST',
         url: '/tickets/stage-info/',
         data: jsonData,
         success: function (response) {
-            
+
+            currentStage = response.current_stage
 
 
             if (response.completed == true) {
