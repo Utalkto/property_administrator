@@ -75,7 +75,8 @@
                     <th>Name</th>
                     <th>Property</th>
                     <th>Unit ID</th>
-                    <th>Create ticket</th>
+                    <th>Send message</th>
+                    <th>View all messages sent</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -96,6 +97,20 @@
                         Send message
                       </button>
                     </td>
+
+
+                    <td>
+                      <a
+                        class="btn btn-primary"
+                        href="{% url 'messages_details' tenant_id=tenant.id %}"
+  
+                      >
+                        View all messages sent
+                      </a>
+                    </td>
+
+
+
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -104,7 +119,8 @@
                     <th>Name</th>
                     <th>Property</th>
                     <th>Unit</th>
-                    <th>Create ticket</th>
+                    <th>Send message</th>
+                    <th>View all messages sent</th>
                   </tr>
                 </tfoot>
               </table>

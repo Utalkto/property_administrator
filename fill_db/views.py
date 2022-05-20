@@ -115,7 +115,6 @@ def crear_propiedades():
         print('------------------------')
        
 
-
 def crear_unidades():
     """Crear datos de forma eleatorea en la tabla de Unidades"""
 

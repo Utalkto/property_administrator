@@ -92,6 +92,8 @@ class Units(models.Model):
     
     lease_type = CharField(max_length=100)
     
+    main_tenant_name = CharField(max_length=150, default='Homero el griego')
+    
     name = CharField(max_length=100, default='')
     notes = TextField(default='')
     number_of_pets = IntegerField(default=0)

@@ -23,7 +23,7 @@ class UnitPayments(models.Model):
     
 class UserPayments(models.Model):
     # foreing keys 
-    Tenant = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
     # ------------------------------------------------
     # fields 
     

@@ -197,13 +197,16 @@ def messages_details(request, tenant_id):
         return HttpResponse('The user requested does not exist')
     
     
-    messages_sent = tenant.messagesent_set.all().count()
+    messages = tenant.messagesent_set.all()
+    messages_sent = messages.count()
+    
     
     return render(
         request, 
         'communications/main_pages/view-messages.html', 
         {
            'tenant': tenant,
+           'messages': messages,
            'messages_sent': messages_sent
         })
 
