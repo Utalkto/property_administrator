@@ -1,20 +1,25 @@
 from django.db import models
 
 from register.models import CustomUser
-from properties.models import Units
+from properties.models import Tenants, Units
 
 
 class UnitPayments(models.Model):
     # foreing keys 
     Unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    tenant = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE, default=1)
     # ------------------------------------------------
     # fields 
     
+    comments = models.CharField(max_length=120, default='')
+        
     payment_date = models.DateField()
     payment_method = models.CharField(max_length=70)
     payment_amount = models.DecimalField(decimal_places=2, max_digits=6)
     
     reference_code = models.CharField(max_length=100)
+    
+    status = models.CharField(max_length=120, default='')
     
     class Meta:
         ordering = ('payment_date', )
