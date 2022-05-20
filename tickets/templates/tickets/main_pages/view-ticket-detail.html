@@ -130,7 +130,11 @@
               </div> -->
             </div>
             <div class="email-right-box">
+
+             
+
               <div class="toolbar" role="toolbar">
+
                 <div class="btn-group m-b-20">
                   <button type="button" class="btn btn-light">
                     <i class="fa fa-archive"></i>
@@ -211,10 +215,23 @@
               </div>
               <div class="read-content">
                 <div class="media pt-5">
-                  <img class="mr-3 rounded-circle" src="images/avatar/1.jpg" />
+                  <!-- <img class="mr-3 rounded-circle" src="images/avatar/1.jpg" /> -->
                   <div class="media-body">
-                    <h5 class="m-b-3">{{ticket.created_by.name}}</h5>
-                    <p class="m-b-2">Date created: {{ticket.date_opened}}</p>
+                    <h3 class="m-b-3">{{ticket.created_by.name}}</h3>
+                    
+                    <p class="m-b-2"> <strong>Date created:</strong> {{ticket.date_opened}}</p>
+                    <p class="m-b-2"> <strong>Ticket type:</strong> {{ticket.ticket_type.string_part}}</p>
+
+                    {% if ticket.problem.string_part %}
+
+                    <p class="m-b-2"> <strong> Problem:</strong> {{ticket.problem.string_part}}</p>
+
+                    {% else %}
+
+                    <p class="m-b-2"> <strong>Problem:</strong> No identified yet</p>
+
+                    {% endif %}
+                    
                   </div>
                 </div>
                 <hr />

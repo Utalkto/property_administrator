@@ -13,8 +13,8 @@
             <div class="col-lg-4 col-xl-3">
                 <div class="card">
                     <div class="card-body">
-                        <div class="media align-items-center mb-4">
-                            <img class="mr-3" src="images/avatar/11.png" width="80" height="80" alt="">
+                        <div class="media align-items-center mb-4" style="text-align: center;">
+                            <!-- <img class="mr-3" src="images/avatar/11.png" width="80" height="80" alt=""> -->
                             <div class="media-body">
                                 <h3 class="mb-0">{{tenant.name}}</h3>
                             </div>
@@ -64,11 +64,11 @@
                         overflow: auto;
                         white-space: nowrap;">
 
-                            <button class="btn btn-primary px-3 ml-4" id="send-sms-btn" onclick="sendMessage(persoId='{{tenant.id}}', sendToTenant=true, sendByEmail=false)">
+                            <button class="btn btn-primary px-3 ml-4" id="send-sms-btn" onclick="sendMessage(persoId='{{tenant.id}}', sendToTenant=true, sendByEmail=false, comFeed=true)">
                                 Send by phone (SMS)
                             </button>
         
-                            <button class="btn btn-primary px-3 ml-4" id="send-email-btn" onclick="sendMessage(persoId='{{tenant.id}}', sendToTenant=true, sendByEmail=true)">
+                            <button class="btn btn-primary px-3 ml-4" id="send-email-btn" onclick="sendMessage(persoId='{{tenant.id}}', sendToTenant=true, sendByEmail=true, comFeed=true)">
                                 Send by Email
                             </button>
                            
@@ -81,34 +81,36 @@
 
                 <div id="messages-section" >
 
+                    {% for message in messages %}
 
-                </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="media media-reply">
+                                <div class="media-body">
+                                    <div class="d-sm-flex justify-content-between mb-2">
+                                        <h5 class="mb-sm-0"> Made by: {{message.user.get_full_name}}
+                                            <small class="text-muted ml-3">Via: {{ message.via }}</small> 
+                                            <small class="text-muted ml-3">Sent at: {{ message.date_time_sent }}</small> 
+                                        </h5>
+                                    
+                                    </div>
 
-                {% for message in messages %}
-
-                <div class="card">
-                    <div class="card-body">
-                        <div class="media media-reply">
-                            <div class="media-body">
-                                <div class="d-sm-flex justify-content-between mb-2">
-                                    <h5 class="mb-sm-0"> Made by: {{message.user.get_full_name}}
-                                        <small class="text-muted ml-3">Via: {{ message.via }}</small> 
-                                        <small class="text-muted ml-3">Sent at: {{ message.date_time_sent }}</small> 
-                                    </h5>
-                                   
+                                    <br>
+                                    <h6><strong> Subject: {{message.subject}} </strong></h6>
+                                    <br>
+                                    
+                                    <p>{{ message.message }}</p>
                                 </div>
-
-                                <br>
-                                <h6><strong> Subject: {{message.subject}} </strong></h6>
-                                <br>
-                                
-                                <p>{{ message.message }}</p>
                             </div>
                         </div>
                     </div>
-                </div>
 
                 {% endfor %}
+
+
+                </div>
+
+                
 
                 </div>
             </div>

@@ -15,7 +15,7 @@ function makeComment(ticketId) {
     url: `/tickets/ticket-comment/${ticketId}`,
     data: jsonData,
     headers: {
-      Authorization: "Token 8183c7dee6e75605837af987065b8baf0b36c3a1",
+      Authorization: "Token d0610c6848b24e10e7a41b17acd3cf485213da8c",
     },
     success: function (response) {
       alert("Message sent successfully");

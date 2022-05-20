@@ -1,4 +1,4 @@
-function sendMessage(personId = null, sendToTenant, sendByEmail) {
+function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false) {
   // Function to send message to a person
   // message <string> : the message to be sent
   // subject <string> : the subject of the message to be sent
@@ -22,7 +22,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail) {
     return;
   }
 
-  if (personId === null) {
+  if (personId == null) {
     personId = $("#input-tenant-id").val();
   }
 
@@ -54,7 +54,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail) {
     url: "/communications/send-message/",
     data: jsonData,
     headers: {
-      Authorization: "Token 8183c7dee6e75605837af987065b8baf0b36c3a1",
+      Authorization: "Token d0610c6848b24e10e7a41b17acd3cf485213da8c",
     },
     success: function (response) {
       Toastify({
@@ -66,7 +66,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail) {
         },
       }).showToast();
 
-      afterSendMessage((success = true));
+      afterSendMessage(success = true, comFeed = comFeed, response = response);
     },
     error: function (response) {
       Toastify({
@@ -76,14 +76,16 @@ function sendMessage(personId = null, sendToTenant, sendByEmail) {
           background: "red",
         },
       }).showToast();
-      console.log(response);
 
-      afterSendMessage((success = false));
+      console.log(response);
+      afterSendMessage(success = false, comFeed = comFeed, response = response);
     },
   });
 }
 
-function afterSendMessage(success) {
+function afterSendMessage(success, comFeed, response) {
+
+
   btnSendEmail.attr("disabled", false);
   btnSendEmail.text("Send message by email");
 
@@ -95,9 +97,47 @@ function afterSendMessage(success) {
     $("#message-subject").val("");
 
     $("#close-modal").click();
+
+    if (comFeed == true) {
+      addMessageToSent(response);
+    }
+
   }
 }
 
 function setTenantInModalTabId(tenant_id) {
   $("#input-tenant-id").val(tenant_id);
 }
+
+
+function addMessageToSent(response) {
+
+  $('#messages-section').prepend(`
+  
+  <div class="card">
+    <div class="card-body">
+        <div class="media media-reply">
+            <div class="media-body">
+                <div class="d-sm-flex justify-content-between mb-2">
+                    <h5 class="mb-sm-0"> Made by: ${response.data.made_by}
+                        <small class="text-muted ml-3">Via: ${ response.data.via }</small> 
+                        <small class="text-muted ml-3">Sent at: A few seconds ago</small> 
+                    </h5>
+                
+                </div>
+
+                <br>
+                <h6><strong> Subject: ${response.data.subject} </strong></h6>
+                <br>
+                
+                <p>${response.data.message}</p>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  `)
+
+
+}
+

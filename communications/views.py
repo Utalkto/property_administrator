@@ -162,7 +162,8 @@ class CommunicationsAPI(APIView):
             serializer.save()
             return Response(
                     {
-                        'message': 'message sent successfully'
+                        'message': 'message sent successfully',
+                        'data': serializer.data
                     }, status=status.HTTP_200_OK)
                 
         else:
@@ -197,7 +198,7 @@ def messages_details(request, tenant_id):
         return HttpResponse('The user requested does not exist')
     
     
-    messages = tenant.messagesent_set.all()
+    messages = tenant.messagesent_set.all().order_by('-date_time_sent')
     messages_sent = messages.count()
     
     

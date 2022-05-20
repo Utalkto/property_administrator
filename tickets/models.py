@@ -87,6 +87,8 @@ class Ticket(models.Model):
     ticket_status =  models.ForeignKey(TicketSteps, null=False, blank=False, on_delete=models.CASCADE)
     action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE)
     owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
+    
+    problem = models.ForeignKey(MaintanenceIssueDescription, null=True, on_delete=models.CASCADE, default=None)
 
 
     # ------------------------------------
@@ -109,7 +111,7 @@ class Ticket(models.Model):
     
     max_for_approval = models.IntegerField(default=250)
     
-    photo = models.ImageField(upload_to='tickets', null=True)    
+    photo = models.ImageField(upload_to='tickets', null=True)
     
     proposed_contractor= models.IntegerField(null=True)
     contractor_solution = models.CharField(max_length=200, null=True)
