@@ -66,6 +66,9 @@ class CommunicationsAPI(APIView):
 
         # if email then the message will be sent by email
         
+        message = request.data['message']
+        subject = request.data['subject']
+        
         data_for_serializer = {
             'user' : request.user.id,
             'date_time_sent': datetime.datetime.now(),
@@ -75,11 +78,7 @@ class CommunicationsAPI(APIView):
             'sent_by': 'user',
         }
         
-        
-        
-        message = request.data['message']
-        subject = request.data['subject']
-        
+
         tenant_id = request.data.get('tenant_id')
         supplier_id = request.data.get('supplier_id')
         

@@ -9,6 +9,8 @@ from properties.serializers import TenantSerializer, UnitsSerializer, Properties
 from candidates.models import Candidate, CandidateStatus
 from candidates.serializers import CandiatesSerializer
 
+from tickets.models import MaintanenceType, TicketType, TicketPriority, TicketSteps
+
 
 from django.http import JsonResponse
 
@@ -32,20 +34,27 @@ class FillDataBase:
             up.save()
             us = UserRoles(role=f'role{i}')
             us.save()
-        
-        create_property_dependecy()
-        
-        crear_propiedades()
-
-        for _ in range(10):
-            crear_unidades()
             
+        try:
         
-        for _ in range(10):
-            crear_candidatos()
-            crear_inquilinos()
+            create_property_dependecy()
+            
+            crear_propiedades()
+
+            for _ in range(10):
+                crear_unidades()
+                
+            
+            for _ in range(10):
+                crear_candidatos()
+                crear_inquilinos()
+                
+            create_tickets()  
         
+        except:
+            pass
         
+            
         
         
 
@@ -169,7 +178,7 @@ def crear_unidades():
 
 def crear_inquilinos():
 
-    units = random.randrange(71,81)
+    units = random.randrange(1,10)
     payments_del  = random.randrange(0, 5)
     payments_on_t = random.randrange(0, 5)
     standing_qualif = random.randrange(1, 10)
@@ -243,8 +252,50 @@ def crear_candidatos():
         print(serializer.errors)
 
 
-def tickets():
+def create_tickets():
     
-    tipos_de_mantenimiento = ['appliance', 'electrical']
+    priority = ['emergency', 'normal', 'low']
+    tickets_type = ['maintenance', 'vacancy', 'general info']
+    ticket_step = ['Create ticket', 'Identify problem', 'Select contractor', 'Coordinate visit', 'Fifth step', 'Sixth stetp', 'Seventh step']
+    
+    sst = None
+    
+    for p_string in priority:
+        p = TicketPriority(string_part=p_string)
+        p.save()
+    
+    for tt_string in tickets_type:
+        t = TicketType(string_part = tt_string)
+        t.save()
+        
+        if tt_string == tickets_type[0]:
+            sst = t
+        
+        
+    for s_string in ticket_step:
+        
+        if s_string == ticket_step[1]:
+            action_link = 'http://localhost:8000/tickets/create-ticket-options/'
+        else:
+            action_link = 'http://localhost:8000/tickets/select-contractor/'
+        
+        ss = TicketSteps(
+            ticket_type = sst,
+            string_part = s_string,
+            info = 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium optio, eaque rerum! Provident similique accusantium nemo autem. Veritatis obcaecati tenetur iure eius earum ut molestias architecto voluptate aliquam nihil, eveniet aliquid culpa officia aut! Impedit sit sunt quaerat, odit, tenetur error, harum nesciunt ipsum debitis quas aliquid.',
+            action_link = action_link
+        )
+        
+        ss.save()
+        
+        
+        
+        
+    
+    
+    
+    
+    
+    
     
     

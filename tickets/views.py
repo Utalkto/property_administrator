@@ -48,12 +48,6 @@ def home(request):
             { 'string':  'Priority Normal', 'tickets': tickets_priority_normal},
             { 'string':  'Priority Low', 'tickets': tickets_priority_low }] 
             
-            
-            
-            
-        
-    
-    
     maintenance_tickets = Ticket.objects.filter(ticket_type=1).count()
     payment_tickets = Ticket.objects.filter(ticket_type=2).count()
     general_info_tickets = Ticket.objects.filter(ticket_type=3).count()
@@ -74,11 +68,9 @@ def home(request):
         })
 
 
-
 def open_ticket(request):
     
     if request.method == 'POST':
-    
         
         tenant_id = int(request.POST.get('tenant_id'))
         ticket_priority = int(request.POST.get('ticket_priority')) 
@@ -230,6 +222,7 @@ def ticket_info(request, ticket_id):
             'ticket': ticket,
             'ticket_statuses': ticket_statuses,
             'next_to_do' : next_to_do,
+            'comments' : Ticket.objects.get(id=ticket_id).ticketcomments_set.all().order_by('-date')
         }
         )
 
@@ -347,9 +340,14 @@ class TicketCommentApi(APIView):
     
     def post(self, request, ticket_id):
         
-        request.data['ticket'] = ticket_id
         
-        serializer = TicketCommentSerializer(data=request.data)
+        request_data = request.data.copy()
+        
+        request_data['ticket'] = ticket_id
+        request_data['date'] = datetime.datetime.now()
+        request_data['made_by'] = request.user.id
+        
+        serializer = TicketCommentSerializer(data=request_data)
         
         if serializer.is_valid():
             serializer.save()
@@ -358,7 +356,8 @@ class TicketCommentApi(APIView):
             return Response(
                 {
                     'message': 'comment created successfully',
-                    'comment': serializer.data
+                    'comment': serializer.data,
+                    'made_by': request.user.get_full_name()
                 }, status=status.HTTP_201_CREATED)            
             
         else:

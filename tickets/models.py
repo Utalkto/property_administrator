@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from properties.models import Tenants, Units, PropertyCities
 
@@ -106,6 +107,8 @@ class Ticket(models.Model):
     date_closed = models.DateTimeField(null=True)
     description = models.TextField(null=True)
     
+    max_for_approval = models.IntegerField(default=250)
+    
     photo = models.ImageField(upload_to='tickets', null=True)    
     
     proposed_contractor= models.IntegerField(null=True)
@@ -127,11 +130,13 @@ class Ticket(models.Model):
 class TicketComments(models.Model):
     # foreignKeys 
     ticket = models.ForeignKey(Ticket, null=False, blank=False, on_delete=models.CASCADE)
+    made_by = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
+
 
     # ------------------------------------
     # fields 
     
-    
+    date = models.DateTimeField()
     comment = models.TextField()
     
 

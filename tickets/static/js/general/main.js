@@ -8,8 +8,6 @@ function sendMessage(personId=null, sendToTenant, sendByEmail, ){
     // phone <bool> : when true the way to send a message will be with a text message (twilio)
 
 
-
-
     message = $('#message-text');
     subject = $('#message-subject');
 
@@ -53,7 +51,7 @@ function sendMessage(personId=null, sendToTenant, sendByEmail, ){
         type: 'POST',
         url: '/communications/send-message/',
         data: jsonData,
-        headers: {"Authorization": "Token 62a39d368f74e6f7cbc5e4926c781f61a087517a"},
+        headers: {"Authorization": "Token d0610c6848b24e10e7a41b17acd3cf485213da8c"},
         success: function (response) {
 
             alert('Message sent successfully');
