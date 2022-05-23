@@ -3,11 +3,19 @@ from django.db import models
 from register.models import CustomUser
 from properties.models import Tenants, Units
 
+class Status(models.Model):
+    name = models.CharField(max_length=50, default= '')
+    
+    def __str__(self) -> str:
+        return self.name
+
 
 class UnitPayments(models.Model):
     # foreing keys 
     Unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
-    tenant = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE, default=1)
+    tenant = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE)
+    
+    status = models.ForeignKey(Status, null=False, blank=False, on_delete=models.CASCADE)
     # ------------------------------------------------
     # fields 
     
@@ -19,7 +27,6 @@ class UnitPayments(models.Model):
     
     reference_code = models.CharField(max_length=100)
     
-    status = models.CharField(max_length=120, default='')
     
     class Meta:
         ordering = ('payment_date', )
