@@ -17,8 +17,8 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 # models 
-from properties.models import Properties, Units, Tenants
-from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializer
+from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants
+from properties.serializers import CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TenantSerializer, UnitsSerializer
 
 from register.models import CustomUser
 
@@ -47,6 +47,31 @@ def put_candidate_as_tenant(candidate):
         new_tenant.save()
     return "created"
 
+
+@api_view(['GET'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def data_to_create_property(request):
+    
+    countries = PropertyCountries.objects.all()
+    property_types = PropertyTypes.objects.all()
+    
+    countries_serializer = CountrySerializer(countries, many=True)
+    property_type_serializer = PropertyTypeSerializer(property_types, many=True)
+    
+    
+    return Response(
+        {
+            'data': {
+                'countries': countries_serializer.data,
+                'property_types': property_type_serializer.data
+            }
+        })
+    
+    
+
+# ---------------------------------------------------
+# post 
 
 @swagger_auto_schema(
     method='post',
@@ -196,7 +221,9 @@ class PropertiesViewSet(APIView):
         
         if property_id == 0:
             serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id), many=True)
-        
+            # city name 
+            # property type string
+            # 
         else:
             serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id, id = property_id), many=True)
         
@@ -299,7 +326,7 @@ class PropertiesViewSet(APIView):
                 status=status.HTTP_404_NOT_FOUND)
     
 
-class  UnitsViewSet(APIView):
+class UnitsViewSet(APIView):
  
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
@@ -441,6 +468,7 @@ class TenantViewSet(APIView):
                     
                     data = serializer.data
                     data['property_name'] = tenant_property.name
+                    data['property_id'] = tenant_property.id
                     
                     data_to_return.append(data)
 
@@ -548,3 +576,4 @@ class TenantViewSet(APIView):
                  'message': 'the tenent does not exist'
                 }, 
                 status=status.HTTP_404_NOT_FOUND)  
+

@@ -1,6 +1,6 @@
 from django.urls import  path
 
-from .views import PropertiesViewSet, TenantViewSet, UnitsViewSet, vacantUnit, set_unit_rented
+from .views import PropertiesViewSet, TenantViewSet, UnitsViewSet, vacantUnit, set_unit_rented, data_to_create_property
 
 urlpatterns = [
     
@@ -17,6 +17,8 @@ urlpatterns = [
     
     path('tenants/<int:tenant_id>/<int:property_id>',TenantViewSet.as_view()),
     path('tenants',TenantViewSet.as_view()),
+    
+    path('info-to-create-property', data_to_create_property)
     
 
 ]

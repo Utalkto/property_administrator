@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SupplierWorkArea, Suppliers, TicketAppoinment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, TicketAction, Ticket, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketSteps, TicketComments
+from .models import SupplierWorkArea, Suppliers, TicketAppoinment, TicketPayment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, TicketAction, Ticket, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketSteps, TicketComments
 
 
 admin.site.register(TicketType)
@@ -15,6 +15,7 @@ admin.site.register(Suppliers)
 admin.site.register(TicketComments)
 admin.site.register(SupplierWorkArea)
 admin.site.register(TicketAppoinment)
+admin.site.register(TicketPayment)
 
 
 

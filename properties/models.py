@@ -63,7 +63,6 @@ class Properties(models.Model):
     year_bought = IntegerField(null=True)
 
 
-
 class UnitServices(models.Model):
     service = models.CharField(max_length=120)
     available = models.BooleanField()
@@ -128,7 +127,7 @@ class Tenants(models.Model):
     # foreign keys
     
     landlord = models.ForeignKey(CustomUser, default=1, null=False, blank=False, on_delete=models.CASCADE)
-    unit = models.ForeignKey(Units, null=False, blank=False ,on_delete=models.CASCADE)
+    unit = models.ForeignKey(Units, related_name='tenants', null=False, blank=False ,on_delete=models.CASCADE)
     
     # -------------------------------------------------------
     # fields

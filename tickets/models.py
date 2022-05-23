@@ -98,6 +98,15 @@ class TicketAction(models.Model):
 
 # class TicketIssue(models.Model):
 #     issue = models.CharField(max_length=120)
+
+class TicketPayment(models.Model):
+    
+    amount = models.IntegerField()
+    payment_date = models.DateField()
+    reference_code = models.CharField(max_length=120)
+    notes = models.TextField(null=True)
+    
+    
     
 class TicketPriority(models.Model):
     string_part = models.CharField(max_length=120)
@@ -140,36 +149,24 @@ class Ticket(models.Model):
     owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
     
     contractor = models.ForeignKey(Suppliers, null=True, blank=False, on_delete=models.CASCADE, default=None)
-    action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE)       
+    action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE, default=None)       
     problem = models.ForeignKey(MaintanenceIssueDescription, null=True, on_delete=models.CASCADE, default=None)
-
+    payment = models.ForeignKey(TicketPayment, null=True, on_delete=models.CASCADE, default=None)
 
     # ------------------------------------
     # fields 
     
     approved = models.BooleanField(default=False)
-    actual_price = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=True)
-    action_log = models.TextField(null=True)
     
     followed_up = models.BooleanField(default=False)
-    followed_up_commnets = models.CharField(max_length=250, null=True)
     
-    contractor_availability = models.DateField(null=True)
     contractors_contacted = models.JSONField(default=dict)
     comments_for_approval = models.TextField(null=True)
     
     date_opened = models.DateTimeField()
     date_closed = models.DateTimeField(null=True)
-    description = models.TextField(null=True)
     
-    
-    # INCLUDE THIS FIELD LATER
-        
-    # -------------------------------------------------------------
-    # -------------------------------------------------------------
     last_date_ticket_change = models.DateTimeField(null=True, default=None)
-    # -------------------------------------------------------------
-    # -------------------------------------------------------------
     
     max_for_approval = models.IntegerField(default=250)
     
@@ -182,8 +179,6 @@ class Ticket(models.Model):
     stimated_time_for_solution = models.IntegerField(null=True)
     solution_date = models.DateField(null=True)
     
-    target_completion_date = models.DateField(null=True)   
-   
 
 class TicketComments(models.Model):
     # foreignKeys 

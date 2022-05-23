@@ -21,8 +21,6 @@ function makeComment(ticketId) {
       Authorization: "Token d0610c6848b24e10e7a41b17acd3cf485213da8c",
     },
     success: function (response) {
-      alert("Message sent successfully");
-
       afterCommentMade(response);
       comment.val("");
     },
@@ -57,33 +55,40 @@ function afterCommentMade(data) {
 }
 
 
-function setProblemAsSolved(){
+$("#close-ticket").click(() => {
 
-  // jsonData = {
-  //   'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
-  //   'contractor_solution': $('#contractor-solution').val(),
-  //   'solution_date': $('#contractor-solution'),
-  // }
+  bootbox.confirm({
+    title: "Confirm",
+    message:
+      "Are you sure the problem has been solved?",
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancel',
+      },
+      confirm: {
+        label: '<i class="fa fa-check"></i> Close ticket',
+      },
+    },
+    callback: function (result) {
 
-  // $.ajax({
-  //   type: "POST",
-  //   url: `/tickets/solve-problem/${ticketId}`,
-  //   data: jsonData,
-  //   headers: {
-  //     Authorization: authToken,
-  //   },
-  //   success: function (response) {
-    
-  //     afterCommentMade(response);
-  //     window.location.href = `http://localhost:8000/tickets/ticket-info/${ticketId}`;
+      $.ajax({
+        type: "POST",
+        url: `/tickets/close-ticket/${ticketId}`,
+        headers: {
+          Authorization: "Token d0610c6848b24e10e7a41b17acd3cf485213da8c",
+        },
+        success: function (response) {
+          alert('the ticket has beed closed');
+        },
+        error: function (response) {
+          alert("An error has ocurred with your message, please try again.");
+          console.log(response);
+        },
 
-  //   },
-  //   error: function (response) {
-  //     alert("An error has ocurred with your message, please try again.");
-  //     console.log(response);
-  //   },
-  // });
+      })
+    },
+  });
 
-  alert('here');
+});
 
-}
+

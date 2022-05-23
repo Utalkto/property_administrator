@@ -16,9 +16,12 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework import status, authentication, permissions
+
 # models 
 
-from .models import Ticket, TicketAppoinment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
+from .models import Ticket, TicketPayment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
 
 from .serializers import TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
 
@@ -376,11 +379,7 @@ def ticket_tree_stage_info(request):
         })
 
 
-def solve_ticket_problem(request, ticket_id):
-    
-    
-    return JsonResponse({'Completed': True})
-    
+def solve_ticket_problem(request, ticket_id:int):
     
     ticket = Ticket.objects.get(id=int(ticket_id))
     
@@ -391,9 +390,29 @@ def solve_ticket_problem(request, ticket_id):
     
     ticket.save()
     
-    return JsonResponse({'Completed': True})
+    return redirect('ticket_info', ticket_id=ticket_id)
+
+
+def register_payment_ticket(request, ticket_id:int):
     
-     
+
+    new_payment = TicketPayment(
+        amount = request.POST.get('amount'),
+        payment_date = request.POST.get('payment_date'),
+        reference_code = request.POST.get('reference_code'),
+        notes = request.POST.get('notes')
+    )
+    
+    new_payment.save()
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    
+    ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1)
+    ticket.payment = new_payment
+    ticket.save()
+    
+    return redirect('ticket_info', ticket_id=ticket_id)
+    
+    
 
 # API view
 
@@ -446,7 +465,12 @@ class TicketCommentApi(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)          
         
         
-        
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def close_ticket(request, ticket_id):
+    
+    return Response({'success': True})
         
         
         

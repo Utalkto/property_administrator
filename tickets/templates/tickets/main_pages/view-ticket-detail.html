@@ -10,9 +10,8 @@
 
   <input type="hidden" id="ticket-id" value="{{ticket.id}}">
 
-  {% csrf_token %}
 
-  <div class="col-lg-12">
+  <div class="col-lg-12" id="modal-comment">
     <div class="card">
       <div class="card-body">
         <div class="bootstrap-modal">
@@ -94,7 +93,9 @@
   </div>
 
 
-  <div class="col-lg-12">
+  {% if ticket.ticket_status.id == 4 %}
+
+  <div class="col-lg-12" id="modal-problem">
     <div class="card">
       <div class="card-body">
         <div class="bootstrap-modal">
@@ -122,23 +123,27 @@
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
+                <form action="/tickets/solve-problem/{{ticket.id}}" method="post">
                 <div class="modal-body">
+                  {% csrf_token %}
+
                   <div class="form-group">
                     <label for="contractor-solution" class="col-form-label"
-                      >Colution date:</label
+                      >Solution date:</label
                     >
                     <input
                       placeholder="yyyy-mm-dd"
                       type="date"
                       class="form-control"
                       id="date-problem-solved"
+                      name="solution_date"
                     ></input>
                   </div>
                   <div class="form-group">
                     <label for="contractor-solution" class="col-form-label"
-                      >Message:</label
+                      >Contractor solution:</label
                     >
-                    <textarea class="form-control" id="contractor-solution"></textarea>
+                    <textarea class="form-control" id="contractor-solution" name="contractor_solution"></textarea>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -151,21 +156,141 @@
                   </button>
 
                   <button
-                    id="send-sms-btn"
-                    type="button"
-                    class="btn btn-primary sweet-success"
-                    onclick="setProblemAsSolved()"
+                    id="send"
+                    type="submit"
+                    class="btn btn-primary"
                   >
                     Confirm
-                  </button>
+                  </button>  
+                  </form>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
   </div>
+
+
+  {% elif ticket.ticket_status.id == 5 %}
+
+
+  <div class="col-lg-12" id="modal-payment">
+    <div class="card">
+      <div class="card-body">
+        <div class="bootstrap-modal">
+          <div
+            class="modal fade"
+            id="modal-set-payment-as-completed"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">
+                    Add extra data
+                  </h5>
+                  <button
+                    id="close-modal"
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="/tickets/register-payment/{{ticket.id}}" method="post">
+                <div class="modal-body">
+                  {% csrf_token %}
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Payment date:</label
+                    >
+                    <input
+                      placeholder="yyyy-mm-dd"
+                      type="date"
+                      class="form-control"
+                      id="payment-date"
+                      name="payment_date"
+                      required
+                    ></input>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Amount:</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="amount"
+                      name="amount"
+                      required
+                    ></input>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Reference code:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="amount"
+                      name="reference_code"
+                      maxlength="100"
+                      required
+                    ></input>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Notes:</label
+                    >
+                    <textarea
+                    class="w-100 p-20 l-border-1"
+                    id="note-payment-input"
+                    name="notes"
+                    cols="30"
+                    rows="5"
+                    placeholder="Write notes about the payment here"
+                  ></textarea>
+                  </div>
+
+
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                  >
+                    Close
+                  </button>
+
+                  <button
+                    id="send"
+                    type="submit"
+                    class="btn btn-primary"
+                  >
+                    Confirm
+                  </button>  
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  {% endif %}
+
 
   <!-- Information table -->
 
@@ -197,23 +322,8 @@
                 </a>
                 {% endfor %}
               </div>
-
-              <!-- <h5 class="mt-5 m-b-10">Categories</h5>
-              <div class="list-group mail-list">
-                <a href="#" class="list-group-item border-0"
-                  ><span class="fa fa-briefcase f-s-14 mr-2"></span>Work</a
-                >
-                <a href="#" class="list-group-item border-0"
-                  ><span class="fa fa-sellsy f-s-14 mr-2"></span>Private</a
-                >
-                <a href="#" class="list-group-item border-0"
-                  ><span class="fa fa-ticket f-s-14 mr-2"></span>Support</a
-                >
-                <a href="#" class="list-group-item border-0"
-                  ><span class="fa fa-tags f-s-14 mr-2"></span>Social</a
-                >
-              </div> -->
             </div>
+
             <div class="email-right-box">
               <div class="toolbar" role="toolbar">
                 <div class="btn-group m-b-20">
@@ -230,72 +340,6 @@
                   >
                     <i class="fa fa-trash"></i>
                   </button>
-                </div>
-                <div class="btn-group m-b-20">
-                  <button
-                    type="button"
-                    class="btn btn-light dropdown-toggle"
-                    data-toggle="dropdown"
-                  >
-                    <i class="fa fa-folder"></i> <b class="caret m-l-5"></b>
-                  </button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Social</a
-                    >
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Promotions</a
-                    >
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Updates</a
-                    >
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Forums</a
-                    >
-                  </div>
-                </div>
-                <div class="btn-group m-b-20">
-                  <button
-                    type="button"
-                    class="btn btn-light dropdown-toggle"
-                    data-toggle="dropdown"
-                  >
-                    <i class="fa fa-tag"></i> <b class="caret m-l-5"></b>
-                  </button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Updates</a
-                    >
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Promotions</a
-                    >
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Forums</a
-                    >
-                  </div>
-                </div>
-                <div class="btn-group m-b-20">
-                  <button
-                    type="button"
-                    class="btn btn-light dropdown-toggle"
-                    data-toggle="dropdown"
-                  >
-                    More <span class="caret m-l-5"></span>
-                  </button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Mark as Unread</a
-                    >
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Add to Tasks</a
-                    >
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Add Star</a
-                    >
-                    <a class="dropdown-item" href="javascript: void(0);"
-                      >Mute</a
-                    >
-                  </div>
                 </div>
               </div>
               <div class="read-content">
@@ -349,7 +393,7 @@
                   </div>
                 </div>
                 <h5 class="m-b-15">
-                  Hi, User, here is what you need to do next
+                  Hi, {{request.user.get_full_name}}, here is what you need to do next:
                 </h5>
                 <p>{{next_to_do.info}}</p>
 
@@ -359,16 +403,10 @@
 
                 <p><strong>{{key}}</strong> : {{value}}</p>
 
-                {% endfor %} {% if next_todo_do.action_link %}
+                {% endfor %} 
 
-                <a
-                  class="badge badge-primary badge-sm m-t-5"
-                  href="{{next_to_do.action_link}}{{ticket.ticket_type.id}}/{{ticket.id}}"
-                >
-                  {{next_to_do.string_part}}
-                </a>
-
-                {% else %} {% if ticket.ticket_status.id == 4 %}
+                      
+                {% if ticket.ticket_status.id == 4 %}
 
                 <button
                   type="button"
@@ -378,7 +416,35 @@
                   data-toggle="modal"
                 > Mark problem as solved</button>
 
-                {% endif %} {% endif %}
+                {% elif ticket.ticket_status.id == 5 %}
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-primary"
+                  id="set-payment-as-completed"
+                  data-target="#modal-set-payment-as-completed"
+                  data-toggle="modal"
+                > Mark payment as completed </button>
+
+
+                {% elif ticket.ticket_status.id == 6 %}
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-primary"
+                  id="close-ticket"
+                > Close ticket </button>
+
+                {% else %}
+
+                <a
+                class="badge badge-primary badge-sm m-t-5"
+                href="{{next_to_do.action_link}}{{ticket.ticket_type.id}}/{{ticket.id}}"
+                >
+                  {{next_to_do.string_part}}
+                </a>
+
+                {% endif %}
 
                 <hr />
 
