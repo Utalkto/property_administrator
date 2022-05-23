@@ -18,9 +18,9 @@ from rest_framework.permissions import IsAuthenticated
 
 # models 
 
-from .models import Ticket, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
+from .models import Ticket, TicketAppoinment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
 
-from .serializers import TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
+from .serializers import TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
 
 # properties
 from properties.models import Properties, Tenants, Units
@@ -32,7 +32,6 @@ from properties.serializers import UnitsSerializer, TenantSerializer
 
 
 # TODO: CREATE APPOINMENTS PART IN DB
-
 
 
 def home(request):
@@ -226,6 +225,67 @@ def ticket_info(request, ticket_id):
 
 def select_ticket_contractor(request, ticket_type, ticket_id):
     
+    try:
+        ticket = Ticket.objects.get(id=ticket_id)
+        contractors_ids = ticket.contractors_contacted
+    except Ticket.DoesNotExist:
+        return JsonResponse({"There is no ticket with that id"})
+    
+    
+    if request.method == 'POST':
+        
+        data_for_serializer = dict()
+        
+        data_for_serializer['created_by'] = request.user.id
+        data_for_serializer['ticket'] = ticket_id
+        data_for_serializer['date'] = request.POST.get('appoinment_date')
+        
+        serializer = TicketAppoinmentSerializer(data=data_for_serializer)
+        
+        
+        if serializer.is_valid():
+            
+            ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1) 
+            ticket.contractor = Suppliers.objects.get(id=int(request.POST.get('supplier_id')))
+            ticket.save()
+            
+            serializer.save()
+            
+            return redirect('ticket_info', ticket_id=ticket.id)
+        else:
+            return JsonResponse({'there is no way is not valid': False, 'errors': serializer.errors })
+
+    
+    
+    contractors_selected = list()
+    for key in contractors_ids:
+        contractors_selected.append(Suppliers.objects.get(id=int(contractors_ids[key])))
+
+        
+    return render (
+        request,
+        'tickets/main_pages/select-ticket-contractor.html',
+        {
+            'contractors': contractors_selected,
+            'tikcet': ticket,
+        }
+        )
+    
+    
+
+
+def contact_ticket_contractor(request, ticket_type, ticket_id):
+    
+    """
+    Function to contact a contractor 
+    
+    THE CONTRACTOR IS NOT CHOSEN HERE, to choose the contractor got to "select_ticket_contractor"
+
+    Returns:
+        _type_: _description_
+    """
+    
+    
     ticket = Ticket.objects.get(id=int(ticket_id))
     
     ticket_work_area = ticket.problem.work_area.id
@@ -237,7 +297,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
         
             json_model = ticket.contractors_contacted
             
-            n = (ticket.contractors_contacted.keys())
+            n = len(ticket.contractors_contacted.keys())
             json_model[f'contractor_{n}'] = request.POST.get('supplier_id')
             ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1) 
             ticket.save()
@@ -254,7 +314,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
 
     return render (
         request,
-        'tickets/main_pages/select-ticket-contractor.html',
+        'tickets/main_pages/contact-contractor.html',
         {
             'contractors': contractors,
             'tikcet': ticket,

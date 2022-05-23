@@ -1,5 +1,3 @@
-from datetime import datetime
-from msilib.schema import CustomAction
 from django.db import models
 from properties.models import Tenants, Units, PropertyCities
 
@@ -119,7 +117,14 @@ class TicketSteps(models.Model):
     
     string_part = models.CharField(max_length=120)
     info = models.CharField(max_length=1000, default='', null=True)
-    action_link = models.URLField(max_length=120, default='', null=True)
+    action_link = models.URLField(max_length=120, default=None, null=True)
+    
+    
+    def save(self, *args, **kwargs):
+         if  self.action_link == 'http://localhost:8000/None':
+              self.action_link = None
+         super(TicketSteps, self).save(*args, **kwargs)
+    
     
     def __str__(self) -> str:
         return f'{self.string_part} - {self.id}'
@@ -134,6 +139,7 @@ class Ticket(models.Model):
     ticket_status =  models.ForeignKey(TicketSteps, null=False, blank=False, on_delete=models.CASCADE)
     owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
     
+    contractor = models.ForeignKey(Suppliers, null=True, blank=False, on_delete=models.CASCADE, default=None)
     action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE)       
     problem = models.ForeignKey(MaintanenceIssueDescription, null=True, on_delete=models.CASCADE, default=None)
 

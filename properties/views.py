@@ -309,13 +309,10 @@ class  UnitsViewSet(APIView):
     def get(self, request, unit_id):
          
         if unit_id == 0:
-            serializer = UnitsSerializer(Units.objects.filter(property_manager=request.user.id), many=True)
             
-            #TODO: RETURN THE NAME OF THE TENANT NOT THE ID 
+            units = Units.objects.filter(property_manager=request.user.id)
             
-            print('---------------------------')
-            print(serializer)
-            print('--------------------------------')
+            serializer = UnitsSerializer(units, many=True)
             
             return Response(
                 serializer.data, 

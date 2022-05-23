@@ -7,7 +7,6 @@ from register.models import CustomUser
 from tickets.models import Suppliers
 
 
-
 class MessageSent(models.Model):
     
     # foreign keys 

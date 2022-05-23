@@ -235,6 +235,17 @@
                     <p class="m-b-2"> <strong>Problem:</strong> No identified yet</p>
 
                     {% endif %}
+
+                    {% if ticket.contractor.name %}
+
+                    <p class="m-b-2"> <strong> Contractor:</strong> {{ticket.contractor.name}}</p>
+
+                    {% else %}
+
+                    <p class="m-b-2"> <strong>Contractor:</strong> No selected yet</p>
+
+                    {% endif %}
+
                     
                   </div>
                 </div>

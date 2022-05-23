@@ -83,6 +83,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false) 
   });
 }
 
+
 function afterSendMessage(success, comFeed, response) {
 
 
@@ -109,8 +110,14 @@ function afterSendMessage(success, comFeed, response) {
   }
 }
 
+
 function setTenantInModalTabId(tenant_id) {
   $("#input-tenant-id").val(tenant_id);
+}
+
+
+function setIdInModalTab(objectId) {
+  $("#input-id").val(objectId);
 }
 
 
@@ -141,6 +148,7 @@ function addMessageToSent(response) {
   </div>
   `)
 }
+
 
 $("#button_delete").click(() => {
   bootbox.confirm({

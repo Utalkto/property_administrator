@@ -61,6 +61,12 @@ class Properties(models.Model):
     
     year_built = IntegerField(null=True)
     year_bought = IntegerField(null=True)
+
+
+
+class UnitServices(models.Model):
+    service = models.CharField(max_length=120)
+    available = models.BooleanField()
     
 
 class Units(models.Model):
@@ -69,7 +75,6 @@ class Units(models.Model):
     property_manager = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
     property = models.ForeignKey(Properties, null=False, blank=False, on_delete=models.CASCADE)
     unit_type = models.ForeignKey(UnitTypes, null=False, blank=False, on_delete=models.CASCADE)
-    
     
     #  ------------------------------------
     #  fields
@@ -81,7 +86,7 @@ class Units(models.Model):
     
     deposit_amount = DecimalField(max_digits=19, decimal_places=2)
     debt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    details = models.JSONField(null=True)
+    details = models.TextField(null=True)
     date_deposit_received = DateField(null=True)
     
     extra_resident_price = DecimalField(max_digits=5, decimal_places=2, default=0)
@@ -123,7 +128,7 @@ class Tenants(models.Model):
     # foreign keys
     
     landlord = models.ForeignKey(CustomUser, default=1, null=False, blank=False, on_delete=models.CASCADE)
-    unit = models.ForeignKey(Units, null=False, blank=False ,on_delete=models.CASCADE)
+    unit = models.ForeignKey(Units, related_name='tenants', null=False, blank=False ,on_delete=models.CASCADE)
     
     # -------------------------------------------------------
     # fields

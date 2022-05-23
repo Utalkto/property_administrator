@@ -30,6 +30,7 @@ class BanksAccounts(models.Model):
     def __str__(self) -> str:
         return self.amount_paid
 
+
 class Categories(models.Model):
     name = models.CharField(max_length=60)
 

@@ -1,7 +1,3 @@
-# python
-
-import datetime
-
 # django 
 
 from django.db import models
@@ -12,11 +8,17 @@ from django.contrib.auth.models import (
     BaseUserManager,
 )
 
+from django.utils import timezone
 
 # /users/ - to signup a new user,
 # /users/me/ - to get user information,
 # /token/login/ - to get token,
 # /token/logout/ - to logout.
+
+
+def seven_day_hence():
+    return timezone.now() + timezone.timedelta(days=7)
+
 
 class UserCountries(models.Model):
     country = models.CharField(max_length=100)
@@ -96,7 +98,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # -----------------------------------------------------------
     # fields 
  
-    
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
         
@@ -112,13 +113,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     plan_status = models.BooleanField(default=True)
     
-    plan_expired_on = models.DateTimeField(default=datetime.datetime.now() + datetime.timedelta(days=7)) 
-    registration_date = models.DateTimeField(default=datetime.datetime.now())
+    plan_expired_on = models.DateTimeField(default=seven_day_hence) 
+    registration_date = models.DateTimeField(default=timezone.now)
     
     username = models.CharField(max_length=255, unique=True)
 
-    USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["first_name", "last_name", "email"]
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"

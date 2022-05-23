@@ -17,7 +17,7 @@
     });
 
     $('#min-date').bootstrapMaterialDatePicker({
-        format: 'DD/MM/YYYY HH:mm',
+        format: 'YYYY-MM-DD HH:mm',
         minDate: new Date()
     });
     // Clock pickers
