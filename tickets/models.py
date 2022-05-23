@@ -167,7 +167,7 @@ class Ticket(models.Model):
         
     # -------------------------------------------------------------
     # -------------------------------------------------------------
-    # last_date_ticket_change = models.DateTimeField(null=True, default=None)
+    last_date_ticket_change = models.DateTimeField(null=True, default=None)
     # -------------------------------------------------------------
     # -------------------------------------------------------------
     
@@ -175,15 +175,12 @@ class Ticket(models.Model):
     
     photo = models.ImageField(upload_to='tickets', null=True)
     
-    proposed_contractor= models.IntegerField(null=True)
-    contractor_solution = models.CharField(max_length=200, null=True)
+    contractor_solution = models.TextField(null=True)
     
     quoted_price = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=True)
     
     stimated_time_for_solution = models.IntegerField(null=True)
-    specialty = models.CharField(max_length=50, null=True)
-    
-    reparation_day = models.DateField(null=True)
+    solution_date = models.DateField(null=True)
     
     target_completion_date = models.DateField(null=True)   
    

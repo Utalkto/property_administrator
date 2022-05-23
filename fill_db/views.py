@@ -4,7 +4,7 @@ import random
 from register.models import UserCountries, UserCities, UserPlans, UserRoles
 
 from properties.models import PropertyTypes, UnitTypes, PropertyCountries, PropertyCities, Properties, Units, Tenants
-from properties.serializers import TenantSerializer, UnitsSerializer, PropertiesSerializer
+from properties.serializers import TenantSerializer, UnitsSerializerNoTenant, PropertiesSerializer
 
 from candidates.models import Candidate, CandidateStatus
 from candidates.serializers import CandiatesSerializer
@@ -55,8 +55,6 @@ class FillDataBase:
             pass
         
             
-        
-        
 
 def fill_data_base(request):
     FillDataBase()
@@ -136,7 +134,7 @@ def crear_unidades():
         "appliances" : {"fecha": "2024-05-09"},
         "bathrooms" : bathrooms,
         "deposit_amount" : deposit_amo,
-        "details" : {"fecha": "2022-05-07"},
+        "details" : "details here",
         "date_deposit_received" : "2022-05-07",
         "extra_resident_price": extra_resident_pri,
         "extra_resident" : extra_r,
@@ -163,7 +161,7 @@ def crear_unidades():
         "tenant": 1
     }
 
-    serializer = UnitsSerializer(data=data)
+    serializer = UnitsSerializerNoTenant(data=data)
 
     if serializer.is_valid():
         serializer.save()

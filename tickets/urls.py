@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import home, select_ticket_contractor, create_ticket_main_info, create_ticket_options, ticket_info, ticket_tree_stage_info, contact_ticket_contractor, open_ticket, TicketCommentApi
+from .views import home, solve_ticket_problem, select_ticket_contractor, create_ticket_main_info, create_ticket_options, ticket_info, ticket_tree_stage_info, contact_ticket_contractor, open_ticket, TicketCommentApi
 
 urlpatterns = [
     path('', home, name='home'),
@@ -20,6 +20,7 @@ urlpatterns = [
     
     # Json reponse only 
     
+    path('solve-problem/<int:ticket_id>', solve_ticket_problem),
     path('ticket-comment/<int:ticket_id>', TicketCommentApi.as_view()),
     
     

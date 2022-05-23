@@ -1,7 +1,16 @@
 {% extends 'tickets/templates/base.html' %} {% block main_content %}
 
+{% load static %}
+
+
 <div class="content-body">
   <!-- row -->
+
+  <!-- Modals -->
+
+  <input type="hidden" id="ticket-id" value="{{ticket.id}}">
+
+  {% csrf_token %}
 
   <div class="col-lg-12">
     <div class="card">
@@ -84,6 +93,82 @@
     </div>
   </div>
 
+
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="bootstrap-modal">
+          <div
+            class="modal fade"
+            id="modal-set-problem-as-solved"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">
+                    Add extra data
+                  </h5>
+                  <button
+                    id="close-modal"
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Colution date:</label
+                    >
+                    <input
+                      placeholder="yyyy-mm-dd"
+                      type="date"
+                      class="form-control"
+                      id="date-problem-solved"
+                    ></input>
+                  </div>
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Message:</label
+                    >
+                    <textarea class="form-control" id="contractor-solution"></textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                  >
+                    Close
+                  </button>
+
+                  <button
+                    id="send-sms-btn"
+                    type="button"
+                    class="btn btn-primary sweet-success"
+                    onclick="setProblemAsSolved()"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information table -->
+
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
@@ -130,11 +215,7 @@
               </div> -->
             </div>
             <div class="email-right-box">
-
-             
-
               <div class="toolbar" role="toolbar">
-
                 <div class="btn-group m-b-20">
                   <button type="button" class="btn btn-light">
                     <i class="fa fa-archive"></i>
@@ -222,31 +303,40 @@
                   <!-- <img class="mr-3 rounded-circle" src="images/avatar/1.jpg" /> -->
                   <div class="media-body">
                     <h3 class="m-b-3">{{ticket.created_by.name}}</h3>
-                    
-                    <p class="m-b-2"> <strong>Date created:</strong> {{ticket.date_opened}}</p>
-                    <p class="m-b-2"> <strong>Ticket type:</strong> {{ticket.ticket_type.string_part}}</p>
+
+                    <p class="m-b-2">
+                      <strong>Date created:</strong> {{ticket.date_opened}}
+                    </p>
+                    <p class="m-b-2">
+                      <strong>Ticket type:</strong>
+                      {{ticket.ticket_type.string_part}}
+                    </p>
 
                     {% if ticket.problem.string_part %}
 
-                    <p class="m-b-2"> <strong> Problem:</strong> {{ticket.problem.string_part}}</p>
+                    <p class="m-b-2">
+                      <strong> Problem:</strong> {{ticket.problem.string_part}}
+                    </p>
 
                     {% else %}
 
-                    <p class="m-b-2"> <strong>Problem:</strong> No identified yet</p>
+                    <p class="m-b-2">
+                      <strong>Problem:</strong> No identified yet
+                    </p>
 
-                    {% endif %}
+                    {% endif %} {% if ticket.contractor.name %}
 
-                    {% if ticket.contractor.name %}
-
-                    <p class="m-b-2"> <strong> Contractor:</strong> {{ticket.contractor.name}}</p>
+                    <p class="m-b-2">
+                      <strong> Contractor:</strong> {{ticket.contractor.name}}
+                    </p>
 
                     {% else %}
 
-                    <p class="m-b-2"> <strong>Contractor:</strong> No selected yet</p>
+                    <p class="m-b-2">
+                      <strong>Contractor:</strong> No selected yet
+                    </p>
 
                     {% endif %}
-
-                    
                   </div>
                 </div>
                 <hr />
@@ -269,7 +359,7 @@
 
                 <p><strong>{{key}}</strong> : {{value}}</p>
 
-                {% endfor %}
+                {% endfor %} {% if next_todo_do.action_link %}
 
                 <a
                   class="badge badge-primary badge-sm m-t-5"
@@ -277,6 +367,18 @@
                 >
                   {{next_to_do.string_part}}
                 </a>
+
+                {% else %} {% if ticket.ticket_status.id == 4 %}
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-primary"
+                  id="mark-problem-as-completed"
+                  data-target="#modal-set-problem-as-solved"
+                  data-toggle="modal"
+                > Mark problem as solved</button>
+
+                {% endif %} {% endif %}
 
                 <hr />
 
@@ -351,7 +453,7 @@
   </div>
 </div>
 
-{% endblock %} {% block local_js %} {% load static %}
+{% endblock %} {% block local_js %}
 
 <script src="{% static 'js/general/main.js' %}"></script>
 <script src="{% static 'js/create-ticket/ticketInfo.js' %}"></script>

@@ -1,3 +1,6 @@
+let ticketId = $('#ticket-id').val();
+
+
 function makeComment(ticketId) {
   comment = $("#comment-input");
 
@@ -30,6 +33,7 @@ function makeComment(ticketId) {
   });
 }
 
+
 function afterCommentMade(data) {
   commentsTitle = $("#ticket-comments-title");
 
@@ -50,4 +54,36 @@ function afterCommentMade(data) {
 
         <hr>`
   );
+}
+
+
+function setProblemAsSolved(){
+
+  // jsonData = {
+  //   'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
+  //   'contractor_solution': $('#contractor-solution').val(),
+  //   'solution_date': $('#contractor-solution'),
+  // }
+
+  // $.ajax({
+  //   type: "POST",
+  //   url: `/tickets/solve-problem/${ticketId}`,
+  //   data: jsonData,
+  //   headers: {
+  //     Authorization: authToken,
+  //   },
+  //   success: function (response) {
+    
+  //     afterCommentMade(response);
+  //     window.location.href = `http://localhost:8000/tickets/ticket-info/${ticketId}`;
+
+  //   },
+  //   error: function (response) {
+  //     alert("An error has ocurred with your message, please try again.");
+  //     console.log(response);
+  //   },
+  // });
+
+  alert('here');
+
 }

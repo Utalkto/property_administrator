@@ -1,3 +1,6 @@
+const authToken = 'Token d0610c6848b24e10e7a41b17acd3cf485213da8c'
+
+
 function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false) {
   // Function to send message to a person
   // message <string> : the message to be sent
@@ -151,6 +154,7 @@ function addMessageToSent(response) {
 
 
 $("#button_delete").click(() => {
+
   bootbox.confirm({
     title: "Destroy planet?",
     message:
@@ -167,4 +171,10 @@ $("#button_delete").click(() => {
       console.log("This was logged in the callback: " + result);
     },
   });
+
 });
+
+
+
+
+

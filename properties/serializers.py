@@ -26,3 +26,8 @@ class UnitsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Units
         fields = '__all__'
+        
+class UnitsSerializerNoTenant(serializers.ModelSerializer):
+    class Meta:
+        model = Units
+        fields = '__all__'

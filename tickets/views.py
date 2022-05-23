@@ -272,8 +272,6 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
         )
     
     
-
-
 def contact_ticket_contractor(request, ticket_type, ticket_id):
     
     """
@@ -377,6 +375,25 @@ def ticket_tree_stage_info(request):
         'branch_selected' : branch_selected
         })
 
+
+def solve_ticket_problem(request, ticket_id):
+    
+    
+    return JsonResponse({'Completed': True})
+    
+    
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    
+    ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1) 
+    
+    ticket.contractor_solution = request.POST.get('contractor_solution')
+    ticket.solution_date = request.POST.get('solution_date')
+    
+    ticket.save()
+    
+    return JsonResponse({'Completed': True})
+    
+     
 
 # API view
 
