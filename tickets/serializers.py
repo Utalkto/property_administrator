@@ -1,6 +1,8 @@
-from .models import Ticket, TicketAppoinment, TicketType, TicketPriority, TicketComments
+from .models import Ticket, TicketAppoinment, TicketType, TicketPriority, TicketComments, Suppliers, SupplierWorkArea
 from rest_framework import serializers
 
+
+from properties.serializers import CitySerializer
 
 class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,4 +31,18 @@ class TicketCommentSerializer(serializers.ModelSerializer):
 class TicketAppoinmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketAppoinment
+        fields = '__all__'
+
+
+class WorkAreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupplierWorkArea
+        fields = '__all__'
+
+
+class SupplierSerializer(serializers.ModelSerializer):
+    work_area = WorkAreaSerializer()
+    city = CitySerializer()
+    class Meta:
+        model = Suppliers
         fields = '__all__'

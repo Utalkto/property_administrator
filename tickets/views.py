@@ -23,7 +23,7 @@ from rest_framework import status, authentication, permissions
 
 from .models import Ticket, TicketPayment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
 
-from .serializers import TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
+from .serializers import SupplierSerializer, TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
 
 # properties
 from properties.models import Properties, Tenants, Units
@@ -31,10 +31,22 @@ from properties.serializers import UnitsSerializer, TenantSerializer
 
 # Create your views here.
 
-# It is possible to create more nodes if in the future the app would allow to add more ticket types
+# other functions
+# -------------------------------------------------------------------------------------
+def update_ticket_status(ticket:Ticket, to_status:int=None):
+    
+    if to_status is not None:
+        ticket.ticket_status = TicketSteps.objects.get(id=to_status)
+    
+    else:
+        ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1)
+        
+    ticket.last_date_ticket_change = datetime.datetime.now()
+    ticket.save()
+    
 
-
-# TODO: CREATE APPOINMENTS PART IN DB
+# views 
+# -------------------------------------------------------------------------------------
 
 
 def home(request):
@@ -50,9 +62,9 @@ def home(request):
             { 'string':  'Priority Normal', 'tickets': tickets_priority_normal},
             { 'string':  'Priority Low', 'tickets': tickets_priority_low }] 
             
-    maintenance_tickets = Ticket.objects.filter(ticket_type=1).count()
-    payment_tickets = Ticket.objects.filter(ticket_type=2).count()
-    general_info_tickets = Ticket.objects.filter(ticket_type=3).count()
+    maintenance_tickets = Ticket.objects.filter(ticket_type=1, date_closed__isnull=True).count()
+    payment_tickets = Ticket.objects.filter(ticket_type=2, date_closed__isnull=True).count()
+    general_info_tickets = Ticket.objects.filter(ticket_type=3, date_closed__isnull=True).count()
     ticket_statuses = TicketSteps.objects.all().order_by('id')
     
     return render(
@@ -247,8 +259,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
         
         
         if serializer.is_valid():
-            
-            ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1) 
+            update_ticket_status(ticket=ticket)
             ticket.contractor = Suppliers.objects.get(id=int(request.POST.get('supplier_id')))
             ticket.save()
             
@@ -270,7 +281,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
         'tickets/main_pages/select-ticket-contractor.html',
         {
             'contractors': contractors_selected,
-            'tikcet': ticket,
+            'ticket': ticket,
         }
         )
     
@@ -300,10 +311,10 @@ def contact_ticket_contractor(request, ticket_type, ticket_id):
             
             n = len(ticket.contractors_contacted.keys())
             json_model[f'contractor_{n}'] = request.POST.get('supplier_id')
-            ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1) 
+            update_ticket_status(ticket=ticket) 
             ticket.save()
             
-            return redirect ('ticket_info', ticket_id=ticket.id)
+            return JsonResponse({'success': True})
             
     
     contractors_contacted = list()
@@ -318,13 +329,13 @@ def contact_ticket_contractor(request, ticket_type, ticket_id):
         'tickets/main_pages/contact-contractor.html',
         {
             'contractors': contractors,
-            'tikcet': ticket,
+            'ticket': ticket,
         }
         )
     
 
-
 # JSON RESPONSES --------------------------------------------
+
 
 def ticket_tree_stage_info(request): 
     
@@ -383,7 +394,7 @@ def solve_ticket_problem(request, ticket_id:int):
     
     ticket = Ticket.objects.get(id=int(ticket_id))
     
-    ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1) 
+    update_ticket_status(ticket=ticket) 
     
     ticket.contractor_solution = request.POST.get('contractor_solution')
     ticket.solution_date = request.POST.get('solution_date')
@@ -406,14 +417,13 @@ def register_payment_ticket(request, ticket_id:int):
     new_payment.save()
     ticket = Ticket.objects.get(id=int(ticket_id))
     
-    ticket.ticket_status = TicketSteps.objects.get(id=ticket.ticket_status.id + 1)
+    update_ticket_status(ticket=ticket)
     ticket.payment = new_payment
     ticket.save()
     
     return redirect('ticket_info', ticket_id=ticket_id)
     
     
-
 # API view
 
 
@@ -470,7 +480,60 @@ class TicketCommentApi(APIView):
 @permission_classes([permissions.IsAuthenticated])
 def close_ticket(request, ticket_id):
     
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    ticket.date_closed = datetime.datetime.now()
+    ticket.save()
+    
     return Response({'success': True})
         
-        
-        
+
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def return_to_coordinate_visit(request, ticket_id):
+    
+    ticket=Ticket.objects.get(id=int(ticket_id))
+    
+    update_ticket_status(ticket=ticket, to_status=3)
+    
+    data_for_comment = {
+        'ticket' : ticket_id,
+        'made_by' : request.user.id,
+        'date': datetime.datetime.now(),
+        'comment': f'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
+    }
+    
+    serializer = TicketCommentSerializer(data=data_for_comment)
+    
+    if serializer.is_valid():
+        serializer.save()
+    
+    return Response({'success': True})
+    
+      
+@api_view(['DELETE'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def delete_ticket(request, ticket_id):
+    
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    ticket.delete()
+    
+    return Response({'Ticket deleted': True})
+    
+
+class SuppliersApi(APIView):
+    
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+    
+    def get(self, request, supplier_id):
+
+        if supplier_id == 'all':
+            serializer = SupplierSerializer(Suppliers.objects.all(), many=True)
+
+        else:
+            serializer = SupplierSerializer(Suppliers.objects.filter(id=int(supplier_id)), many=True)
+
+        return Response(serializer.data)
+

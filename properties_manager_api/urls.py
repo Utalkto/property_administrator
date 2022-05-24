@@ -38,7 +38,7 @@ urlpatterns = [
    path('api/v1/', include('register.urls')),
    path('api/v1/', include('properties.urls')),
    path('api/v1/', include('candidates.urls')),
-   # path('api/v1/', include('payments.urls')),
+   path('api/v1/', include('payments.urls')),
    
    # tickets module with django 
    path('tickets/', include('tickets.urls')),
@@ -47,7 +47,11 @@ urlpatterns = [
    
    path('communications/', include('communications.urls')),
    
+   # for watson 
+   path('watson/', include('watson.urls')),
+   
    # to fill db
+   
    path('fill-db/', include('fill_db.urls')),
    
    

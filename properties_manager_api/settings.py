@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'payments',
     'tickets',
     'fill_db',
-    
+    'watson',
+    'book_keeping',    
     # third party apps
     
     'rest_framework',

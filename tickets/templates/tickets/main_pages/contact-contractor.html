@@ -5,6 +5,8 @@
   {% csrf_token %}
 
 
+<input type="hidden" value="{{ticket.id}}" id="ticket-id">
+
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
@@ -18,26 +20,49 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="" method="post">
+                               
+                              {% csrf_token %}
 
-                                    {% csrf_token %}
-                                    
-                                    <div class="form-group">
-                                        <label for="recipient-name" class="col-form-label">Subject:</label>
-                                        <input type="text" class="form-control" id="message_subject">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="message-text" class="col-form-label">Message:</label>
-                                        <textarea class="form-control" id="message_text"></textarea>
-                                    </div>
-        
-                                    <input type="hidden" id="input-supplier-id" name="supplier_id">
+                              <div class="form-group">
+                                  <label for="recipient-name" class="col-form-label">Subject:</label>
+                                  <input type="text" class="form-control" id="message-subject">
+                              </div>
+                              <div class="form-group">
+                                  <label for="message-text" class="col-form-label">Message:</label>
+                                  <textarea class="form-control" id="message-text"></textarea>
+                              </div>
+  
+                              <input type="hidden" id="person-id" name="supplier_id">
 
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-primary">Send message</button>
-                                    </div>
-                                </form>
+                              <div class="modal-footer">
+                                <button 
+                                type="button" 
+                                class="btn btn-secondary" 
+                                data-dismiss="modal"
+                                >
+                                Close
+                              </button>
+                                
+                                <button
+                                  id="send-sms-btn"
+                                  type="button"
+                                  class="btn btn-primary sweet-success"
+                                  onclick="sendMessage(persoId=null, sendToTenant=false, sendByEmail=false, comFeed=false, supplierFeed=true)"
+                                >
+                                  Send message by phone
+                                </button>
+
+                                <button
+                                  id="send-email-btn"
+                                  type="button"
+                                  class="btn btn-primary sweet-success"
+                                  onclick="sendMessage(personId=null, sendToTenant=false, sendByEmail=true, comFeed=false, supplierFeed=true)"
+                                >
+                                  Send message by email
+                                </button>
+
+                              </div>
+                  
                             </div>
                         </div>
                     </div>
@@ -104,6 +129,7 @@
 {% block local_js %}
 
 <script src="{% static 'js/create-ticket/selectSupplier.js' %}"></script>
+<script src="{% static 'js/general/main.js' %}"></script>
 
 
 {% endblock %}

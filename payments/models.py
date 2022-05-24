@@ -26,7 +26,9 @@ class UnitPayments(models.Model):
     payment_amount = models.DecimalField(decimal_places=2, max_digits=6)
     
     reference_code = models.CharField(max_length=100)
-    
+
+    # field to add to db    
+    # month = models.CharField(max_length=120, default='')
     
     class Meta:
         ordering = ('payment_date', )

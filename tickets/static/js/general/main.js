@@ -1,13 +1,15 @@
 const authToken = 'Token d0610c6848b24e10e7a41b17acd3cf485213da8c'
 
 
-function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false) {
+function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, supplierFeed=false) {
   // Function to send message to a person
   // message <string> : the message to be sent
   // subject <string> : the subject of the message to be sent
   // person_id <int> : the id of the person who is going to receive the message
   // email <bool> : when true the way to send a message will be with an email
   // phone <bool> : when true the way to send a message will be with a text message (twilio)
+
+  console.log(supplierFeed);
 
   message = $("#message-text");
   subject = $("#message-subject");
@@ -26,7 +28,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false) 
   }
 
   if (personId == null) {
-    personId = $("#input-tenant-id").val();
+    personId = $("#person-id").val();
   }
 
   btnSendEmail = $("#send-email-btn");
@@ -46,7 +48,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false) 
 
   // checking if the message will be sent to a supplier or to a tenant
 
-  if (sendToTenant == true) {
+  if (sendToTenant == 'True') {
     jsonData.tenant_id = personId;
   } else {
     jsonData.supplier_id = personId;
@@ -69,7 +71,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false) 
         },
       }).showToast();
 
-      afterSendMessage(success = true, comFeed = comFeed, response = response);
+      afterSendMessage(success = true, comFeed = comFeed, supplierFeed = supplierFeed, response = response);
     },
     error: function (response) {
       Toastify({
@@ -81,13 +83,13 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false) 
       }).showToast();
 
       console.log(response);
-      afterSendMessage(success = false, comFeed = comFeed, response = response);
+      afterSendMessage(success = false, comFeed = comFeed, supplierFeed = supplierFeed, response = response);
     },
   });
 }
 
 
-function afterSendMessage(success, comFeed, response) {
+function afterSendMessage(success, comFeed, supplierFeed, response) {
 
 
   btnSendEmail.attr("disabled", false);
@@ -102,12 +104,23 @@ function afterSendMessage(success, comFeed, response) {
 
     $("#close-modal").click();
 
+    if ($(".modal-backdrop")[0] != null) {
+      $(".modal-backdrop")[0].remove();
+    }
+
     if (comFeed == true) {
       addMessageToSent(response);
 
       messagesSent = $('#messages-sent');
       messagesSent.text(parseInt(messagesSent.text()) + 1);
-      
+    }
+
+    console.log()
+
+    if (supplierFeed == true) {
+
+      afterContactSupplier();
+
     }
 
   }
@@ -153,28 +166,37 @@ function addMessageToSent(response) {
 }
 
 
-$("#button_delete").click(() => {
+function afterContactSupplier() {
 
-  bootbox.confirm({
-    title: "Destroy planet?",
-    message:
-      "Do you want to activate the Deathstar now? This cannot be undone.",
-    buttons: {
-      cancel: {
-        label: '<i class="fa fa-times"></i> Cancel',
-      },
-      confirm: {
-        label: '<i class="fa fa-check"></i> Confirm',
-      },
+  jsonData = {
+    'supplier_id' : $('#person-id').val(),
+    'ticket_id' : $('#ticket-id').val(),
+    'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
+  }
+
+  $.ajax({
+    type: "POST",
+    url: "",
+    data: jsonData,
+
+    success: function (response) {
+
+      window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#ticket-id').val()}`;
+      
     },
-    callback: function (result) {
-      console.log("This was logged in the callback: " + result);
+    error: function (response) {
+      Toastify({
+        text: "An error has ocurred with your message, try again",
+        duration: 2000,
+        style: {
+          background: "red",
+        },
+      }).showToast();
+
     },
   });
 
-});
-
-
+}
 
 
 
