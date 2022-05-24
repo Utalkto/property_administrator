@@ -87,7 +87,7 @@ class CommunicationsAPI(APIView):
             data_for_serializer['supplier'] = supplier_id
             
             try:
-                send_to = Suppliers.objects.get(id=tenant_id)
+                send_to = Suppliers.objects.get(id=supplier_id)
             except Suppliers.DoesNotExist:
                 return Response(
                     {

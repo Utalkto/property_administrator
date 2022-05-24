@@ -25,17 +25,10 @@ function nextStage(_nextStage, optionSelected, branchSelected){
 
             if (response.completed == true) {
 
-
-
                 window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#ticket-id').val()}`;
             }
-
- 
-                addFields(response);
-
             
-
-            
+            addFields(response);
 
         },
         error: function (response) {

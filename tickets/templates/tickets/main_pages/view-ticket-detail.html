@@ -10,87 +10,11 @@
 
   <input type="hidden" id="ticket-id" value="{{ticket.id}}">
 
+  {% with person_id=ticket.created_by.id send_to_tenant=True title="New message" %}
 
-  <div class="col-lg-12" id="modal-comment">
-    <div class="card">
-      <div class="card-body">
-        <div class="bootstrap-modal">
-          <div
-            class="modal fade"
-            id="modal-send-message"
-            tabindex="-1"
-            role="dialog"
-            aria-labelledby="exampleModalLabel"
-            aria-hidden="true"
-          >
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">
-                    New message
-                  </h5>
-                  <button
-                    id="close-modal"
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                  >
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <div class="form-group">
-                    <label for="message-subject" class="col-form-label"
-                      >Subject:</label
-                    >
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="message-subject"
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="message-text" class="col-form-label"
-                      >Message:</label
-                    >
-                    <textarea class="form-control" id="message-text"></textarea>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                  >
-                    Close
-                  </button>
+  {% include 'communications/templates/send-message.html' %}
 
-                  <button
-                    id="send-sms-btn"
-                    type="button"
-                    class="btn btn-primary sweet-success"
-                    onclick="sendMessage(persoId='{{ticket.created_by.id}}', sendToTenant=true, sendByEmail=false)"
-                  >
-                    Send message by phone
-                  </button>
-
-                  <button
-                    id="send-email-btn"
-                    type="button"
-                    class="btn btn-primary sweet-success"
-                    onclick="sendMessage(personId='{{ticket.created_by.id}}', sendToTenant=true, sendByEmail=true)"
-                  >
-                    Send message by email
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% endwith %}
 
 
   {% if ticket.ticket_status.id == 4 %}
@@ -137,13 +61,14 @@
                       class="form-control"
                       id="date-problem-solved"
                       name="solution_date"
+                      required
                     ></input>
                   </div>
                   <div class="form-group">
                     <label for="contractor-solution" class="col-form-label"
                       >Contractor solution:</label
                     >
-                    <textarea class="form-control" id="contractor-solution" name="contractor_solution"></textarea>
+                    <textarea class="form-control" id="contractor-solution" name="contractor_solution" required></textarea>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -173,7 +98,6 @@
 
 
   {% elif ticket.ticket_status.id == 5 %}
-
 
   <div class="col-lg-12" id="modal-payment">
     <div class="card">
@@ -305,8 +229,8 @@
               </button>
               <div class="mail-list mt-4">
                 {% for ticket_status in ticket_statuses %}
-                <a
-                  href="email-inbox.html"
+                <p
+      
                   class="list-group-item border-0 p-r-0"
                 >
                   <b>{{ticket_status.string_part}}</b>
@@ -319,7 +243,7 @@
                   </span>
 
                   {% endif %}
-                </a>
+                </p>
                 {% endfor %}
               </div>
             </div>
@@ -327,16 +251,16 @@
             <div class="email-right-box">
               <div class="toolbar" role="toolbar">
                 <div class="btn-group m-b-20">
-                  <button type="button" class="btn btn-light">
+                  <!-- <button type="button" class="btn btn-light">
                     <i class="fa fa-archive"></i>
                   </button>
                   <button type="button" class="btn btn-light">
                     <i class="fa fa-exclamation-circle"></i>
-                  </button>
+                  </button> -->
                   <button
                     type="button"
                     class="btn btn-light"
-                    id="button_delete"
+                    id="button-delete"
                   >
                     <i class="fa fa-trash"></i>
                   </button>
@@ -397,6 +321,19 @@
                 </h5>
                 <p>{{next_to_do.info}}</p>
 
+                {% if ticket.ticket_status.id == 3 %}
+
+                <h5>
+                  <strong>
+                  If the ticket cost is higher than {{ticket.max_for_approval}}$ then you must get the approval
+                  from a landlord to continue. 
+                  </strong>
+                </h5>
+
+                <hr>
+
+                {% endif %}
+
                 <h4>Action to do</h4>
 
                 {% for key, value in ticket.action_to_do.action_to_do.items %}
@@ -415,6 +352,12 @@
                   data-target="#modal-set-problem-as-solved"
                   data-toggle="modal"
                 > Mark problem as solved</button>
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-danger"
+                  id="problem-not-solved"
+                > Problem is not solved </button>
 
                 {% elif ticket.ticket_status.id == 5 %}
 
@@ -435,6 +378,12 @@
                   id="close-ticket"
                 > Close ticket </button>
 
+                <button
+                  type="button"
+                  class="btn mb-1 btn-danger"
+                  id="problem-not-solved"
+                > Problem is not solved </button>
+
                 {% else %}
 
                 <a
@@ -443,6 +392,16 @@
                 >
                   {{next_to_do.string_part}}
                 </a>
+
+                {% if next_to_do.second_action_link is not None %}
+
+                <a
+                class="badge badge-primary badge-sm m-t-5"
+                href="{{next_to_do.second_action_link}}{{ticket.ticket_type.id}}/{{ticket.id}}"
+                >
+                  {{next_to_do.name_second_action_link}}
+                </a>
+                {% endif %}
 
                 {% endif %}
 

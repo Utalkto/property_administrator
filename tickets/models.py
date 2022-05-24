@@ -107,7 +107,6 @@ class TicketPayment(models.Model):
     notes = models.TextField(null=True)
     
     
-    
 class TicketPriority(models.Model):
     string_part = models.CharField(max_length=120)
     
@@ -127,6 +126,9 @@ class TicketSteps(models.Model):
     string_part = models.CharField(max_length=120)
     info = models.CharField(max_length=1000, default='', null=True)
     action_link = models.URLField(max_length=120, default=None, null=True)
+    
+    second_action_link = models.URLField(max_length=120, null=True, default=None)
+    name_second_action_link= models.CharField(max_length=120, null=True, default=None)
     
     
     def save(self, *args, **kwargs):

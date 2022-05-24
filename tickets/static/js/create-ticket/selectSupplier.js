@@ -1,6 +1,6 @@
 function setSupplierInModalTabId(supplierId){
 
 
-    $('#input-supplier-id').val(supplierId)
+    $('#person-id').val(supplierId)
 
 }
