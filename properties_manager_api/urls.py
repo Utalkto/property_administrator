@@ -48,7 +48,7 @@ urlpatterns = [
    path('communications/', include('communications.urls')),
    
    # for watson 
-   path('waton/', include('watson.urls')),
+   path('watson/', include('watson.urls')),
    
    # to fill db
    
