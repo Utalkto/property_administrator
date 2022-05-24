@@ -68,6 +68,14 @@ class UnitServices(models.Model):
     available = models.BooleanField()
     
 
+class UnitContractType(models.Model):
+    contract_type = models.CharField(max_length=120)
+
+
+class PetType(models.Model):
+    pet_type = models.CharField(max_length=120)
+
+
 class Units(models.Model):
     # foreign keys 
      
@@ -94,7 +102,7 @@ class Units(models.Model):
     heating_type = CharField(max_length=50, default='')
     has_pet =  BooleanField(default=True)
     
-    # lease_type = CharField(max_length=100)
+    lease_typee = models.ForeignKey(UnitContractType, null=True, default=None, on_delete=models.CASCADE)
     
     main_tenant_name = CharField(max_length=150, default='Homero el griego')
     
@@ -119,8 +127,9 @@ class Units(models.Model):
     services = models.JSONField()
     square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
     shed = BooleanField(default=False)
-    
-    unit = IntegerField(default=1)
+
+    pet_typee = models.ForeignKey(PetType, null=True, default=None, on_delete=models.CASCADE)
+
     
     
 class TenantType(models.Model):
