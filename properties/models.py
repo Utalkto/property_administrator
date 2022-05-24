@@ -94,7 +94,7 @@ class Units(models.Model):
     heating_type = CharField(max_length=50, default='')
     has_pet =  BooleanField(default=True)
     
-    lease_type = CharField(max_length=100)
+    # lease_type = CharField(max_length=100)
     
     main_tenant_name = CharField(max_length=150, default='Homero el griego')
     
@@ -123,6 +123,11 @@ class Units(models.Model):
     unit = IntegerField(default=1)
     
     
+class TenantType(models.Model):
+    
+    tenan_type = models.CharField(max_length=120)
+
+
 class Tenants(models.Model):
     # foreign keys
     
@@ -155,7 +160,7 @@ class Tenants(models.Model):
     secondary_communications = CharField(max_length=20, null=True, default=None)
     standing_qualification=models.IntegerField(default=0)
     
-    tenant_type = CharField(max_length=50, default='main')
+    tenant_type = models.ForeignKey(TenantType, null=False, blank=False ,on_delete=models.CASCADE)
     
 
 class Links(models.Model):
