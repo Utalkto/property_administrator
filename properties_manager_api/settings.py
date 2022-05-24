@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'payments',
     'tickets',
     'fill_db',
+    'watson',
     
     # third party apps
     
