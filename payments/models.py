@@ -12,7 +12,7 @@ class Status(models.Model):
 
 class UnitPayments(models.Model):
     # foreing keys 
-    Unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
     tenant = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE)
     
     status = models.ForeignKey(Status, null=False, blank=False, on_delete=models.CASCADE)
@@ -28,7 +28,7 @@ class UnitPayments(models.Model):
     reference_code = models.CharField(max_length=100)
 
     # field to add to db    
-    # month = models.CharField(max_length=120, default='')
+    month = models.CharField(max_length=120, default='')
     
     class Meta:
         ordering = ('payment_date', )

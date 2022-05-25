@@ -65,7 +65,6 @@ class Properties(models.Model):
 
 class UnitServices(models.Model):
     service = models.CharField(max_length=120)
-    available = models.BooleanField()
     
 
 class UnitContractType(models.Model):
@@ -124,13 +123,12 @@ class Units(models.Model):
     rent = DecimalField(max_digits=19, decimal_places=2, default=0, null=False) 
     rooms = IntegerField(default=0)
     
-    services = models.JSONField()
+    services = models.ForeignKey(UnitServices, null=False, blank=False, on_delete=models.CASCADE)
     square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
     shed = BooleanField(default=False)
 
     pet_typee = models.ForeignKey(PetType, null=True, default=None, on_delete=models.CASCADE)
 
-    
     
 class TenantType(models.Model):
     
@@ -169,7 +167,7 @@ class Tenants(models.Model):
     secondary_communications = CharField(max_length=20, null=True, default=None)
     standing_qualification=models.IntegerField(default=0)
     
-    tenant_type = models.ForeignKey(TenantType, null=False, blank=False ,on_delete=models.CASCADE)
+    tenant_type = models.ForeignKey(TenantType, null=True, default=None, on_delete=models.CASCADE)
     
 
 class Links(models.Model):

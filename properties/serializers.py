@@ -45,14 +45,15 @@ class TenantSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
         
-class TenantsForUnitSerializer(serializers.ModelSerializer):
+class TenantsNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tenants
         fields = ('id', 'name',)
         
         
+        
 class UnitsSerializer(serializers.ModelSerializer):
-    tenants = TenantsForUnitSerializer(many=True)
+    tenants = TenantsNameSerializer(many=True)
     
     class Meta:
         model = Units
@@ -60,11 +61,17 @@ class UnitsSerializer(serializers.ModelSerializer):
         
         
 class UnitsSerializerNoTenant(serializers.ModelSerializer):
+    property = PropertiesSerializer()
     class Meta:
         model = Units
         fields = '__all__'
         
-        
+
+class UnitsSerializerProperty(serializers.ModelSerializer):
+    property = PropertiesSerializer()
+    class Meta:
+        model = Units
+        fields = ('property',)
         
 
 
