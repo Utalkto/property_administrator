@@ -63,9 +63,6 @@ class Properties(models.Model):
     year_bought = IntegerField(null=True)
 
 
-class UnitServices(models.Model):
-    service = models.CharField(max_length=120)
-    
 
 class UnitContractType(models.Model):
     contract_type = models.CharField(max_length=120)
@@ -123,7 +120,7 @@ class Units(models.Model):
     rent = DecimalField(max_digits=19, decimal_places=2, default=0, null=False) 
     rooms = IntegerField(default=0)
     
-    services = models.ForeignKey(UnitServices, null=False, blank=False, on_delete=models.CASCADE)
+    servicess = models.JSONField(null=True, default=dict)
     square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
     shed = BooleanField(default=False)
 

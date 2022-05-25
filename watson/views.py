@@ -9,10 +9,8 @@ from properties.serializers import TenantSerializer
 class WatsonApi(APIView):
     
     def post(self, request):
-        
-        
+
         tenant_id = int(request.data['tenant_id'])
-        
         
         try:
             tenant = Tenants.objects.get(id=tenant_id)

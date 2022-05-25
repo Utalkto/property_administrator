@@ -53,8 +53,6 @@ urlpatterns = [
    # to fill db
    
    path('fill-db/', include('fill_db.urls')),
-   
-   
     
    # drf urls
     

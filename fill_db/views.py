@@ -3,7 +3,7 @@ import random
 
 from register.models import UserCountries, UserCities, UserPlans, UserRoles
 
-from properties.models import PetType, PropertyTypes, TenantType, UnitServices, UnitTypes, PropertyCountries, PropertyCities, Properties, Units, Tenants
+from properties.models import PetType, PropertyTypes, TenantType, UnitTypes, PropertyCountries, PropertyCities, Properties, Units, Tenants
 from properties.serializers import TenantSerializer, UnitsSerializerNoTenant, PropertiesSerializer
 
 from candidates.models import Candidate, CandidateStatus
@@ -119,8 +119,6 @@ def crear_unidades():
     p = PetType(pet_type='racoon')
     p.save()
     
-    s = UnitServices(service='fridge')
-    s.save()
 
     resident= random.randrange(1,5)
     pet_f = random.randrange(200,400)
