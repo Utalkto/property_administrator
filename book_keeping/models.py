@@ -1,8 +1,6 @@
 from django.db import models
 
-from register.models import CustomUser
-
-from properties.models import Units, Tenants, Properties
+from properties.models import Units, Tenants
 from tickets.models import Suppliers
 
 
@@ -70,7 +68,6 @@ class PaymentRent(models.Model):
     # foreign keys
    
     tenant = models.ForeignKey(Tenants, null=False, blank=False ,on_delete=models.CASCADE)
-    landlord = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
     unit = models.ForeignKey(Units, null=False, blank=False ,on_delete=models.CASCADE)
    
     # -----------------------------

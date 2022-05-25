@@ -103,7 +103,7 @@ WSGI_APPLICATION = 'properties_manager_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db_kumbio',
+        'NAME': 'test_db',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',

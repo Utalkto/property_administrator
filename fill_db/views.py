@@ -3,7 +3,7 @@ import random
 
 from register.models import UserCountries, UserCities, UserPlans, UserRoles
 
-from properties.models import PropertyTypes, UnitTypes, PropertyCountries, PropertyCities, Properties, Units, Tenants
+from properties.models import PetType, PropertyTypes, TenantType, UnitServices, UnitTypes, PropertyCountries, PropertyCities, Properties, Units, Tenants
 from properties.serializers import TenantSerializer, UnitsSerializerNoTenant, PropertiesSerializer
 
 from candidates.models import Candidate, CandidateStatus
@@ -115,6 +115,12 @@ def crear_propiedades():
 
 def crear_unidades():
     """Crear datos de forma eleatorea en la tabla de Unidades"""
+    
+    p = PetType(pet_type='racoon')
+    p.save()
+    
+    s = UnitServices(service='fridge')
+    s.save()
 
     resident= random.randrange(1,5)
     pet_f = random.randrange(200,400)
@@ -143,7 +149,7 @@ def crear_unidades():
         "lease_type": "texto aqui",
         "name": "nombre",
         "notes" : "notas",
-        "services": {"1": "comida", "2":"wifi"},
+        "services": 1,
         "unit_type": 1,
         "number_of_pets": number_pets,
         "number_of_residents" : resident,
@@ -157,6 +163,7 @@ def crear_unidades():
         "rented" : True,
         "rent" : rent,
         "rooms" : room,
+        "pet_type": 1,
         "square_feet_area": 3.00,
         "tenant": 1
     }
@@ -174,6 +181,9 @@ def crear_unidades():
 
 
 def crear_inquilinos():
+    
+    t = TenantType(tenant_type='main')
+    t.save()
 
     units = random.randrange(1,10)
     payments_del  = random.randrange(0, 5)
@@ -200,8 +210,7 @@ def crear_inquilinos():
         "role": "role",
         "secondary_communications": "correo",
         "standing_qualification" : standing_qualif,
-        "tenant_type" : "tipo",
-        
+        "tenant_type" : 1,
     }
 
     serializer = TenantSerializer(data=data)
