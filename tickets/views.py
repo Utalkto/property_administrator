@@ -1,6 +1,7 @@
 # python 
 
 import datetime
+from rest_framework.authtoken.models import Token
 
 # django
 
@@ -51,6 +52,9 @@ def update_ticket_status(ticket:Ticket, to_status:int=None):
 
 def home(request):
     
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
+    
     all_tickets_open = Ticket.objects.filter(date_closed__isnull=True)
     
     tickets_priority_low = Ticket.objects.filter(priority=3, date_closed__isnull=True)
@@ -79,10 +83,14 @@ def home(request):
             'payment_tickets': payment_tickets,
             'general_info_tickets': general_info_tickets,
             'ticket_statuses': ticket_statuses,
+            'token' : Token.objects.get(user=request.user.id),
         })
 
 
 def open_ticket(request):
+    
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
     
     if request.method == 'POST':
         
@@ -117,6 +125,7 @@ def open_ticket(request):
             'tenants': Tenants.objects.all(),
             'ticket_types': TicketType.objects.all(),
             'ticket_priorities': TicketPriority.objects.all(),
+            'token' : Token.objects.get(user=request.user.id),
         }
         ) 
 
@@ -186,6 +195,9 @@ def create_ticket_main_info(request):
         
     properties = Properties.objects.all()
     
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
+    
     return render(
         request,
         'tickets/main_pages/create-ticket-dashboard.html',
@@ -195,6 +207,9 @@ def create_ticket_main_info(request):
 
 
 def create_ticket_options(request, ticket_type:int, ticket_id:int):
+    
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
     
     if ticket_type == 1:
         fields = MaintanenceType.objects.all()
@@ -215,10 +230,15 @@ def create_ticket_options(request, ticket_type:int, ticket_id:int):
             'form_fields': form_fields, 
             'branch_selected': ticket_type, 
             'ticket_id': ticket_id,
+            'token' : Token.objects.get(user=request.user.id),
         })
 
 
 def ticket_info(request, ticket_id):
+    
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
+    
     ticket = Ticket.objects.get(id=int(ticket_id))
     ticket_statuses = TicketSteps.objects.filter(ticket_type=ticket.ticket_type.id).order_by('id')
     
@@ -233,12 +253,16 @@ def ticket_info(request, ticket_id):
             'ticket': ticket,
             'ticket_statuses': ticket_statuses,
             'next_to_do' : next_to_do,
-            'comments' : Ticket.objects.get(id=ticket_id).ticketcomments_set.all().order_by('-date')
+            'comments' : Ticket.objects.get(id=ticket_id).ticketcomments_set.all().order_by('-date'),
+            'token' : Token.objects.get(user=request.user.id),
         }
         )
 
 
 def select_ticket_contractor(request, ticket_type, ticket_id):
+    
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
     
     try:
         ticket = Ticket.objects.get(id=ticket_id)
@@ -282,11 +306,15 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
         {
             'contractors': contractors_selected,
             'ticket': ticket,
+            'token' : Token.objects.get(user=request.user.id),
         }
         )
     
     
 def contact_ticket_contractor(request, ticket_type, ticket_id):
+    
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
     
     """
     Function to contact a contractor 
@@ -330,6 +358,7 @@ def contact_ticket_contractor(request, ticket_type, ticket_id):
         {
             'contractors': contractors,
             'ticket': ticket,
+            'token' : Token.objects.get(user=request.user.id),
         }
         )
     
@@ -392,6 +421,9 @@ def ticket_tree_stage_info(request):
 
 def solve_ticket_problem(request, ticket_id:int):
     
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
+    
     ticket = Ticket.objects.get(id=int(ticket_id))
     
     update_ticket_status(ticket=ticket) 
@@ -405,6 +437,9 @@ def solve_ticket_problem(request, ticket_id:int):
 
 
 def register_payment_ticket(request, ticket_id:int):
+    
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
     
 
     new_payment = TicketPayment(

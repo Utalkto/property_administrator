@@ -223,7 +223,7 @@ class PropertiesViewSet(APIView):
             serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id), many=True)
             # city name 
             # property type string
-            # 
+            
         else:
             serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id, id = property_id), many=True)
         

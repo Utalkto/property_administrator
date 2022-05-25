@@ -5,6 +5,9 @@ import datetime
 
 # django 
 
+from rest_framework.authtoken.models import Token
+
+
 from django.shortcuts import render
 from django.http import HttpResponse
 
@@ -180,6 +183,10 @@ class CommunicationsAPI(APIView):
 
 def communication_feed(request):
     
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
+    
+    
     t = Tenants.objects.filter(unit__property_manager=request.user.id)
     
     return render(
@@ -187,10 +194,16 @@ def communication_feed(request):
         'communications/main_pages/communications-dashboard.html', 
         {
             'tenants': t,
+            'token' : Token.objects.get(user=request.user.id),
+            
         })
 
 
 def messages_details(request, tenant_id):
+    
+    if not request.user.is_authenticated:
+        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
+    
     
     try:
         tenant = Tenants.objects.get(id=tenant_id)
@@ -208,7 +221,8 @@ def messages_details(request, tenant_id):
         {
            'tenant': tenant,
            'messages': messages,
-           'messages_sent': messages_sent
+           'messages_sent': messages_sent,
+           'token' : Token.objects.get(user=request.user.id),
         })
 
 

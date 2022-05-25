@@ -31,8 +31,8 @@ class PropertyTypeSerializer(serializers.ModelSerializer):
 
 
 class PropertiesSerializer(serializers.ModelSerializer):
-    city = CitySerializer()
-    property_type = PropertyTypeSerializer()
+    # city = CitySerializer()
+    # property_type = PropertyTypeSerializer()
     
     class Meta:
         model = Properties
@@ -61,7 +61,7 @@ class UnitsSerializer(serializers.ModelSerializer):
         
         
 class UnitsSerializerNoTenant(serializers.ModelSerializer):
-    property = PropertiesSerializer()
+    # property = PropertiesSerializer()
     class Meta:
         model = Units
         fields = '__all__'
