@@ -37,9 +37,9 @@ class Categories(models.Model):
 
 class Expenses(models.Model):
     # foreign keys
-    unit = models.ForeignKey(Units, null=False, blank=False ,on_delete=models.CASCADE)
-    categories = models.ForeignKey(Categories, null=False, blank=False ,on_delete=models.CASCADE)
-    supplier = models.ForeignKey(Suppliers, null=False, blank=False ,on_delete=models.CASCADE)
+    unit = models.ForeignKey(Units, default = '', null=False, blank=False ,on_delete=models.CASCADE)
+    categories = models.ForeignKey(Categories, default='', null=False, blank=False ,on_delete=models.CASCADE)
+    supplier = models.ForeignKey(Suppliers, default='', null=False, blank=False ,on_delete=models.CASCADE)
 
     # --------------------------------
     # fields
