@@ -16,10 +16,10 @@ class Product(models.Model):
     status = models.CharField(max_length=120, null=True, default=None)
     
     ice_cream = models.CharField(max_length=120, null=True, default=None)
-    extra_toppings = models.JSONField(null=True, default=dict)
+    # extra_toppings = models.JSONField(null=True, default=dict)
     
-    drink = models.CharField(null=True, default=None)
-    dough = models.CharField(null=True, default=None)
+    drink = models.CharField(max_length=120, null=True, default=None)
+    dough = models.CharField(max_length=120, null=True, default=None)
     
     email = models.EmailField(null=True, default=None)
     email2 = models.EmailField(null=True, default=None)

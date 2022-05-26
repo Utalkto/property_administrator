@@ -132,9 +132,15 @@ class TicketSteps(models.Model):
     
     
     def save(self, *args, **kwargs):
-         if  self.action_link == 'http://localhost:8000/None':
-              self.action_link = None
-         super(TicketSteps, self).save(*args, **kwargs)
+        if self.action_link == 'http://localhost:8000/None':
+            self.action_link = None
+            self.second_action_link = None
+            self.name_second_action_link = None
+        if self.second_action_link == 'http://localhost:8000/None':
+            self.second_action_link = None
+            self.name_second_action_link = None
+            
+        super(TicketSteps, self).save(*args, **kwargs)
     
     
     def __str__(self) -> str:

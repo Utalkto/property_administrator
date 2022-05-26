@@ -51,10 +51,7 @@ def update_ticket_status(ticket:Ticket, to_status:int=None):
 
 
 def home(request):
-    
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
-    
+
     all_tickets_open = Ticket.objects.filter(date_closed__isnull=True)
     
     tickets_priority_low = Ticket.objects.filter(priority=3, date_closed__isnull=True)
@@ -88,9 +85,6 @@ def home(request):
 
 
 def open_ticket(request):
-    
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
     
     if request.method == 'POST':
         
@@ -195,9 +189,6 @@ def create_ticket_main_info(request):
         
     properties = Properties.objects.all()
     
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
-    
     return render(
         request,
         'tickets/main_pages/create-ticket-dashboard.html',
@@ -207,9 +198,6 @@ def create_ticket_main_info(request):
 
 
 def create_ticket_options(request, ticket_type:int, ticket_id:int):
-    
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
     
     if ticket_type == 1:
         fields = MaintanenceType.objects.all()
@@ -236,11 +224,13 @@ def create_ticket_options(request, ticket_type:int, ticket_id:int):
 
 def ticket_info(request, ticket_id):
     
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
-    
     ticket = Ticket.objects.get(id=int(ticket_id))
     ticket_statuses = TicketSteps.objects.filter(ticket_type=ticket.ticket_type.id).order_by('id')
+    
+    try:
+        current_appoinment = list(ticket.ticketappoinment_set.filter(completed=False))[0]
+    except:
+        current_appoinment = None
     
     # here the link to identify the problem must be sent with the ticket id 
         
@@ -255,14 +245,12 @@ def ticket_info(request, ticket_id):
             'next_to_do' : next_to_do,
             'comments' : Ticket.objects.get(id=ticket_id).ticketcomments_set.all().order_by('-date'),
             'token' : Token.objects.get(user=request.user.id),
+            'current_appoinment': current_appoinment,
         }
         )
 
 
 def select_ticket_contractor(request, ticket_type, ticket_id):
-    
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
     
     try:
         ticket = Ticket.objects.get(id=ticket_id)
@@ -313,9 +301,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
     
 def contact_ticket_contractor(request, ticket_type, ticket_id):
     
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
-    
+
     """
     Function to contact a contractor 
     
@@ -395,7 +381,7 @@ def ticket_tree_stage_info(request):
             
             ticket = Ticket.objects.get(id=ticket_id)
             ticket.ticket_status = TicketSteps.objects.get(id=2)
-            ticket.action_to_do = TicketAction.objects.get(issue_description=option_selected)
+            ticket.action_to_do = TicketAction.objects.get(id=1)
             ticket.problem = MaintanenceIssueDescription.objects.get(id=option_selected)   
             
             ticket.save()
@@ -421,9 +407,6 @@ def ticket_tree_stage_info(request):
 
 def solve_ticket_problem(request, ticket_id:int):
     
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
-    
     ticket = Ticket.objects.get(id=int(ticket_id))
     
     update_ticket_status(ticket=ticket) 
@@ -437,10 +420,6 @@ def solve_ticket_problem(request, ticket_id:int):
 
 
 def register_payment_ticket(request, ticket_id:int):
-    
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
-    
 
     new_payment = TicketPayment(
         amount = request.POST.get('amount'),
@@ -531,11 +510,26 @@ def return_to_coordinate_visit(request, ticket_id):
     
     update_ticket_status(ticket=ticket, to_status=3)
     
+    comment = 'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
+    
+    if request.data['no_attendance']:
+        appoinmnet = ticket.ticketappoinment_set.filter(completed=False)[0]
+        
+        appoinmnet.completed = True
+        appoinmnet.supplier_attendance = False
+        
+        appoinmnet.save()
+        
+        
+        comment = f'{ticket.contractor.name} did not attend the appoinment'
+        
+    
+    
     data_for_comment = {
         'ticket' : ticket_id,
         'made_by' : request.user.id,
         'date': datetime.datetime.now(),
-        'comment': f'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
+        'comment': comment
     }
     
     serializer = TicketCommentSerializer(data=data_for_comment)
