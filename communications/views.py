@@ -184,7 +184,7 @@ class CommunicationsAPI(APIView):
 def communication_feed(request):
     
     
-    t = Tenants.objects.filter(unit__property_manager=request.user.id)
+    t = Tenants.objects.filter(unit__property_manager=1)
     s = Suppliers.objects.all()
 
     l = list(t) + list(s)

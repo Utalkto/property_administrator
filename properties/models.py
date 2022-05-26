@@ -120,7 +120,7 @@ class Units(models.Model):
     rent = DecimalField(max_digits=19, decimal_places=2, default=0, null=False) 
     rooms = IntegerField(default=0)
     
-    # servicess = models.JSONField(null=True, default=dict)
+    servicesss = models.JSONField(null=True, default=dict)
     square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
     shed = BooleanField(default=False)
 

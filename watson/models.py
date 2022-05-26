@@ -16,7 +16,7 @@ class Product(models.Model):
     status = models.CharField(max_length=120, null=True, default=None)
     
     ice_cream = models.CharField(max_length=120, null=True, default=None)
-    # extra_toppings = models.CharField(max_length=120, null=True, default=None)
+    extra_toppingss = models.CharField(max_length=120, null=True, default=None)
     
     drink = models.CharField(max_length=120, null=True, default=None)
     dough = models.CharField(max_length=120, null=True, default=None)

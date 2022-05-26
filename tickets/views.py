@@ -97,7 +97,7 @@ def open_ticket(request):
             'date_opened' : datetime.datetime.now(),
             'priority': ticket_priority,
             'ticket_status': 1,
-            'owner': request.user.id
+            'owner': 1
         }
         
         serializer = TicketSerializer(data=data)
@@ -243,7 +243,7 @@ def ticket_info(request, ticket_id):
             'ticket_statuses': ticket_statuses,
             'next_to_do' : next_to_do,
             'comments' : Ticket.objects.get(id=ticket_id).ticketcomments_set.all().order_by('-date'),
-            'token' : Token.objects.get(user=request.user.id),
+            'token' : Token.objects.get(user=1),
             'current_appoinment': current_appoinment,
         }
         )
@@ -262,7 +262,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
         
         data_for_serializer = dict()
         
-        data_for_serializer['created_by'] = request.user.id
+        data_for_serializer['created_by'] = 1
         data_for_serializer['ticket'] = ticket_id
         data_for_serializer['date'] = request.POST.get('appoinment_date')
         
@@ -463,7 +463,7 @@ class TicketCommentApi(APIView):
         
         request_data['ticket'] = ticket_id
         request_data['date'] = datetime.datetime.now()
-        request_data['made_by'] = request.user.id
+        request_data['made_by'] = 1
         
         serializer = TicketCommentSerializer(data=request_data)
         
@@ -522,10 +522,9 @@ def return_to_coordinate_visit(request, ticket_id):
         comment = f'{ticket.contractor.name} did not attend the appoinment'
         
     
-    
     data_for_comment = {
         'ticket' : ticket_id,
-        'made_by' : request.user.id,
+        'made_by' : 1,
         'date': datetime.datetime.now(),
         'comment': comment
     }
