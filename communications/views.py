@@ -5,6 +5,9 @@ import datetime
 
 # django 
 
+from rest_framework.authtoken.models import Token
+
+
 from django.shortcuts import render
 from django.http import HttpResponse
 
@@ -180,13 +183,21 @@ class CommunicationsAPI(APIView):
 
 def communication_feed(request):
     
+    
     t = Tenants.objects.filter(unit__property_manager=request.user.id)
+    s = Suppliers.objects.all()
+
+    l = list(t) + list(s)
+
+
     
     return render(
         request, 
         'communications/main_pages/communications-dashboard.html', 
         {
-            'tenants': t,
+            'tenants': l,
+            'token' : '4773b395ccc675389aaf377546f9aea4cb68122a'
+            
         })
 
 
@@ -195,7 +206,10 @@ def messages_details(request, tenant_id):
     try:
         tenant = Tenants.objects.get(id=tenant_id)
     except Tenants.DoesNotExist:
-        return HttpResponse('The user requested does not exist')
+        try:
+            tenant = Suppliers.objects.get(id=tenant_id)
+        except:
+            return HttpResponse('The user requested does not exist')
     
     
     messages = tenant.messagesent_set.all().order_by('-date_time_sent')
@@ -208,7 +222,8 @@ def messages_details(request, tenant_id):
         {
            'tenant': tenant,
            'messages': messages,
-           'messages_sent': messages_sent
+           'messages_sent': messages_sent,
+           'token' : '4773b395ccc675389aaf377546f9aea4cb68122a'
         })
 
 

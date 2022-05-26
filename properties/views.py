@@ -223,7 +223,7 @@ class PropertiesViewSet(APIView):
             serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id), many=True)
             # city name 
             # property type string
-            # 
+            
         else:
             serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id, id = property_id), many=True)
         
@@ -307,9 +307,9 @@ class PropertiesViewSet(APIView):
                 status=status.HTTP_404_NOT_FOUND)
     
     
-    def delete(self, request, id):
+    def delete(self, request, property_id):
         try:
-            _property = Properties.objects.get(id=id)
+            _property = Properties.objects.get(id=property_id)
             _property.delete()
             return Response(
                 {

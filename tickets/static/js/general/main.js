@@ -1,4 +1,4 @@
-const authToken = 'Token d0610c6848b24e10e7a41b17acd3cf485213da8c'
+const authToken =  $('#auth-token').val()
 
 
 function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, supplierFeed=false) {
@@ -8,8 +8,6 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
   // person_id <int> : the id of the person who is going to receive the message
   // email <bool> : when true the way to send a message will be with an email
   // phone <bool> : when true the way to send a message will be with a text message (twilio)
-
-  console.log(supplierFeed);
 
   message = $("#message-text");
   subject = $("#message-subject");
@@ -54,12 +52,14 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
     jsonData.supplier_id = personId;
   }
 
+  console.log(jsonData)
+
   $.ajax({
     type: "POST",
     url: "/communications/send-message/",
     data: jsonData,
     headers: {
-      Authorization: "Token d0610c6848b24e10e7a41b17acd3cf485213da8c",
+      Authorization: `Token ${$('#auth-token').val()}`,
     },
     success: function (response) {
       Toastify({
@@ -128,7 +128,7 @@ function afterSendMessage(success, comFeed, supplierFeed, response) {
 
 
 function setTenantInModalTabId(tenant_id) {
-  $("#input-tenant-id").val(tenant_id);
+  $("#person-id").val(tenant_id);
 }
 
 

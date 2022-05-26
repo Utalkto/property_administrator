@@ -23,7 +23,7 @@
 
                             <!-- Input fields -->
 
-                            <input type="hidden" id="input-tenant-id">
+                            <input type="hidden" id="person-id">
 
 
                             <div class="modal-body">
@@ -39,11 +39,11 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
     
-                                <button id="send-sms-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId=null, sendToTenant=true, sendByEmail=false)">
+                                <button id="send-sms-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId=null, sendToTenant='True', sendByEmail=false)">
                                   Send message by phone
                                 </button>
     
-                                <button id="send-email-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId=null, sendToTenant=true, sendByEmail=true)">
+                                <button id="send-email-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId=null, sendToTenant='True', sendByEmail=true)">
                                   Send message by email
                                 </button>
                             </div>
@@ -73,8 +73,8 @@
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Property</th>
-                    <th>Unit ID</th>
+                    <th>Email</th>
+                    <th>Phone</th>
                     <th>Send message</th>
                     <th>View all messages sent</th>
                   </tr>
@@ -83,8 +83,8 @@
                   {% for tenant in tenants %}
                   <tr>
                     <td>{{tenant.name}}</td>
-                    <td>{{tenant.unit.property.name}}</td>
-                    <td>{{tenant.unit.id}}</td>
+                    <td>{{tenant.email}}</td>
+                    <td>{{tenant.phone}}</td>
                     <td>
                       <button
                         type="button"

@@ -1,6 +1,7 @@
 # python 
 
 import datetime
+from rest_framework.authtoken.models import Token
 
 # django
 
@@ -79,6 +80,7 @@ def home(request):
             'payment_tickets': payment_tickets,
             'general_info_tickets': general_info_tickets,
             'ticket_statuses': ticket_statuses,
+            'token' : '4773b395ccc675389aaf377546f9aea4cb68122a'
         })
 
 
@@ -117,6 +119,7 @@ def open_ticket(request):
             'tenants': Tenants.objects.all(),
             'ticket_types': TicketType.objects.all(),
             'ticket_priorities': TicketPriority.objects.all(),
+            'token' : '4773b395ccc675389aaf377546f9aea4cb68122a'
         }
         ) 
 
@@ -186,6 +189,7 @@ def create_ticket_main_info(request):
         
     properties = Properties.objects.all()
     
+
     return render(
         request,
         'tickets/main_pages/create-ticket-dashboard.html',
@@ -196,6 +200,7 @@ def create_ticket_main_info(request):
 
 def create_ticket_options(request, ticket_type:int, ticket_id:int):
     
+
     if ticket_type == 1:
         fields = MaintanenceType.objects.all()
         
@@ -215,10 +220,13 @@ def create_ticket_options(request, ticket_type:int, ticket_id:int):
             'form_fields': form_fields, 
             'branch_selected': ticket_type, 
             'ticket_id': ticket_id,
+            'token' : '4773b395ccc675389aaf377546f9aea4cb68122a'
         })
 
 
 def ticket_info(request, ticket_id):
+    
+
     ticket = Ticket.objects.get(id=int(ticket_id))
     ticket_statuses = TicketSteps.objects.filter(ticket_type=ticket.ticket_type.id).order_by('id')
     
@@ -233,7 +241,8 @@ def ticket_info(request, ticket_id):
             'ticket': ticket,
             'ticket_statuses': ticket_statuses,
             'next_to_do' : next_to_do,
-            'comments' : Ticket.objects.get(id=ticket_id).ticketcomments_set.all().order_by('-date')
+            'comments' : Ticket.objects.get(id=ticket_id).ticketcomments_set.all().order_by('-date'),
+            'token' : '4773b395ccc675389aaf377546f9aea4cb68122a'
         }
         )
 
@@ -282,6 +291,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
         {
             'contractors': contractors_selected,
             'ticket': ticket,
+            'token' : '4773b395ccc675389aaf377546f9aea4cb68122a'
         }
         )
     
@@ -330,6 +340,7 @@ def contact_ticket_contractor(request, ticket_type, ticket_id):
         {
             'contractors': contractors,
             'ticket': ticket,
+            'token' : '4773b395ccc675389aaf377546f9aea4cb68122a'
         }
         )
     
@@ -392,6 +403,7 @@ def ticket_tree_stage_info(request):
 
 def solve_ticket_problem(request, ticket_id:int):
     
+
     ticket = Ticket.objects.get(id=int(ticket_id))
     
     update_ticket_status(ticket=ticket) 
@@ -406,6 +418,7 @@ def solve_ticket_problem(request, ticket_id:int):
 
 def register_payment_ticket(request, ticket_id:int):
     
+
 
     new_payment = TicketPayment(
         amount = request.POST.get('amount'),
