@@ -122,6 +122,7 @@ $('#problem-not-solved').click(() => {
     title: "Problem is not solved",
     message:
     'Are you sure the problem is not solved? by pressing not solved it will return you to the coordinate visit secion',
+    
     buttons: {
       cancel: {
         label: '<i class="fa fa-times"></i> Cancel',
@@ -157,6 +158,49 @@ $('#problem-not-solved').click(() => {
   });
 
 })
+
+
+$('#supplier-did-not-attend').click(() => {
+  bootbox.confirm({
+    title: "Confirm",
+    message:
+    'Please confirm that the contractor did not attend the appoinment',
+    
+    buttons: {
+      cancel: {
+        label: '<i class="fa fa-times"></i> Cancel',
+      },
+      confirm: {
+        label: 'Confirm',
+        className:'btn-danger',
+      },
+    },
+    
+    callback: function (result) {
+
+      if (result===true) {
+
+        $.ajax({
+          type: "POST",
+          data: {'no_attendance': true},
+          url: `/tickets/return-to-coordinate-visit/${ticketId}`,
+          headers: {
+            Authorization: `Token ${$('#auth-token').val()}`,
+          },
+          success: function (response) {
+
+            window.location.href = `http://localhost:8000/tickets/ticket-info/${ticketId}`;
+          
+          },
+          error: function (response) {
+            alert("An error has ocurred with your message, please try again.");
+            console.log(response);
+          },
+        })
+      }
+    },
+  });
+});
 
 
 $("#button-delete").click(() => {

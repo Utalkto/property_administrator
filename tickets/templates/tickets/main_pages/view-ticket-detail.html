@@ -283,7 +283,7 @@
                     {% if ticket.problem.string_part %}
 
                     <p class="m-b-2">
-                      <strong> Problem:</strong> {{ticket.problem.string_part}}
+                      <strong> Problem:</strong>  {{ticket.problem.maintanence_issue_sub_type.maintanence_issue_type.string_part}} {{ticket.problem.maintanence_issue_sub_type.string_part}} {{ticket.problem.string_part}}
                     </p>
 
                     {% else %}
@@ -305,6 +305,21 @@
                     </p>
 
                     {% endif %}
+
+                    {% if current_appoinment %}
+
+                    <p class="m-b-2">
+                      <strong> appoinment:</strong> {{current_appoinment.date}}
+                    </p>
+
+                    {% else %}
+
+                    <p class="m-b-2">
+                      <strong>appoinment:</strong> No selected yet
+                    </p>
+
+                    {% endif %}
+
                   </div>
                 </div>
                 <hr />
@@ -358,6 +373,12 @@
                   class="btn mb-1 btn-danger"
                   id="problem-not-solved"
                 > Problem is not solved </button>
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-danger"
+                  id="supplier-did-not-attend"
+                > Supplier did not attend </button>
 
                 {% elif ticket.ticket_status.id == 5 %}
 

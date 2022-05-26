@@ -125,6 +125,8 @@ class Units(models.Model):
     shed = BooleanField(default=False)
 
     pet_typee = models.ForeignKey(PetType, null=True, default=None, on_delete=models.CASCADE)
+    
+    unit_number = models.IntegerField(default=0)
 
     
 class TenantType(models.Model):
