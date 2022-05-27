@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import PetType, Properties, TenantType, Units, Tenants, Links, PropertyCountries, PropertyCities, PropertyTypes, UnitTypes
+from .models import Team, PetType, Properties, TenantType, Units, Tenants, Links, PropertyCountries, PropertyCities, PropertyTypes, UnitTypes
 
+admin.site.register(Team)
 admin.site.register(Properties)
 admin.site.register(Units)
 admin.site.register(Tenants)

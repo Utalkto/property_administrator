@@ -9,39 +9,86 @@ from .serializers import ProductSerializer
 from rest_framework import status
 from app_modules.send_email import SendEmail
 
+from .models import UserEmail
+
 from uuid import uuid4
 
+
+from random import randint
+
+def random_with_N_digits(n):
+    range_start = 10**(n-1)
+    range_end = (10**n)-1
+    return randint(range_start, range_end)
+
+spanish = {
+        'dough': 'Masa',
+        'drink' : 'Bebida',
+        'product' : 'Producto',
+        'ice_cream': 'Helado',
+        'extra_toppings': 'Ingredientes extra'
+        }
+
+
 class WatsonApi(APIView):
-    
+
+    {'dough': 'Delgada', 
+    'drink': 'Coca Cola', 
+    'email': 'acampos@utalkto.com', 
+    'product': 'Napolitana', 
+    'ice_cream': 'Fresas con crema', 
+    'extra_toppings': 'Extra de queso', 
+    'product_id': 'fe4962fe-5db7-46ab-8a17-33de31cb143e'}
+
     def post(self, request):
 
-
+        code = random_with_N_digits(6)
         serializer = ProductSerializer(data=request.data)
-
         email = request.data['email']
 
-        request.data['product_id'] = str(uuid4())
+        order = str()
 
-        print('-----------------------')
-        print('-----------------------')
-        print(request.data)
-        print('-----------------------')
-        print('-----------------------')
+        # taking the keys of the order to put it in the order
+
+        order += f'<p> Producto: {request.data["product"]} </p>'
+        order += f'<p> Masa: {request.data["dough"]} </p>'
+        order += f'<p> Ingrediente extra: {request.data["extra_toppings"]} </p>'
+        order += f'<p> Bebida: {request.data["drink"]} </p>'
+        order += f'<p> Helado: {request.data["ice_scream"]} </p>'
+        
+
+        # for key in request.data:
+        #     if key == 'email':
+        #         continue
+
+        #     d = request.data[key]
+        #     spa_key = spanish[key]
+
+        #     order += f'<p> {spa_key}: {d} </p>'
+
+        request.data['product_id'] = str(uuid4())
 
         if serializer.is_valid():
             serializer.save()
 
-
+            # email to the client 
             SendEmail(
                 send_to=email,
-                subject='You are not invited cause youre not a spider',
-                html='<p>Like the title said, youre not a spider, so youve not been inivited</p>'
+                subject='Confirmación de pedido. Pizzeria La Nona',
+                html=f'<p>Su pedido ha sido recibido, su codigo de pedido es {code}</p> {order} <p> Tendra su pedido en 15 minutos. ¡Gracias por preferirnos!</p>'
+            )
+
+            # email to the owner
+            SendEmail(
+                send_to=UserEmail.objects.get(id=1).email,
+                subject='Nuevo pedido',
+                html=f'<p>Se ha recibido un nuevo pedido bajo el codigo: {code}</p> {order}'
             )
 
 
             return Response(
                 {
-                    'message':'success'
+                    'order_code': code,
                 })
 
 

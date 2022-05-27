@@ -71,7 +71,7 @@ class UnitsSerializerProperty(serializers.ModelSerializer):
     property = PropertiesSerializer()
     class Meta:
         model = Units
-        fields = ('property',)
+        fields = '__all__'
         
 
 

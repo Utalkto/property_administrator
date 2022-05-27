@@ -5,6 +5,15 @@ from register.models import CustomUser
 
 # main tables 
 
+class Team(models.Model):
+    name = models.CharField(max_length=120, default='')
+    email = models.CharField(max_length=120, default='')
+    phone = models.CharField(max_length=120, default='')
+    address = models.CharField(max_length=120, default='')
+    role = models.CharField(max_length=120, default='')
+    def __str__(self) -> str:
+        return self.name
+
 class PropertyTypes(models.Model):
     property_type = models.CharField(max_length=100)
     
