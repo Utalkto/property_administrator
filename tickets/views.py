@@ -23,7 +23,7 @@ from rest_framework import status, authentication, permissions
 
 from .models import Ticket, TicketPayment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
 
-from .serializers import SupplierSerializer, TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
+from .serializers import SupplierPostSerializer, SupplierSerializer, TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
 
 # properties
 from properties.models import Properties, Tenants, Units
@@ -444,8 +444,7 @@ def register_payment_ticket(request, token:str, ticket_id:int):
 
 
 class TicketCommentApi(APIView):
-    
-      
+
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,)
     
@@ -557,7 +556,7 @@ class SuppliersApi(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,)
     
-    def get(self, request, supplier_id):
+    def get(self, request, supplier_id:int):
 
         if supplier_id == 'all':
             serializer = SupplierSerializer(Suppliers.objects.all(), many=True)
@@ -566,4 +565,66 @@ class SuppliersApi(APIView):
             serializer = SupplierSerializer(Suppliers.objects.filter(id=int(supplier_id)), many=True)
 
         return Response(serializer.data)
-
+    
+    
+    def post(self, request):
+        
+        serializer = SupplierSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response(serializer)
+            
+        else:
+            return Response(
+                    {
+                    'error': True, 
+                     'message': 'serializer is not valid', 
+                     'serializer_error': serializer.errors
+                    }, 
+                    status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    def put(self, request, supplier_id:int):
+        
+        try:
+            supplier = Suppliers.objects.get(id=supplier_id)
+        except Suppliers.DoesNotExist:
+            return Response(
+                {
+                    'error': True, 
+                    'message ': 'Supplier with provided id does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
+            
+            
+        serializer = SupplierPostSerializer(instance=supplier, data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+    
+            return Response(serializer)
+        
+        else: 
+            return Response({
+                'error': True,
+                'message': 'serializer is not valid',
+                'message_error': serializer.errors 
+                })
+        
+        
+    def delete(self, request, supplier_id:int):
+        try:
+            Suppliers.objects.get(id=supplier_id).delete()
+        except Suppliers.DoesNotExist:
+            return Response(
+                {
+                    'error': True, 
+                    'message ': 'Supplier with provided id does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({
+            'success': True,
+        })

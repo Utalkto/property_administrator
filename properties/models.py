@@ -91,55 +91,53 @@ class Units(models.Model):
     #  ------------------------------------
     #  fields
     
-    air_conditioning = BooleanField(default=False)
+    air_conditioning = BooleanField(null=True, default=None)
     appliances = models.JSONField()
     
     bathrooms = IntegerField()
     
     deposit_amount = DecimalField(max_digits=19, decimal_places=2)
-    debt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    details = models.TextField(null=True)
-    date_deposit_received = DateField(null=True)
+    debt = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
+    details = models.TextField(null=True, default=None)
+    date_deposit_received = DateField(null=True, default=None)
     
-    extra_resident_price = DecimalField(max_digits=5, decimal_places=2, default=0)
-    extra_resident = IntegerField(default=0)
+    extra_resident_price = DecimalField(max_digits=5, decimal_places=2)
+    extra_resident = IntegerField(null=True, default=None)
     
-    heating_type = CharField(max_length=50, default='')
-    has_pet =  BooleanField(default=True)
+    heating_type = CharField(max_length=50, null=True, default=None)
+    has_pet =  BooleanField(null=True, default=None)
     
     lease_typee = models.ForeignKey(UnitContractType, null=True, default=None, on_delete=models.CASCADE)
     
-    main_tenant_name = CharField(max_length=150, default='Homero el griego')
+    main_tenant_name = CharField(max_length=150, null=True, default=None)
     
-    name = CharField(max_length=100, default='')
-    notes = TextField(default='')
-    number_of_pets = IntegerField(default=0)
-    number_of_residents = IntegerField(default=0)
+    name = CharField(max_length=100, null=True, default=None)
+    notes = TextField(null=True, default=None)
+    number_of_pets = IntegerField(null=True, default=None)
+    number_of_residents = IntegerField(null=True, default=None)
     
-    payments_email = CharField(max_length=100, default='')
-    parking_available = BooleanField(default=False)
-    parking_type = CharField(max_length=50, default='')
+    payments_email = CharField(max_length=100, null=True, default=None)
+    parking_available = BooleanField()
+    parking_type = CharField(max_length=50, null=True, default=None)
     
-    shed = models.BooleanField()
-    pet_fee = DecimalField(max_digits=19, decimal_places=2, default=0)
-    pet_policy= CharField(max_length=100, default='')
-    pets_living = models.CharField(max_length=50, default='')
+    pet_fee = DecimalField(max_digits=19, decimal_places=2, null=True, default=None)
+    pet_policy= CharField(max_length=100)
+    pets_living = models.CharField(max_length=50, null=True, default=None)
     
     rented = BooleanField(default=False) 
-    rent = DecimalField(max_digits=19, decimal_places=2, default=0, null=False) 
-    rooms = IntegerField(default=0)
+    rent = DecimalField(max_digits=19, decimal_places=2, null=True, default=None) 
+    rooms = IntegerField()
     
     servicesss = models.JSONField(null=True, default=dict)
-    square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
+    square_feet_area = DecimalField(max_digits=19, decimal_places=2)
     shed = BooleanField(default=False)
 
     pet_typee = models.ForeignKey(PetType, null=True, default=None, on_delete=models.CASCADE)
     
-    unit_number = models.IntegerField(default=0)
+    unit_number = models.IntegerField(default=1)
 
     
 class TenantType(models.Model):
-    
     tenan_type = models.CharField(max_length=120)
 
 
@@ -153,10 +151,10 @@ class Tenants(models.Model):
     # fields
     date_deposit_received = models.DateField(default=None ,null=True)
     
-    email = CharField(max_length=50, default='')
-    email2 = CharField(max_length=50, null=True)
-    emergency_contact = CharField(max_length=50, default='')
-    emergency_contact_name = CharField(max_length=50, default='', null=True)
+    email = CharField(max_length=50)
+    email2 = CharField(max_length=50, null=True, default=None)
+    emergency_contact = CharField(max_length=50, null=True, default=None)
+    emergency_contact_name = CharField(max_length=50, null=True, default=None)
     
     lease_start_date = models.DateField(default=None, null=True)
     lease_expiration_date = models.DateField(default=None, null=True)
@@ -167,10 +165,8 @@ class Tenants(models.Model):
     name = CharField(max_length=50) 
     
     phone = CharField(max_length=50, null=False)
-    phone2 = CharField(max_length=50 ,null=True, default=None)
-    preferred_communications = CharField(max_length=20, default='')
-    
-    role = CharField(max_length=50, default='')
+    phone2 = CharField(max_length=50, null=True, default=None)
+    preferred_communications = CharField(max_length=20)
     
     secondary_communications = CharField(max_length=20, null=True, default=None)
     standing_qualification=models.IntegerField(default=0)
@@ -179,7 +175,6 @@ class Tenants(models.Model):
     
 
 class Links(models.Model):
-    
     # Foreign key
     owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
     # --------------------------------

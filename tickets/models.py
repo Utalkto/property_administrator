@@ -22,7 +22,7 @@ class Suppliers(models.Model):
     city = models.ForeignKey(PropertyCities, null=False, blank=False, on_delete=models.CASCADE)
     # role = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
     
-    work_area = models.ForeignKey(SupplierWorkArea, null=True, blank=False, on_delete=models.CASCADE, default=None)
+    work_area = models.ForeignKey(SupplierWorkArea, null=False, blank=False, on_delete=models.CASCADE, default=None)
     
     # --------------------------
     # fields
@@ -35,9 +35,9 @@ class Suppliers(models.Model):
     
     phone = models.CharField(max_length=100)
     
-    rating = models.IntegerField()
+    rating = models.IntegerField(null=True, default=None)
     
-    times_hired = models.IntegerField(default=0)
+    times_hired = models.IntegerField(null=True, default=None)
     
     
     def __str__(self) -> str:
