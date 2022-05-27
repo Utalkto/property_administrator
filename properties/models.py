@@ -5,6 +5,15 @@ from register.models import CustomUser
 
 # main tables 
 
+class Team(models.Model):
+    name = models.CharField(max_length=120, default='')
+    email = models.CharField(max_length=120, default='')
+    phone = models.CharField(max_length=120, default='')
+    address = models.CharField(max_length=120, default='')
+    role = models.CharField(max_length=120, default='')
+    def __str__(self) -> str:
+        return self.name
+
 class PropertyTypes(models.Model):
     property_type = models.CharField(max_length=100)
     
@@ -63,9 +72,6 @@ class Properties(models.Model):
     year_bought = IntegerField(null=True)
 
 
-class UnitServices(models.Model):
-    service = models.CharField(max_length=120)
-    
 
 class UnitContractType(models.Model):
     contract_type = models.CharField(max_length=120)
@@ -123,7 +129,7 @@ class Units(models.Model):
     rent = DecimalField(max_digits=19, decimal_places=2, default=0, null=False) 
     rooms = IntegerField(default=0)
     
-    services = models.ForeignKey(UnitServices, null=False, blank=False, on_delete=models.CASCADE)
+    servicesss = models.JSONField(null=True, default=dict)
     square_feet_area = DecimalField(max_digits=19, decimal_places=2, default=0)
     shed = BooleanField(default=False)
 

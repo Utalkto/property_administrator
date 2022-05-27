@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     
 ]
 
+
 CORS_ALLOWED_ORIGINS = [
     "http://154.12.240.122",
     "http://localhost:3000",
@@ -103,7 +104,7 @@ WSGI_APPLICATION = 'properties_manager_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test_db',
+        'NAME': 'db_test5',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',

@@ -67,9 +67,9 @@ class PaymentRent(models.Model):
    
     tenant = models.ForeignKey(Tenants, null=False, blank=False ,on_delete=models.CASCADE)
     unit = models.ForeignKey(Units, null=False, blank=False ,on_delete=models.CASCADE)
-   
+
     # -----------------------------
-    # fields
+    # field
    
     account = models.TextField()
    

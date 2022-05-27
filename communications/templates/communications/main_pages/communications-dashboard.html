@@ -73,8 +73,8 @@
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Property</th>
-                    <th>Unit ID</th>
+                    <th>Email</th>
+                    <th>Phone</th>
                     <th>Send message</th>
                     <th>View all messages sent</th>
                   </tr>
@@ -83,8 +83,8 @@
                   {% for tenant in tenants %}
                   <tr>
                     <td>{{tenant.name}}</td>
-                    <td>{{tenant.unit.property.name}}</td>
-                    <td>{{tenant.unit.id}}</td>
+                    <td>{{tenant.email}}</td>
+                    <td>{{tenant.phone}}</td>
                     <td>
                       <button
                         type="button"

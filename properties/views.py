@@ -18,7 +18,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 # models 
 from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants
-from properties.serializers import CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TenantSerializer, UnitsSerializer
+from properties.serializers import CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant
 
 from register.models import CustomUser
 
@@ -307,9 +307,9 @@ class PropertiesViewSet(APIView):
                 status=status.HTTP_404_NOT_FOUND)
     
     
-    def delete(self, request, id):
+    def delete(self, request, property_id):
         try:
-            _property = Properties.objects.get(id=id)
+            _property = Properties.objects.get(id=property_id)
             _property.delete()
             return Response(
                 {
@@ -362,7 +362,7 @@ class UnitsViewSet(APIView):
         
     
     @swagger_auto_schema(
-    responses={200: UnitsSerializer()})
+    responses={200: UnitsSerializerNoTenant()})
     def post(self, request):
 
         try: 
@@ -370,13 +370,13 @@ class UnitsViewSet(APIView):
             
             _property = Properties.objects.get(id=request.data['landlord'])
             
-            serializer =  UnitsSerializer(data=request.data)
+            serializer =  UnitsSerializerNoTenant(data=request.data)
             
             if serializer.is_valid():
                 serializer.save()
                 return Response(
                     {
-                     "message": "the property has been registered Successfully"
+                     "message": "the unit has been registered Successfully"
                     }, 
                     status=status.HTTP_201_CREATED)
             else:

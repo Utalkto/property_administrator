@@ -161,8 +161,14 @@ class CommunicationsAPI(APIView):
 
 @check_login
 def communication_feed(request, token):
+    
+    
+    t = Tenants.objects.filter(unit__property_manager=1)
+    s = Suppliers.objects.all()
 
-    t = Tenants.objects.filter(unit__property_manager=request.user.id)
+    l = list(t) + list(s)
+
+
     
     return render(
         request, 
@@ -180,7 +186,10 @@ def messages_details(request, tenant_id, token):
     try:
         tenant = Tenants.objects.get(id=tenant_id)
     except Tenants.DoesNotExist:
-        return HttpResponse('The user requested does not exist')
+        try:
+            tenant = Suppliers.objects.get(id=tenant_id)
+        except:
+            return HttpResponse('The user requested does not exist')
     
     
     messages = tenant.messagesent_set.all().order_by('-date_time_sent')
