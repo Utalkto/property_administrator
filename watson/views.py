@@ -54,8 +54,8 @@ class WatsonApi(APIView):
         order += f'<p> Masa: {request.data["dough"]} </p>'
         order += f'<p> Ingrediente extra: {request.data["extra_toppings"]} </p>'
         order += f'<p> Bebida: {request.data["drink"]} </p>'
-        order += f'<p> Helado: {request.data["ice_scream"]} </p>'
-        
+        order += f'<p> Helado: {request.data["ice_cream"]} </p>'
+
 
         # for key in request.data:
         #     if key == 'email':

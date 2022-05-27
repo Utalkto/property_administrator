@@ -266,7 +266,7 @@ class PropertiesViewSet(APIView):
     
     @swagger_auto_schema(
     responses={200: PropertiesSerializer()})
-    def put(self, request, id):
+    def put(self, request, property_id):
         
         """
         Summary: update a property
@@ -276,7 +276,7 @@ class PropertiesViewSet(APIView):
         """
         
         try:
-            _property = Properties.objects.get(id=id)
+            _property = Properties.objects.get(id=property_id)
             request.data['landlord'] = request.user.id
             
             _property = PropertiesSerializer(instance=_property, data=request.data)
