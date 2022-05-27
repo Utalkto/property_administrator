@@ -3,25 +3,25 @@ from django.urls import path
 from .views import home, SuppliersApi, delete_ticket, return_to_coordinate_visit, close_ticket, register_payment_ticket, solve_ticket_problem, select_ticket_contractor, create_ticket_main_info, create_ticket_options, ticket_info, ticket_tree_stage_info, contact_ticket_contractor, open_ticket, TicketCommentApi
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('home/<str:token>', home, name='home'),
     
     # the next root will be deprecated
-    path('create-ticket-main-info/', create_ticket_main_info, name='create_ticket_main_info'),
+    path('create-ticket-main-info/<str:token>', create_ticket_main_info, name='create_ticket_main_info'),
     # ----------------------------------------
     
-    path('open-ticket/', open_ticket, name='open_ticket'),
-    path('create-ticket-options/<int:ticket_type>/<int:ticket_id>', create_ticket_options, name='create_ticket_options'),
+    path('open-ticket/<str:token>', open_ticket, name='open_ticket'),
+    path('create-ticket-options/<str:token>/<int:ticket_type>/<int:ticket_id>', create_ticket_options, name='create_ticket_options'),
     
     path('stage-info/', ticket_tree_stage_info),
     
-    path('ticket-info/<int:ticket_id>', ticket_info, name='ticket_info'),
-    path('contact-contractor/<int:ticket_type>/<int:ticket_id>', contact_ticket_contractor, name='contact_ticket_contractor'),
-    path('select-contractor/<int:ticket_type>/<int:ticket_id>', select_ticket_contractor, name='select_ticket_contractor'),
+    path('ticket-info/<str:token>/<int:ticket_id>', ticket_info, name='ticket_info'),
+    path('contact-contractor/<str:token>/<int:ticket_type>/<int:ticket_id>', contact_ticket_contractor, name='contact_ticket_contractor'),
+    path('select-contractor/<str:token>/<int:ticket_type>/<int:ticket_id>', select_ticket_contractor, name='select_ticket_contractor'),
     
-    # Json reponse only 
+    # Json reponse only and redirect
     
-    path('solve-problem/<int:ticket_id>', solve_ticket_problem),
-    path('register-payment/<int:ticket_id>', register_payment_ticket),
+    path('solve-problem/<str:token>/<int:ticket_id>', solve_ticket_problem),
+    path('register-payment/<str:token>/<int:ticket_id>', register_payment_ticket),
     
     path('close-ticket/<int:ticket_id>', close_ticket),
     path('return-to-coordinate-visit/<int:ticket_id>', return_to_coordinate_visit),

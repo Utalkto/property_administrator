@@ -1,7 +1,6 @@
 # python 
 
 import datetime
-from rest_framework.authtoken.models import Token
 
 # django
 
@@ -30,6 +29,8 @@ from .serializers import SupplierSerializer, TicketAppoinmentSerializer, TicketS
 from properties.models import Properties, Tenants, Units
 from properties.serializers import UnitsSerializer, TenantSerializer
 
+from app_modules.decorators import check_login
+
 # Create your views here.
 
 # other functions
@@ -48,9 +49,15 @@ def update_ticket_status(ticket:Ticket, to_status:int=None):
 
 # views 
 # -------------------------------------------------------------------------------------
-
-
-def home(request):
+@check_login
+def home(request, token):
+    
+    
+    print('----------------------------')
+    print('----------------------------')
+    print(token)
+    print('----------------------------')
+    print('----------------------------')
 
     all_tickets_open = Ticket.objects.filter(date_closed__isnull=True)
     
@@ -80,11 +87,12 @@ def home(request):
             'payment_tickets': payment_tickets,
             'general_info_tickets': general_info_tickets,
             'ticket_statuses': ticket_statuses,
-            'token' : Token.objects.get(user=request.user.id),
+            'token' : token,
         })
 
 
-def open_ticket(request):
+@check_login
+def open_ticket(request, token):
     
     if request.method == 'POST':
         
@@ -106,7 +114,7 @@ def open_ticket(request):
         if serializer.is_valid():
             serializer.save()
             
-            return redirect('ticket_info', ticket_id=serializer.data['id'])
+            return redirect('ticket_info', ticket_id=serializer.data['id'], token=token)
         
         else:
             return HttpResponse(serializer.errors)
@@ -119,15 +127,15 @@ def open_ticket(request):
             'tenants': Tenants.objects.all(),
             'ticket_types': TicketType.objects.all(),
             'ticket_priorities': TicketPriority.objects.all(),
-            'token' : Token.objects.get(user=request.user.id),
+            'token' : token,
         }
         ) 
 
 
-def create_ticket_main_info(request):
+@check_login
+def create_ticket_main_info(request, token):
     
     next_stage = request.GET.get('next_stage')
-
     
     if next_stage == '1':
         
@@ -194,10 +202,12 @@ def create_ticket_main_info(request):
         'tickets/main_pages/create-ticket-dashboard.html',
         {
             'properties': properties, 
+            'token': token
         })
 
 
-def create_ticket_options(request, ticket_type:int, ticket_id:int):
+@check_login
+def create_ticket_options(request,  token:str, ticket_type:int, ticket_id:int):
     
     if ticket_type == 1:
         fields = MaintanenceType.objects.all()
@@ -218,11 +228,12 @@ def create_ticket_options(request, ticket_type:int, ticket_id:int):
             'form_fields': form_fields, 
             'branch_selected': ticket_type, 
             'ticket_id': ticket_id,
-            'token' : Token.objects.get(user=request.user.id),
+            'token' : token,
         })
 
 
-def ticket_info(request, ticket_id):
+@check_login
+def ticket_info(request, token, ticket_id):
     
     ticket = Ticket.objects.get(id=int(ticket_id))
     ticket_statuses = TicketSteps.objects.filter(ticket_type=ticket.ticket_type.id).order_by('id')
@@ -231,8 +242,7 @@ def ticket_info(request, ticket_id):
         current_appoinment = list(ticket.ticketappoinment_set.filter(completed=False))[0]
     except:
         current_appoinment = None
-    
-    # here the link to identify the problem must be sent with the ticket id 
+
         
     next_to_do = ticket_statuses[ticket.ticket_status.id]
     
@@ -244,13 +254,14 @@ def ticket_info(request, ticket_id):
             'ticket_statuses': ticket_statuses,
             'next_to_do' : next_to_do,
             'comments' : Ticket.objects.get(id=ticket_id).ticketcomments_set.all().order_by('-date'),
-            'token' : Token.objects.get(user=request.user.id),
+            'token' : token,
             'current_appoinment': current_appoinment,
         }
         )
 
 
-def select_ticket_contractor(request, ticket_type, ticket_id):
+@check_login
+def select_ticket_contractor(request, token, ticket_type, ticket_id):
     
     try:
         ticket = Ticket.objects.get(id=ticket_id)
@@ -277,7 +288,7 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
             
             serializer.save()
             
-            return redirect('ticket_info', ticket_id=ticket.id)
+            return redirect('ticket_info', ticket_id=ticket.id, token=token)
         else:
             return JsonResponse({'there is no way is not valid': False, 'errors': serializer.errors })
 
@@ -294,14 +305,12 @@ def select_ticket_contractor(request, ticket_type, ticket_id):
         {
             'contractors': contractors_selected,
             'ticket': ticket,
-            'token' : Token.objects.get(user=request.user.id),
+            'token' : token,
         }
         )
     
     
-def contact_ticket_contractor(request, ticket_type, ticket_id):
-    
-
+def contact_ticket_contractor(request, token, ticket_type, ticket_id):
     """
     Function to contact a contractor 
     
@@ -344,7 +353,7 @@ def contact_ticket_contractor(request, ticket_type, ticket_id):
         {
             'contractors': contractors,
             'ticket': ticket,
-            'token' : Token.objects.get(user=request.user.id),
+            'token' : token,
         }
         )
     
@@ -405,7 +414,7 @@ def ticket_tree_stage_info(request):
         })
 
 
-def solve_ticket_problem(request, ticket_id:int):
+def solve_ticket_problem(request, token:str, ticket_id:int):
     
     ticket = Ticket.objects.get(id=int(ticket_id))
     
@@ -416,10 +425,10 @@ def solve_ticket_problem(request, ticket_id:int):
     
     ticket.save()
     
-    return redirect('ticket_info', ticket_id=ticket_id)
+    return redirect('ticket_info', ticket_id=ticket_id, token=token)
 
 
-def register_payment_ticket(request, ticket_id:int):
+def register_payment_ticket(request, token:str, ticket_id:int):
 
     new_payment = TicketPayment(
         amount = request.POST.get('amount'),
@@ -435,7 +444,7 @@ def register_payment_ticket(request, ticket_id:int):
     ticket.payment = new_payment
     ticket.save()
     
-    return redirect('ticket_info', ticket_id=ticket_id)
+    return redirect('ticket_info', ticket_id=ticket_id, token=token)
     
     
 # API view

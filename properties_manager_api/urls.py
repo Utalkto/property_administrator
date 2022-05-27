@@ -11,6 +11,11 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+from register.views import CustomObtainAuthToken
+
+urlpatterns = [
+]
+
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -39,6 +44,7 @@ urlpatterns = [
    path('api/v1/', include('properties.urls')),
    path('api/v1/', include('candidates.urls')),
    path('api/v1/', include('payments.urls')),
+   path('api/v1/', include('book_keeping.urls')),
    
    # tickets module with django 
    path('tickets/', include('tickets.urls')),
@@ -55,7 +61,10 @@ urlpatterns = [
    path('fill-db/', include('fill_db.urls')),
    
    
-    
+   # auth
+   
+   re_path(r'^authenticate/', CustomObtainAuthToken.as_view()),
+     
    # drf urls
     
    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),

@@ -1,27 +1,19 @@
 # python
-
 import datetime
 
-
 # django 
-
-from rest_framework.authtoken.models import Token
-
 
 from django.shortcuts import render
 from django.http import HttpResponse
 
-
-from rest_framework import status, authentication, permissions
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-# wilio 
-
+# twilio 
 from twilio.rest import Client
 
 # serializers
@@ -31,25 +23,12 @@ from .serializers import MessageSerializer
 # property modules
 
 from properties.models import Tenants
-from properties.serializers import TenantSerializer
-
 from tickets.models import Suppliers
 
 # same app modules 
-
 from app_modules.send_email import SendEmail
-
-
-# other funtions
-
-def convert_to_bool(value):
-    if type(value) == str:
-        value = value.upper()
-    
-    if value in ['FALSE', 0, None]:
-        return False
-    
-    return True
+from app_modules.decorators import check_login
+from app_modules.main import convert_to_bool
 
 # API -----------------------------------------------
 
@@ -180,13 +159,9 @@ class CommunicationsAPI(APIView):
         
 # ----------------------------------------------------
 
+@check_login
+def communication_feed(request, token):
 
-def communication_feed(request):
-    
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
-    
-    
     t = Tenants.objects.filter(unit__property_manager=request.user.id)
     
     return render(
@@ -194,16 +169,13 @@ def communication_feed(request):
         'communications/main_pages/communications-dashboard.html', 
         {
             'tenants': t,
-            'token' : Token.objects.get(user=request.user.id),
+            'token' : token,
             
         })
 
 
-def messages_details(request, tenant_id):
-    
-    if not request.user.is_authenticated:
-        return HttpResponse('You cannot get in since youre not a racoon', status.HTTP_401_UNAUTHORIZED)
-    
+@check_login
+def messages_details(request, tenant_id, token):
     
     try:
         tenant = Tenants.objects.get(id=tenant_id)
@@ -222,7 +194,7 @@ def messages_details(request, tenant_id):
            'tenant': tenant,
            'messages': messages,
            'messages_sent': messages_sent,
-           'token' : Token.objects.get(user=request.user.id),
+           'token' : token,
         })
 
 

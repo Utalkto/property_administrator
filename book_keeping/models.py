@@ -35,9 +35,9 @@ class Categories(models.Model):
 
 class Expenses(models.Model):
     # foreign keys
-    unit = models.ForeignKey(Units, default = '', null=False, blank=False ,on_delete=models.CASCADE)
-    categories = models.ForeignKey(Categories, default='', null=False, blank=False ,on_delete=models.CASCADE)
-    supplier = models.ForeignKey(Suppliers, default='', null=False, blank=False ,on_delete=models.CASCADE)
+    unit = models.ForeignKey(Units, default =None, null=True, on_delete=models.CASCADE)
+    categories = models.ForeignKey(Categories, default=None, null=False, blank=False, on_delete=models.CASCADE)
+    supplier = models.ForeignKey(Suppliers, default=None, null=True, on_delete=models.CASCADE)
 
     # --------------------------------
     # fields
@@ -45,23 +45,21 @@ class Expenses(models.Model):
     account = models.TextField()
     amount = models.IntegerField(default=0)
    
-    category = models.CharField(max_length=50)
-   
     date = models.DateField()
-    description = models.TextField()
+    description = models.TextField(null=True)
    
-    kilometers_traveled = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    kilometers_traveled = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
    
     # ------------------------
-    payment_method = models.CharField(max_length=100, default='')
+    payment_method = models.CharField(max_length=100)
    
-    rate_per_kilometer = models.CharField(max_length=100)
+    rate_per_kilometer = models.CharField(max_length=100, null=True, default=None)
     receipt_number = models.IntegerField(default=0)
    
-    sub_account = models.TextField()
+    sub_account = models.TextField(null=True, default=None)
    
     def __str__(self) -> str:
-        return self.account
+        return self.categories.name
    
    
 class PaymentRent(models.Model):

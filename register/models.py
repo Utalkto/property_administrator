@@ -104,7 +104,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     invited_by = models.IntegerField(null=False, default=-1) # if -1 then is a landlord
-    
+        
     last_name = models.CharField(max_length=255)
         
     objects = CustomUserManager()
@@ -117,6 +117,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     registration_date = models.DateTimeField(default=timezone.now)
     
     username = models.CharField(max_length=255, unique=True)
+    
+    has_access = models.BooleanField(default=False)
+    
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]
