@@ -10,8 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 
 # same app
 
-from .models import Expenses
-from .serializers import ExpensesGetSerializer, ExpensesPostSerializer
+from .models import BanksAccounts, Expenses
+from .serializers import ExpensesGetSerializer, ExpensesPostSerializer, BankAccountSerializer
 
 
 # Create your views here.
@@ -106,4 +106,93 @@ class ExpensesApi(APIView):
                 'success': True,
                 'message' : 'Deleted',
             }) 
+
+
+class BankAccountApi(APIView):
+
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
     
+    
+    def get(self, request, bank_account_id:str):
+        
+        if bank_account_id == 'all':
+            
+            expenses = BanksAccounts.objects.all()
+            
+        else:
+            try:
+                expenses = BanksAccounts.objects.filter(id=int(bank_account_id))
+            except BanksAccounts.DoesNotExist:
+                
+                return Response(
+                    {
+                        'error' : True,
+                        'message_error' : 'There is no BanksAccount object with that id'
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = BankAccountSerializer(expenses, many=True)
+        
+        
+        return Response(serializer.data)
+    
+    
+    def post(self, request):
+        
+        serializer = BankAccountSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response(serializer.data)
+        
+        else:
+            
+            return Response({
+                'error': True,
+                'message' : 'Serializer is not valid',
+                'error_message' : serializer.errors,
+            })    
+            
+    
+    def put(self, request, bank_account_id):
+        
+        try:
+            bank_account = BanksAccounts.objects.get(id=int(bank_account_id))
+        except:
+            return Response(
+                {
+                    'error' : True,
+                    'message_error' : 'There is no BankAccount object with that id'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+        
+        serializer = BankAccountSerializer(instance=bank_account, data=request.data)
+        
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)  
+        else: 
+            return Response({
+                'error': True,
+                'message' : 'Serializer is not valid',
+                'error_message' : serializer.errors,
+            }) 
+        
+    
+    def delete(self, request, bank_account_id):
+        
+        try:
+            BanksAccounts.objects.get(id=int(bank_account_id)).delete()
+        except BanksAccounts.DoesNotExist:
+            return Response(
+                {
+                    'error' : True,
+                    'message_error' : 'There is no BankAccount object with that id'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+        return Response({
+                'success': True,
+                'message' : 'Deleted',
+            }) 

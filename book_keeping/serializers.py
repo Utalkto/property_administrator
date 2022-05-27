@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Expenses, Categories
+
+from properties.serializers import UnitsSerializerProperty
+from .models import BanksAccounts, Expenses, Categories
 
 from tickets.serializers import SupplierSerializer
 
@@ -14,6 +16,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ExpensesGetSerializer(serializers.ModelSerializer):
     categories = CategorySerializer()
     supplier = SupplierSerializer()
+    unit = UnitsSerializerProperty()
     
     
     class Meta:
@@ -24,4 +27,11 @@ class ExpensesGetSerializer(serializers.ModelSerializer):
 class ExpensesPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expenses
+        fields = '__all__'
+        
+        
+        
+class BankAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BanksAccounts
         fields = '__all__'

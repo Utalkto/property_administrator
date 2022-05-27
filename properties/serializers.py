@@ -1,4 +1,4 @@
-from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, TenantType, Tenants, Units
+from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Team, TenantType, Tenants, Units
 from rest_framework import serializers
 
 
@@ -15,14 +15,12 @@ class CitySerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 
-
 class CountrySerializer(serializers.ModelSerializer):
     propertycities_set = CitySerializer(many=True)
     class Meta:
         model = PropertyCountries
         fields = '__all__' 
-        
-        
+             
         
 class PropertyTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,8 +29,8 @@ class PropertyTypeSerializer(serializers.ModelSerializer):
 
 
 class PropertiesSerializer(serializers.ModelSerializer):
-    # city = CitySerializer()
-    # property_type = PropertyTypeSerializer()
+    city = CitySerializer()
+    property_type = PropertyTypeSerializer()
     
     class Meta:
         model = Properties
@@ -83,7 +81,11 @@ class UnitsSerializerProperty(serializers.ModelSerializer):
         fields = '__all__'
         
 
-
+class TeamSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Team
+        fields = '__all__'
 
         
         

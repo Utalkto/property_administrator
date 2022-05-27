@@ -9,10 +9,8 @@ class BanksAccounts(models.Model):
    
     # ------------------------------------
     # fields
-    amount_paid = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=False)
    
     bank = models.CharField(max_length=100)
-    building_if_is_mortgage = models.CharField(max_length=100)
     balance = models.CharField(max_length=100)
    
     city = models.CharField(max_length=100)
@@ -23,10 +21,8 @@ class BanksAccounts(models.Model):
    
     last_4_digits_of_account = models.CharField(max_length=4)
    
-    monthly_payment = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=False)
-   
     def __str__(self) -> str:
-        return self.amount_paid
+        return self.bank
 
 
 class Categories(models.Model):
@@ -36,6 +32,7 @@ class Categories(models.Model):
 class Expenses(models.Model):
     # foreign keys
     unit = models.ForeignKey(Units, default =None, null=True, on_delete=models.CASCADE)
+    # add property relationship
     categories = models.ForeignKey(Categories, default=None, null=False, blank=False, on_delete=models.CASCADE)
     supplier = models.ForeignKey(Suppliers, default=None, null=True, on_delete=models.CASCADE)
 
