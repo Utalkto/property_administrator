@@ -31,8 +31,8 @@ class PropertyTypeSerializer(serializers.ModelSerializer):
 
 
 class PropertiesSerializer(serializers.ModelSerializer):
-    # city = CitySerializer()
-    # property_type = PropertyTypeSerializer()
+    city = CitySerializer()
+    property_type = PropertyTypeSerializer()
     
     class Meta:
         model = Properties

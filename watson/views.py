@@ -9,7 +9,7 @@ from .serializers import ProductSerializer
 from rest_framework import status
 from app_modules.send_email import SendEmail
 
-from .models import UserEmail
+from .models import Product, UserEmail, MessageToWatson
 
 from uuid import uuid4
 
@@ -42,6 +42,16 @@ class WatsonApi(APIView):
 
     def post(self, request):
 
+        if request.data.get('order_code'):
+            try:
+                order = Product.objects.get(order_code=request.data.get('order_code'))
+            except Product.DoesNotExist :
+                return Response({'error': 'code does not exist'})
+
+            serializer = ProductSerializer(order)
+            return Response(serializer.data)
+
+        
         code = random_with_N_digits(6)
         serializer = ProductSerializer(data=request.data)
         email = request.data['email']
@@ -52,7 +62,7 @@ class WatsonApi(APIView):
 
         order += f'<p> Producto: {request.data["product"]} </p>'
         order += f'<p> Masa: {request.data["dough"]} </p>'
-        order += f'<p> Ingrediente extra: {request.data["extra_toppings"]} </p>'
+        order += f'<p> Ingrediente extra: {request.data["extra_toppingss"]} </p>'
         order += f'<p> Bebida: {request.data["drink"]} </p>'
         order += f'<p> Helado: {request.data["ice_cream"]} </p>'
 
@@ -67,6 +77,9 @@ class WatsonApi(APIView):
         #     order += f'<p> {spa_key}: {d} </p>'
 
         request.data['product_id'] = str(uuid4())
+        request.data['order_code'] = code
+
+        message = MessageToWatson(id=1).message
 
         if serializer.is_valid():
             serializer.save()
@@ -75,7 +88,7 @@ class WatsonApi(APIView):
             SendEmail(
                 send_to=email,
                 subject='Confirmación de pedido. Pizzeria La Nona',
-                html=f'<p>Su pedido ha sido recibido, su codigo de pedido es {code}</p> {order} <p> Tendra su pedido en 15 minutos. ¡Gracias por preferirnos!</p>'
+                html=f'<p>{message}</p> su codigo de pedido es {code}</p> {order} <p> Tendra su pedido en 15 minutos. ¡Gracias por preferirnos!</p>'
             )
 
             # email to the owner

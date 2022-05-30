@@ -1,5 +1,6 @@
 @charset "UTF-8";
 /*
+nk-sidebar
 0 - 600: Phone
 600 - 900: Tablet portrait
 900 - 1200: Tablet landscape
@@ -119,7 +120,7 @@ body {
   line-height: 1.5;
   color: #76838f;
   text-align: left;
-  background-color: #F3F3F9; }
+  background-color: #9b9bb5; }
 
 [tabindex="-1"]:focus {
   outline: 0 !important; }
@@ -8136,16 +8137,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
     .content-body {
       margin-left: 14.375rem; } }
 
-.nk-sidebar {
-  width: 15.1875rem;
-  padding-bottom: 112px;
-  height: 100%;
-  position: absolute;
-  top: 5rem;
-  padding-top: 0;
-  z-index: 99;
-  background: #fff;
-  transition: all .2s ease; }
+
   @media only screen and (min-width: 1200px) and (max-width: 1350px) {
     .nk-sidebar {
       width: 14.375rem; } }
