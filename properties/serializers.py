@@ -75,19 +75,17 @@ class UnitsSerializer(serializers.ModelSerializer):
 class UnitSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = Units
-        # fields = '__all__'
+        fields = '__all__'
 
-        exclude = ('date_deposit_received', 'details', 'heating_type', 'lease_typee', 'main_tenant_name', 'name',
-        'notes', 'parking_type', 'payments_email')    
-        
+       
 
 class UnitsSerializerNoTenant(serializers.ModelSerializer):
     # property = PropertiesSerializer()
     class Meta:
         model = Units
+        
         fields = '__all__'
 
-        exclude = ('date_deposit_received', 'details', 'heating_type')
         
 
 class UnitsSerializerProperty(serializers.ModelSerializer):

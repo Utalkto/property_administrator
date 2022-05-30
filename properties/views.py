@@ -280,7 +280,7 @@ class PropertiesViewSet(APIView):
 
             if _property.is_valid():
                 _property.save()
-                Response(
+                return Response(
                     {
                         'message': 'the property was updated successfully', 
                         'data': _property.data
@@ -360,7 +360,7 @@ class UnitsViewSet(APIView):
     
     @swagger_auto_schema(
     responses={200: UnitSerializerPost()})
-    def post(self, request):
+    def post(self, request, unit_id):
 
         try: 
             request.data['landlord'] = request.user.id
@@ -372,9 +372,7 @@ class UnitsViewSet(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return Response(
-                    {
-                     "message": "the unit has been registered Successfully"
-                    }, 
+                    serializer.data, 
                     status=status.HTTP_201_CREATED)
             else:
                 return Response(
