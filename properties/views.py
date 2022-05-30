@@ -18,7 +18,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 # models 
 from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants, Team
-from properties.serializers import PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TeamSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant
+from properties.serializers import PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TeamSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant, UnitSerializerPost
 
 from register.models import CustomUser
 
@@ -58,7 +58,6 @@ def data_to_create_property(request):
     
     countries_serializer = CountrySerializer(countries, many=True)
     property_type_serializer = PropertyTypeSerializer(property_types, many=True)
-    
     
     return Response(
         {
@@ -263,7 +262,7 @@ class PropertiesViewSet(APIView):
     
     
     @swagger_auto_schema(
-    responses={200: PropertiesSerializer()})
+    responses={200: PropertiesPostSerializer()})
     def put(self, request, property_id):
         
         """
@@ -277,11 +276,11 @@ class PropertiesViewSet(APIView):
             _property = Properties.objects.get(id=property_id)
             request.data['landlord'] = request.user.id
             
-            _property = PropertiesSerializer(instance=_property, data=request.data)
+            _property = PropertiesPostSerializer(instance=_property, data=request.data)
 
             if _property.is_valid():
                 _property.save()
-                Response(
+                return Response(
                     {
                         'message': 'the property was updated successfully', 
                         'data': _property.data
@@ -360,7 +359,7 @@ class UnitsViewSet(APIView):
         
     
     @swagger_auto_schema(
-    responses={200: UnitsSerializerNoTenant()})
+    responses={200: UnitSerializerPost()})
     def post(self, request, unit_id):
 
         try: 
@@ -368,14 +367,12 @@ class UnitsViewSet(APIView):
             
             _property = Properties.objects.get(id=request.data['landlord'])
             
-            serializer =  UnitsSerializerNoTenant(data=request.data)
+            serializer =  UnitSerializerPost(data=request.data)
             
             if serializer.is_valid():
                 serializer.save()
                 return Response(
-                    {
-                     "message": "the unit has been registered Successfully"
-                    }, 
+                    serializer.data, 
                     status=status.HTTP_201_CREATED)
             else:
                 return Response(

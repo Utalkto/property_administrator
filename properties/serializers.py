@@ -71,13 +71,21 @@ class UnitsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Units
         fields = '__all__'
-        
-        
+
+class UnitSerializerPost(serializers.ModelSerializer):
+    class Meta:
+        model = Units
+        fields = '__all__'
+
+       
+
 class UnitsSerializerNoTenant(serializers.ModelSerializer):
     # property = PropertiesSerializer()
     class Meta:
         model = Units
+        
         fields = '__all__'
+
         
 
 class UnitsSerializerProperty(serializers.ModelSerializer):
