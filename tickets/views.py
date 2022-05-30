@@ -316,9 +316,6 @@ def contact_ticket_contractor(request, token, ticket_type, ticket_id):
     
     ticket = Ticket.objects.get(id=int(ticket_id))
     
-    ticket_work_area = ticket.problem.work_area.id
-    
-    
     if request.method == 'POST':
         
         # TODO: Send message (email or with tiwlio) to supplier
@@ -336,15 +333,27 @@ def contact_ticket_contractor(request, token, ticket_type, ticket_id):
     contractors_contacted = list()
     
     for contractor_id in ticket.contractors_contacted:
-        contractors_contacted.append(ticket.contractors_contacted[contractor_id]) 
+        contractors_contacted.append(ticket.contractors_contacted[contractor_id])
+        
+    work_areas = [ticket.issue_type.work_area.id]
     
-    contractors = Suppliers.objects.filter(work_area=int(ticket_work_area)).filter(~Q(id__in=contractors_contacted))
+    if ticket.sub_issue_type is not None:
+        work_areas.append(ticket.sub_issue_type.work_area.id)
+        
+    if ticket.problem is not None:
+        work_areas.append(ticket.problem.work_area.id)
+    
+    
+    recommended_contractors = Suppliers.objects.filter(work_area__in=work_areas).filter(~Q(id__in=contractors_contacted))
+    other_contractors = Suppliers.objects.filter(~Q(work_area__in=work_areas)).filter(~Q(id__in=contractors_contacted))
+
 
     return render (
         request,
         'tickets/main_pages/contact-contractor.html',
         {
-            'contractors': contractors,
+            'recommended_contractors': recommended_contractors,
+            'other_contractors' : other_contractors,
             'ticket': ticket,
             'token' : token,
         }
@@ -361,28 +370,34 @@ def ticket_tree_stage_info(request):
     option_selected = int(request.POST.get('option_selected'))
     current_tree_width = int(request.POST.get('current_tree_width'))
     
-
+    ticket_id = int(request.POST.get('ticket_id'))
+    ticket = Ticket.objects.get(id=ticket_id)
+    
     # branch with id '1' is for maintanance
     if branch_selected == 1:
         
         # this will return the initial options <<maintanence_type>>
         if stage_status == 2:
             fields = MaintanenceIssueType.objects.filter(maintanence_type=option_selected)
-            stage_title = 'Maintanence Issue'
-        
+            stage_title = 'Maintenance Issue'
+            
         elif stage_status == 3:
             fields = MaintanenceSubIssueType.objects.filter(maintanence_issue_type=option_selected)
-            stage_title = 'Sub Maintanence Issue'
+            stage_title = 'Sub Maintenance Issue'
+            
+            ticket.issue_type = MaintanenceIssueType.objects.get(id=option_selected)
+            ticket.save()
             
         elif stage_status == 4:
             fields = MaintanenceIssueDescription.objects.filter(maintanence_issue_sub_type=option_selected)
             stage_title = 'Maintanence Issue Description'
             
+            ticket.sub_issue_type = MaintanenceSubIssueType.objects.get(id=option_selected)
+            ticket.save()
+            
         elif stage_status == 5:
             
-            ticket_id = int(request.POST.get('ticket_id'))
             
-            ticket = Ticket.objects.get(id=ticket_id)
             ticket.ticket_status = TicketSteps.objects.get(id=2)
             ticket.action_to_do = TicketAction.objects.get(id=1)
             ticket.problem = MaintanenceIssueDescription.objects.get(id=option_selected)   

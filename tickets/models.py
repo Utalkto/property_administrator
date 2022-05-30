@@ -64,6 +64,7 @@ class MaintanenceType(models.Model):
 
 class MaintanenceIssueType(models.Model):
     maintanence_type = models.ForeignKey(MaintanenceType, null=False, on_delete=models.CASCADE)
+    work_area = models.ForeignKey(SupplierWorkArea, null=True, on_delete=models.CASCADE, default=1)
     
     string_part = models.CharField(max_length=120)
     
@@ -74,6 +75,8 @@ class MaintanenceIssueType(models.Model):
 # here would be the part of the appliance that is failing 
 class MaintanenceSubIssueType(models.Model):
     maintanence_issue_type = models.ForeignKey(MaintanenceIssueType, null=False, on_delete=models.CASCADE)
+    work_area = models.ForeignKey(SupplierWorkArea, null=True, on_delete=models.CASCADE, default=1)
+    
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:

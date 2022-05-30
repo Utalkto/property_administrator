@@ -53,7 +53,7 @@ class RentPaymentApi(APIView):
         
         payment = PaymentRent.objects.get(id=payment_id)
         
-        serializer = RentPaymentSerializer(instance=payment, data=request.data)
+        serializer = RentPaymentsPostSerailizer(instance=payment, data=request.data)
         
         if serializer.is_valid():
             serializer.save()

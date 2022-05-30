@@ -84,10 +84,12 @@
               <div class="table-responsive">
                 <table class="table table-xs mb-0">
                   <thead>
+                    <h3>Recommended contractors</h3>
                     <tr>
                       <th>Name</th>
                       <th>Role</th>
                       <th>Email</th>
+                      <th>City</th>
                       <th>Times Hired</th>
                       <th>Last Time Hired</th>
                       <th>Rating</th>
@@ -95,13 +97,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for contractor in contractors %} 
+                    {% for contractor in recommended_contractors %} 
                     
                     <tr>
                     
                       <td>{{contractor.name}}</td>
                       <td>{{contractor.work_area.work_area}}</td>
                       <td>{{contractor.email}}</td>
+                      <td>{{contractor.city}}</td>
                       <td>{{contractor.times_hired}}</td>
                       <td>{{contractor.last_time_hired}}</td>
                       <td>{{contractor.rating}}</td>
@@ -120,6 +123,58 @@
       </div>
     </div>
   </div>
+
+  <div class="container-fluid mt-3">
+    <!-- Main table -->
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="active-member">
+              <div class="table-responsive">
+                <table class="table table-xs mb-0">
+                  <thead>
+                    <h3>Other contractors</h3>
+                    <tr>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Email</th>
+                      <th>City</th>
+                      <th>Times Hired</th>
+                      <th>Last Time Hired</th>
+                      <th>Rating</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for contractor in other_contractors %} 
+                    
+                    <tr>
+                    
+                      <td>{{contractor.name}}</td>
+                      <td>{{contractor.work_area.work_area}}</td>
+                      <td>{{contractor.email}}</td>
+                      <td>{{contractor.city}}</td>
+                      <td>{{contractor.times_hired}}</td>
+                      <td>{{contractor.last_time_hired}}</td>
+                      <td>{{contractor.rating}}</td>
+                      <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" onclick="setSupplierInModalTabId('{{contractor.id}}')"
+                        data-target="#modal-contact-supplier" data-whatever="@mdo">Contact</button>
+                      </td>
+                    </tr>
+                   {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 {% endblock %}

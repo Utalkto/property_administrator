@@ -46,6 +46,18 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
 
   // checking if the message will be sent to a supplier or to a tenant
 
+  if (sendToTenant == null) {
+      t = $('#send-to-tenant').val();
+
+      console.log(t)
+
+      if (t == '1' || t == 1) {
+        sendToTenant = 'True';
+      } else {
+        sendToTenant = false;
+      }
+  }
+
   if (sendToTenant == 'True') {
     jsonData.tenant_id = personId;
   } else {
@@ -127,8 +139,20 @@ function afterSendMessage(success, comFeed, supplierFeed, response) {
 }
 
 
-function setTenantInModalTabId(tenant_id) {
+function setTenantInModalTabId(tenant_id, feed=false, sendToTenant=false) {
   $("#person-id").val(tenant_id);
+
+  if (feed === 'True') {
+    if (sendToTenant === 'True'){
+
+      $('#send-to-tenant').val(1);
+
+    } else {
+      $('#send-to-tenant').val(0);
+
+    }
+  }
+
 }
 
 
@@ -181,7 +205,7 @@ function afterContactSupplier() {
 
     success: function (response) {
 
-      window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#ticket-id').val()}`;
+      window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
       
     },
     error: function (response) {

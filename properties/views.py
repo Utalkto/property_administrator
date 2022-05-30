@@ -361,7 +361,7 @@ class UnitsViewSet(APIView):
     
     @swagger_auto_schema(
     responses={200: UnitsSerializerNoTenant()})
-    def post(self, request):
+    def post(self, request, unit_id):
 
         try: 
             request.data['landlord'] = request.user.id
@@ -393,10 +393,10 @@ class UnitsViewSet(APIView):
     
     @swagger_auto_schema(
     responses={200: UnitsSerializer()})
-    def put(self, request, id):
+    def put(self, request, unit_id):
         
         try:
-            unit = Units.objects.get(id=id)
+            unit = Units.objects.get(id=unit_id)
 
             request.data['landlord'] = request.user.id
             serializer = UnitsSerializer(instance=unit, data=request.data)
@@ -421,10 +421,10 @@ class UnitsViewSet(APIView):
                 status=status.HTTP_404_NOT_FOUND)
 
 
-    def delete(self, request, id):
+    def delete(self, request, unit_id):
         
         try:
-            unit = Units.objects.get(id=id)
+            unit = Units.objects.get(id=unit_id)
             unit.delete()
             return Response(
                 {

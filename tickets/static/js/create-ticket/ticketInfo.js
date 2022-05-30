@@ -145,7 +145,8 @@ $('#problem-not-solved').click(() => {
           },
           success: function (response) {
 
-            window.location.href = `http://localhost:8000/tickets/ticket-info/${ticketId}`;
+            window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+
           
           },
           error: function (response) {
@@ -189,7 +190,8 @@ $('#supplier-did-not-attend').click(() => {
           },
           success: function (response) {
 
-            window.location.href = `http://localhost:8000/tickets/ticket-info/${ticketId}`;
+            window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+
           
           },
           error: function (response) {
@@ -240,7 +242,7 @@ $("#button-delete").click(() => {
 
            
           sleep(1000).then(() => {
-            window.location.href = `http://localhost:8000/tickets/`;
+            window.location.href = `http://localhost:8000/tickets/home/${$('#auth-token').val()}`;
           });
           
           },
