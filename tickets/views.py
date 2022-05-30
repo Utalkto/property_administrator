@@ -359,6 +359,7 @@ def ticket_tree_stage_info(request):
     branch_selected = int(request.POST.get('branch_selected'))
     stage_status = int(request.POST.get('next_stage'))
     option_selected = int(request.POST.get('option_selected'))
+    current_tree_width = int(request.POST.get('current_tree_width'))
     
 
     # branch with id '1' is for maintanance
@@ -389,6 +390,27 @@ def ticket_tree_stage_info(request):
             ticket.save()
             
             return JsonResponse({'completed': True})
+        
+        
+        if not len(fields):
+            ticket_id = int(request.POST.get('ticket_id'))
+            
+            ticket = Ticket.objects.get(id=ticket_id)
+            
+            ticket.ticket_status = TicketSteps.objects.get(id=2)
+            ticket.action_to_do = TicketAction.objects.get(id=1)
+            
+            if current_tree_width == 0:
+            
+                ticket.issue_type = MaintanenceIssueType.objects.get(id=option_selected)   
+            
+            elif current_tree_width == 1:
+                
+                ticket.sub_issue_type = MaintanenceSubIssueType.objects.get(id=option_selected)   
+            
+            ticket.save()
+            
+            return JsonResponse({'completed': True})
             
     
     form_fields = {}
@@ -403,7 +425,8 @@ def ticket_tree_stage_info(request):
         'form_fields': form_fields,
         'stage_title': stage_title,
         'current_stage' : stage_status + 1,
-        'branch_selected' : branch_selected
+        'branch_selected' : branch_selected,
+        'current_tree_width' : current_tree_width + 1,
         })
 
 

@@ -10,12 +10,18 @@ class StatusSerializer(serializers.ModelSerializer):
         model = Status
         fields = '__all__'
 
-class RentPaymentSerializer(serializers.ModelSerializer):
+class RentPaymentGetSerializer(serializers.ModelSerializer):
     
     unit = UnitsSerializerProperty()
     tenant = TenantsNameSerializer()
     status = StatusSerializer()
 
+    class Meta:
+        model = UnitPayments
+        fields = '__all__'
+        
+
+class RentPaymentsPostSerailizer(serializers.ModelSerializer):
     class Meta:
         model = UnitPayments
         fields = '__all__'

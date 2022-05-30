@@ -160,6 +160,10 @@ class Ticket(models.Model):
     action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE, default=None)       
     problem = models.ForeignKey(MaintanenceIssueDescription, null=True, on_delete=models.CASCADE, default=None)
     payment = models.ForeignKey(TicketPayment, null=True, on_delete=models.CASCADE, default=None)
+    
+    issue_type = models.ForeignKey(MaintanenceIssueType, on_delete=models.CASCADE, null=True, default=None)
+    sub_issue_type = models.ForeignKey(MaintanenceSubIssueType, on_delete=models.CASCADE, null=True, default=None)
+    
 
     # ------------------------------------
     # fields 

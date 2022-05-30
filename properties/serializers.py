@@ -1,4 +1,4 @@
-from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, TenantType, Tenants, Units
+from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Team, TenantType, Tenants, Units
 from rest_framework import serializers
 
 
@@ -15,19 +15,23 @@ class CitySerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 
-
 class CountrySerializer(serializers.ModelSerializer):
     propertycities_set = CitySerializer(many=True)
     class Meta:
         model = PropertyCountries
         fields = '__all__' 
-        
-        
+             
         
 class PropertyTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PropertyTypes
         fields = '__all__' 
+
+
+class PropertiesPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Properties
+        fields = '__all__'
 
 
 class PropertiesSerializer(serializers.ModelSerializer):
@@ -67,13 +71,23 @@ class UnitsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Units
         fields = '__all__'
+
+class UnitSerializerPost(serializers.ModelSerializer):
+    class Meta:
+        model = Units
+        # fields = '__all__'
+
+        exclude = ('date_deposit_received', 'details', 'heating_type', 'lease_typee', 'main_tenant_name', 'name',
+        'notes', 'parking_type', 'payments_email')    
         
-        
+
 class UnitsSerializerNoTenant(serializers.ModelSerializer):
     # property = PropertiesSerializer()
     class Meta:
         model = Units
         fields = '__all__'
+
+        exclude = ('date_deposit_received', 'details', 'heating_type')
         
 
 class UnitsSerializerProperty(serializers.ModelSerializer):
@@ -83,7 +97,11 @@ class UnitsSerializerProperty(serializers.ModelSerializer):
         fields = '__all__'
         
 
-
+class TeamSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Team
+        fields = '__all__'
 
         
         

@@ -17,8 +17,8 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 # models 
-from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants
-from properties.serializers import CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant
+from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants, Team
+from properties.serializers import PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TeamSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant, UnitSerializerPost
 
 from register.models import CustomUser
 
@@ -59,7 +59,6 @@ def data_to_create_property(request):
     countries_serializer = CountrySerializer(countries, many=True)
     property_type_serializer = PropertyTypeSerializer(property_types, many=True)
     
-    
     return Response(
         {
             'data': {
@@ -68,8 +67,6 @@ def data_to_create_property(request):
             }
         })
     
-    
-
 # ---------------------------------------------------
 # post 
 
@@ -231,7 +228,7 @@ class PropertiesViewSet(APIView):
     
 
     @swagger_auto_schema(
-    responses={200: PropertiesSerializer()})
+    responses={200: PropertiesPostSerializer()})
     def post(self, request):
         """
         Summary: create new property 
@@ -244,7 +241,7 @@ class PropertiesViewSet(APIView):
         data['landlord'] =  request.user.id
         
         
-        serializer = PropertiesSerializer(data=data)
+        serializer = PropertiesPostSerializer(data=data)
         
         if serializer.is_valid():
             serializer.save()
@@ -265,7 +262,7 @@ class PropertiesViewSet(APIView):
     
     
     @swagger_auto_schema(
-    responses={200: PropertiesSerializer()})
+    responses={200: PropertiesPostSerializer()})
     def put(self, request, property_id):
         
         """
@@ -279,7 +276,7 @@ class PropertiesViewSet(APIView):
             _property = Properties.objects.get(id=property_id)
             request.data['landlord'] = request.user.id
             
-            _property = PropertiesSerializer(instance=_property, data=request.data)
+            _property = PropertiesPostSerializer(instance=_property, data=request.data)
 
             if _property.is_valid():
                 _property.save()
@@ -362,7 +359,7 @@ class UnitsViewSet(APIView):
         
     
     @swagger_auto_schema(
-    responses={200: UnitsSerializerNoTenant()})
+    responses={200: UnitSerializerPost()})
     def post(self, request):
 
         try: 
@@ -370,7 +367,7 @@ class UnitsViewSet(APIView):
             
             _property = Properties.objects.get(id=request.data['landlord'])
             
-            serializer =  UnitsSerializerNoTenant(data=request.data)
+            serializer =  UnitSerializerPost(data=request.data)
             
             if serializer.is_valid():
                 serializer.save()
@@ -395,10 +392,10 @@ class UnitsViewSet(APIView):
     
     @swagger_auto_schema(
     responses={200: UnitsSerializer()})
-    def put(self, request, id):
+    def put(self, request, unit_id):
         
         try:
-            unit = Units.objects.get(id=id)
+            unit = Units.objects.get(id=unit_id)
 
             request.data['landlord'] = request.user.id
             serializer = UnitsSerializer(instance=unit, data=request.data)
@@ -423,10 +420,10 @@ class UnitsViewSet(APIView):
                 status=status.HTTP_404_NOT_FOUND)
 
 
-    def delete(self, request, id):
+    def delete(self, request, unit_id):
         
         try:
-            unit = Units.objects.get(id=id)
+            unit = Units.objects.get(id=unit_id)
             unit.delete()
             return Response(
                 {
@@ -531,10 +528,10 @@ class TenantViewSet(APIView):
             return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-    def put(self, request, id):
+    def put(self, request, tenant_id, property_id):
 
         try:
-            unit = Tenants.objects.get(id=id)
+            unit = Tenants.objects.get(id=tenant_id)
 
             request.data['landlord'] = request.user.id
             serializer = TenantSerializer(instance=unit, data=request.data)
@@ -559,10 +556,10 @@ class TenantViewSet(APIView):
                 status=status.HTTP_404_NOT_FOUND)
 
 
-    def delete(self, request, id):
+    def delete(self, request, tenant_id, property_id):
 
         try:
-            tenent = Tenants.objects.get(id=id)
+            tenent = Tenants.objects.get(id=tenant_id)
             tenent.delete()
             return Response(
                 {
@@ -577,3 +574,98 @@ class TenantViewSet(APIView):
                 }, 
                 status=status.HTTP_404_NOT_FOUND)  
 
+
+class TeamApi(APIView):
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,) 
+    
+    def get(self, request, team_id):
+        
+        if team_id == 'all':
+            team = Team.objects.all()
+        else:
+            try:
+                team = Team.objects.filter(id=int(team_id))
+            except Team.DoesNotExist:
+                return Response(
+                        {
+                            'error': True,
+                            'message': 'team object with that id does not exist'
+                        }, status=status.HTTP_404_NOT_FOUND
+                    )
+            except:
+                return Response(
+                        {
+                            'error': True,
+                            'message': 'id provided is not valid'
+                        }, status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+        serializer = TeamSerializer(team, many=True)
+        return Response(serializer)
+        
+        
+    def post(self, request):
+        
+        serializer = TeamSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response(
+                    {
+                     'message': 'created'
+                    }, 
+                    status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {
+                    'error': True, 
+                    'message': 'serializer is not valid', 
+                    'serializer_error': serializer.errors
+                }, 
+                status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    def put(self, request, team_id):
+        
+        team = self.check_if_team_exist(team_id=team_id)
+            
+            
+        serializer = TeamSerializer(instance=team, data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response(
+                    {
+                     'message': 'created'
+                    }, 
+                    status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {
+                    'error': True, 
+                    'message': 'serializer is not valid', 
+                    'serializer_error': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+    
+    def delete(self, request, team_id):
+        team = self.check_if_team_exist(team_id=team_id)
+        team.delete()
+        
+            
+    def check_if_team_exist(self, team_id):
+        try:
+            team = Team.objects.get(id=team_id)
+        except Team.DoesNotExist:
+            return Response(
+                    {
+                        'error': True,
+                        'message': 'team object with that id does not exist'
+                    }, status=status.HTTP_404_NOT_FOUND
+                )
+            
+        return team
+    
