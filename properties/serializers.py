@@ -28,6 +28,12 @@ class PropertyTypeSerializer(serializers.ModelSerializer):
         fields = '__all__' 
 
 
+class PropertiesPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Properties
+        fields = '__all__'
+
+
 class PropertiesSerializer(serializers.ModelSerializer):
     city = CitySerializer()
     property_type = PropertyTypeSerializer()

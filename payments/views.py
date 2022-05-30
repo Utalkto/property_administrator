@@ -12,7 +12,7 @@ from book_keeping.models import PaymentRent
 
 
 from .models import UnitPayments
-from .serializers import RentPaymentSerializer
+from .serializers import RentPaymentsPostSerailizer, RentPaymentGetSerializer
 
 # @api_view(['POST'])
 # @authentication_classes([authentication.TokenAuthentication])
@@ -28,14 +28,14 @@ class RentPaymentApi(APIView):
 
     def get(self, request):
 
-        serializer = RentPaymentSerializer(UnitPayments.objects.all(), many=True)
+        serializer = RentPaymentGetSerializer(UnitPayments.objects.all(), many=True)
         
         return Response(serializer.data)
     
     
     def post(self, request):
         
-        serializer = RentPaymentSerializer(data=request.data)
+        serializer = RentPaymentsPostSerailizer(data=request.data)
         
         if serializer.is_valid():
             serializer.save()

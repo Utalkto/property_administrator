@@ -1,6 +1,7 @@
 let tenantId = 0;
 let ticketType = 0;
 let currentStage = 0;
+let currentTreeWidth = -1;
 
 
 function nextStage(_nextStage, optionSelected, branchSelected){
@@ -11,6 +12,7 @@ function nextStage(_nextStage, optionSelected, branchSelected){
         'option_selected': optionSelected,
         'ticket_id': $('#ticket-id').val(),
         'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
+        'current_tree_width' : currentTreeWidth,
     }
 
 
@@ -20,23 +22,19 @@ function nextStage(_nextStage, optionSelected, branchSelected){
         data: jsonData,
         success: function (response) {
 
-            currentStage = response.current_stage
+            currentStage = response.current_stage;
+            currentTreeWidth = response.current_tree_width;
 
 
             if (response.completed == true) {
 
 
 
-                window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#ticket-id').val()}`;
+                window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
             }
 
  
                 addFields(response);
-
-            
-
-            
-
         },
         error: function (response) {
             alert('An error has ocurred with your message, please try again.');
@@ -93,12 +91,6 @@ function addFields(data){
     });
 
     $('#section-name').text(data.stage_title)
-
-
-    console.log('created');
-
-    
-
 }
 
 

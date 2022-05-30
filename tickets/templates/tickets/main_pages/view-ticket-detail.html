@@ -280,7 +280,19 @@
                       {{ticket.ticket_type.string_part}}
                     </p>
 
-                    {% if ticket.problem.string_part %}
+                    {% if ticket.issue_type.string_part %}
+
+                    <p class="m-b-2">
+                      <strong> Problem:</strong>  {{ticket.issue_type.string_part}}
+                    </p>
+
+                    {% elif ticket.sub_issue_type.string_part %}
+
+                    <p class="m-b-2">
+                      <strong> Problem:</strong>  {{ticket.sub_issue_type.maintanence_issue_type.string_part}} {{ticket.sub_issue_type.string_part}} 
+                    </p>
+
+                    {% elif ticket.problem.string_part %}
 
                     <p class="m-b-2">
                       <strong> Problem:</strong>  {{ticket.problem.maintanence_issue_sub_type.maintanence_issue_type.string_part}} {{ticket.problem.maintanence_issue_sub_type.string_part}} {{ticket.problem.string_part}}
@@ -409,7 +421,7 @@
 
                 <a
                 class="badge badge-primary badge-sm m-t-5"
-                href="{{next_to_do.action_link}}{{ticket.ticket_type.id}}/{{ticket.id}}"
+                href="{{next_to_do.action_link}}{{token}}/{{ticket.ticket_type.id}}/{{ticket.id}}"
                 >
                   {{next_to_do.string_part}}
                 </a>

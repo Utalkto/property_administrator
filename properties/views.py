@@ -18,7 +18,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 # models 
 from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants, Team
-from properties.serializers import CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TeamSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant
+from properties.serializers import PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TeamSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant
 
 from register.models import CustomUser
 
@@ -68,8 +68,6 @@ def data_to_create_property(request):
             }
         })
     
-    
-
 # ---------------------------------------------------
 # post 
 
@@ -231,7 +229,7 @@ class PropertiesViewSet(APIView):
     
 
     @swagger_auto_schema(
-    responses={200: PropertiesSerializer()})
+    responses={200: PropertiesPostSerializer()})
     def post(self, request):
         """
         Summary: create new property 
@@ -244,7 +242,7 @@ class PropertiesViewSet(APIView):
         data['landlord'] =  request.user.id
         
         
-        serializer = PropertiesSerializer(data=data)
+        serializer = PropertiesPostSerializer(data=data)
         
         if serializer.is_valid():
             serializer.save()
