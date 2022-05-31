@@ -13,7 +13,7 @@
 {% block main_content %}
 <div class="content-body">
 
-    <div class="col-lg-12">
+    <div class="col-lg-12" id="modal-div" hidden>
         <div class="card">
             <div class="card-body">
                 <div class="bootstrap-modal">
@@ -21,8 +21,8 @@
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modal-open-ticket-label">New message</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                                    <h5 class="modal-title" id="modal-open-ticket-label">Create ticket</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-modal"><span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
@@ -54,10 +54,26 @@
                                             </select>
                                         </div>
 
+                                        <div class="form-group"> 
+                                
+                                            <label for="contractor-solution" class="col-form-label"
+                                            >Stimated time for solution:</label
+                                            >
+                                            <input
+                                            placeholder="yyyy-mm-dd"
+                                            type="date"
+                                            class="form-control"
+                                            id="stf-input"
+                                            name="sts_input"
+                                            required
+                                            ></input>
+
+                                        </div>
+
                                         <input type="hidden" id="person-id" name="tenant_id">
 
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close-modal-2">Close</button>
                                             <button type="submit" class="btn btn-primary">Create</button>
                                         </div>
                                      
@@ -99,7 +115,7 @@
                                         <td>{{tenant.unit.id}}</td>
                                         <td>
                                             <button type="button" class="btn btn-primary" onclick="setTenantInModalTabId(tenant_id='{{tenant.id}}')"
-                                            data-toggle="modal" data-target="#modal-open-ticket" data-whatever="@mdo">
+                                            data-toggle="modal" data-target="#modal-open-ticket" data-whatever="@mdo" id="open-ticket">
                                             Open a ticket
                                             </button>
                                         </td>
@@ -140,6 +156,24 @@
 <script src="{% static 'js/create-ticket/createTicket.js' %}"></script>
 
 <script src="{% static 'js/general/main.js' %}"></script>
+
+
+<script>
+
+$('#open-ticket').click(() => {
+  $('#modal-div').removeAttr('hidden');
+})
+    
+$("#close-modal").click(() => {
+  $('#modal-div').attr('hidden', 'true');
+});
+
+$("#close-modal-2").click(() => {
+  $('#modal-div').attr('hidden', 'true');
+});
+
+
+</script>
 
 {% endblock %}
 

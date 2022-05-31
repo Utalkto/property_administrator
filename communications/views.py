@@ -131,7 +131,7 @@ class CommunicationsAPI(APIView):
             # twilio client
             client = Client(account_sid, auth_token)
             
-            twilio_message =  f"Subject: {subject}. Message: {message}"
+            twilio_message =  f"{message}"
             twilio_message = client.messages.create(
                 from_="+19704897499", 
                 to=send_to.phone,

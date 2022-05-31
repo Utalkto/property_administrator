@@ -19,8 +19,8 @@
 
   {% if ticket.ticket_status.id == 4 %}
 
-  <div class="col-lg-12" id="modal-problem">
-    <div class="card">
+  <div class="col-lg-12" >
+    <div class="card" id="modal-div-2" hidden>
       <div class="card-body">
         <div class="bootstrap-modal">
           <div
@@ -38,7 +38,7 @@
                     Add extra data
                   </h5>
                   <button
-                    id="close-modal"
+                    id="close-modal-3"
                     type="button"
                     class="close"
                     data-dismiss="modal"
@@ -76,6 +76,7 @@
                     type="button"
                     class="btn btn-secondary"
                     data-dismiss="modal"
+                    id="close-modal-4"
                   >
                     Close
                   </button>
@@ -99,8 +100,8 @@
 
   {% elif ticket.ticket_status.id == 5 %}
 
-  <div class="col-lg-12" id="modal-payment">
-    <div class="card">
+  <div class="col-lg-12" >
+    <div class="card" id="modal-div-2" hidden>
       <div class="card-body">
         <div class="bootstrap-modal">
           <div
@@ -118,7 +119,7 @@
                     Add extra data
                   </h5>
                   <button
-                    id="close-modal"
+                    id="close-modal-3"
                     type="button"
                     class="close"
                     data-dismiss="modal"
@@ -193,6 +194,7 @@
                     type="button"
                     class="btn btn-secondary"
                     data-dismiss="modal"
+                    id="close-modal-4"
                   >
                     Close
                   </button>
@@ -445,6 +447,7 @@
                   class="btn mb-1 btn-primary"
                   data-target="#modal-send-message"
                   data-toggle="modal"
+                  id="send-message-to-tenant"
                 >
                   Send message to tenant
                   <span class="btn-icon-right">

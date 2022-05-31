@@ -192,6 +192,7 @@ class Ticket(models.Model):
     quoted_price = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=True)
     
     stimated_time_for_solution = models.IntegerField(null=True)
+    stimated_time_for_solution_date = models.DateField(null=True, default=None)
     solution_date = models.DateField(null=True)
     
 

@@ -104,7 +104,7 @@ WSGI_APPLICATION = 'properties_manager_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db_test5',
+        'NAME': 'test_db',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',

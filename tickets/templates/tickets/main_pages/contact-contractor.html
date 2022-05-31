@@ -7,7 +7,7 @@
 
 <input type="hidden" value="{{ticket.id}}" id="ticket-id">
 
-<div class="col-lg-12">
+<div class="col-lg-12" id="modal-div" hidden>
     <div class="card">
         <div class="card-body">
             <div class="bootstrap-modal">
@@ -16,7 +16,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modal-contact-supplier-label">Contact supplier</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-modal"><span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div class="modal-body">
@@ -39,6 +39,7 @@
                                 type="button" 
                                 class="btn btn-secondary" 
                                 data-dismiss="modal"
+                                id="close-modal-2"
                                 >
                                 Close
                               </button>
@@ -109,7 +110,8 @@
                       <td>{{contractor.last_time_hired}}</td>
                       <td>{{contractor.rating}}</td>
                       <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" onclick="setSupplierInModalTabId('{{contractor.id}}')"
+                        <button type="button" class="btn btn-primary" data-toggle="modal" 
+                        onclick="setSupplierInModalTabId('{{contractor.id}}'); makeModalVisible();" 
                         data-target="#modal-contact-supplier" data-whatever="@mdo">Contact</button>
                       </td>
                     </tr>
@@ -160,7 +162,8 @@
                       <td>{{contractor.last_time_hired}}</td>
                       <td>{{contractor.rating}}</td>
                       <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" onclick="setSupplierInModalTabId('{{contractor.id}}')"
+                        <button type="button" class="btn btn-primary contact-supplier" data-toggle="modal" 
+                        onclick="setSupplierInModalTabId('{{contractor.id}}'); makeModalVisible();" 
                         data-target="#modal-contact-supplier" data-whatever="@mdo">Contact</button>
                       </td>
                     </tr>
@@ -185,6 +188,27 @@
 
 <script src="{% static 'js/create-ticket/selectSupplier.js' %}"></script>
 <script src="{% static 'js/general/main.js' %}"></script>
+
+<script>
+
+  function makeModalVisible() {
+
+    console.log('here')
+
+    $('#modal-div').removeAttr('hidden');
+  }
+
+      
+  $("#close-modal").click(() => {
+    $('#modal-div').attr('hidden', 'true');
+  });
+  
+  $("#close-modal-2").click(() => {
+    $('#modal-div').attr('hidden', 'true');
+  });
+  
+  
+  </script>
 
 
 {% endblock %}

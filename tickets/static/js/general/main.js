@@ -83,6 +83,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
         },
       }).showToast();
 
+      
       afterSendMessage(success = true, comFeed = comFeed, supplierFeed = supplierFeed, response = response);
     },
     error: function (response) {
@@ -93,6 +94,8 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
           background: "red",
         },
       }).showToast();
+
+      
 
       console.log(response);
       afterSendMessage(success = false, comFeed = comFeed, supplierFeed = supplierFeed, response = response);
@@ -115,6 +118,8 @@ function afterSendMessage(success, comFeed, supplierFeed, response) {
     $("#message-subject").val("");
 
     $("#close-modal").click();
+    $('#modal-send-message-div').attr('hidden', 'true');
+
 
     if ($(".modal-backdrop")[0] != null) {
       $(".modal-backdrop")[0].remove();
@@ -205,7 +210,7 @@ function afterContactSupplier() {
 
     success: function (response) {
 
-      window.location.href = `http://154.12.240.122:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+      window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
       
     },
     error: function (response) {

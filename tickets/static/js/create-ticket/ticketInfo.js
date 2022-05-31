@@ -60,7 +60,6 @@ function sleep (time) {
 }
 
 
-
 // button fuctions 
 
 $("#close-ticket").click(() => {
@@ -99,7 +98,7 @@ $("#close-ticket").click(() => {
 
            
           sleep(1000).then(() => {
-            window.location.href = `http://154.12.240.122:8000/tickets/home/${$('auth-token').val()}`;
+            window.location.href = `http://localhost:8000/tickets/home/${$('#auth-token').val()}`;
           });
 
             
@@ -145,7 +144,7 @@ $('#problem-not-solved').click(() => {
           },
           success: function (response) {
 
-            window.location.href = `http://154.12.240.122:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+            window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
 
           
           },
@@ -190,7 +189,7 @@ $('#supplier-did-not-attend').click(() => {
           },
           success: function (response) {
 
-            window.location.href = `http://154.12.240.122:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+            window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
 
           
           },
@@ -242,7 +241,7 @@ $("#button-delete").click(() => {
 
            
           sleep(1000).then(() => {
-            window.location.href = `http://154.12.240.122:8000/tickets/home/${$('#auth-token').val()}`;
+            window.location.href = `http://localhost:8000/tickets/home/${$('#auth-token').val()}`;
           });
           
           },
@@ -258,6 +257,40 @@ $("#button-delete").click(() => {
   });
 
 });
+
+
+$('#send-message-to-tenant').click(() => {
+  $('#modal-send-message-div').removeAttr('hidden');
+})
+
+$("#close-modal").click(() => {
+  $('#modal-send-message-div').attr('hidden', 'true');
+});
+
+$("#close-modal-2").click(() => {
+  $('#modal-send-message-div').attr('hidden', 'true');
+});
+
+
+
+$('#mark-problem-as-completed').click(() => {
+  $('#modal-div-2').removeAttr('hidden');
+})
+
+
+$('#set-payment-as-completed').click(() => {
+  $('#modal-div-2').removeAttr('hidden');
+})
+
+
+$("#close-modal-3").click(() => {
+  $('#modal-div-2').attr('hidden', 'true');
+});
+
+$("#close-modal-4").click(() => {
+  $('#modal-div-2').attr('hidden', 'true');
+});
+
 
 
 

@@ -90,11 +90,12 @@ def open_ticket(request, token):
     if request.method == 'POST':
         
         tenant_id = int(request.POST.get('tenant_id'))
-        ticket_priority = int(request.POST.get('ticket_priority')) 
+        ticket_priority = int(request.POST.get('ticket_priority'))
         
         data = {
             'created_by': tenant_id,
             'ticket_type': int(request.POST.get('ticket_type')),
+            'stimated_time_for_solution_date': request.POST.get('sts_input'),
             'unit': Tenants.objects.get(id=tenant_id).unit.id,
             'date_opened' : datetime.datetime.now(),
             'priority': ticket_priority,
@@ -628,7 +629,7 @@ def return_to_coordinate_visit(request, ticket_id):
     
     update_ticket_status(ticket=ticket, to_status=3)
     
-    comment = 'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
+    comment = f'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
     
     if request.data.get('no_attendance'):
         appoinmnet = ticket.ticketappoinment_set.filter(completed=False)[0]

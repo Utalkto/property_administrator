@@ -361,7 +361,7 @@ class UnitsViewSet(APIView):
     @swagger_auto_schema(
     responses={200: UnitSerializerPost()})
     def post(self, request, unit_id):
-
+        
         try: 
             request.data['landlord'] = request.user.id
             
@@ -507,6 +507,13 @@ class TenantViewSet(APIView):
            
             if serializer.is_valid():
                 serializer.save()
+                
+                unit = Units.objects.get(id=int(request.data['unit']))
+                
+                if unit.main_tenant_name is None:
+                    unit.main_tenant_name = request.data['name']
+                    unit.save()
+                    
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(

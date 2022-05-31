@@ -22,9 +22,75 @@
 {% block main_content %}
 
 
-
 <div class="content-body">
-    <div class="col-lg-12">
+
+    <div class="col-lg-12" id="modal-div-1" hidden>
+        <div class="card">
+            <div class="card-body">
+                <div class="bootstrap-modal">
+                    <div class="modal fade" id="modal-contact-supplier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modal-contact-supplier-label">Contact supplier</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-modal"><span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                   
+                                  {% csrf_token %}
+    
+                                  <div class="form-group">
+                                      <label for="recipient-name" class="col-form-label">Subject:</label>
+                                      <input type="text" class="form-control" id="message-subject">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="message-text" class="col-form-label">Message:</label>
+                                      <textarea class="form-control" id="message-text"></textarea>
+                                  </div>
+      
+                                  <input type="hidden" id="person-id" name="supplier_id">
+    
+                                  <div class="modal-footer">
+                                    <button 
+                                    type="button" 
+                                    class="btn btn-secondary" 
+                                    data-dismiss="modal"
+                                    id="close-modal-2"
+                                    >
+                                    Close
+                                  </button>
+                                    
+                                    <button
+                                      id="send-sms-btn"
+                                      type="button"
+                                      class="btn btn-primary sweet-success"
+                                      onclick="sendMessage(persoId=null, sendToTenant=false, sendByEmail=false, comFeed=false, supplierFeed=false)"
+                                    >
+                                      Send message by phone
+                                    </button>
+    
+                                    <button
+                                      id="send-email-btn"
+                                      type="button"
+                                      class="btn btn-primary sweet-success"
+                                      onclick="sendMessage(personId=null, sendToTenant=false, sendByEmail=true, comFeed=false, supplierFeed=false)"
+                                    >
+                                      Send message by email
+                                    </button>
+    
+                                  </div>
+                      
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-12" id="modal-div-2" hidden>
         <div class="card">
             <div class="card-body">
                 <div class="bootstrap-modal">
@@ -33,7 +99,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="modal-make-appoinment-label">Select appoinment date</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" id="close-modal-3">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
@@ -53,7 +119,7 @@
                     
 
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close-modal-4">Close</button>
                                             <button type="submit" class="btn btn-primary">Make appoinmnet</button>
                                         </div>
                                      
@@ -99,9 +165,18 @@
                                   <td>{{contractor.times_hired}}</td>
                                   <td>{{contractor.last_time_hired}}</td>
                                   <td>{{contractor.rating}}</td>
+
                                   <td>
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" onclick="setIdInModalTab('{{contractor.id}}')"
-                                    data-target="#modal-make-appoinment" data-whatever="@mdo">Contact</button>
+
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" 
+                                    onclick="setSupplierInModalTabId('{{contractor.id}}'); makeModalVisible(1);" 
+                                    data-target="#modal-contact-supplier" data-whatever="@mdo">Send message</button>
+
+                                  </td>
+
+                                  <td>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" onclick="setIdInModalTab('{{contractor.id}}'); makeModalVisible(2);"
+                                    data-target="#modal-make-appoinment" data-whatever="@mdo">Make appoinment</button>
                                   </td>
                                 </tr>
                                {% endfor %}
@@ -130,6 +205,37 @@
     <script src="{% static 'js/plugins-init/form-pickers-init.js' %}"></script>
     
     <script src="{% static 'js/general/main.js' %}"></script>
+    <script src="{% static 'js/create-ticket/selectSupplier.js' %}"></script>
+
+    <script>
+
+        function makeModalVisible(modal) {
+            console.log('here')
+
+          $(`#modal-div-${modal}`).removeAttr('hidden');
+        }
+      
+            
+        $("#close-modal").click(() => {
+          $('#modal-div-1').attr('hidden', 'true');
+        });
+        
+        $("#close-modal-2").click(() => {
+          $('#modal-div-1').attr('hidden', 'true');
+        });
+
+        $("#close-modal-3").click(() => {
+          $('#modal-div-2').attr('hidden', 'true');
+        });
+
+        $("#close-modal-4").click(() => {
+          $('#modal-div-2').attr('hidden', 'true');
+        });
+        
+        
+        </script>
+
+
 
 {% endblock %}
 
