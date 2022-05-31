@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import home, SuppliersApi, delete_ticket, return_to_coordinate_visit, close_ticket, register_payment_ticket, solve_ticket_problem, select_ticket_contractor, create_ticket_main_info, create_ticket_options, ticket_info, ticket_tree_stage_info, contact_ticket_contractor, open_ticket, TicketCommentApi
+from .views import home, SuppliersApi, delete_ticket, return_to_coordinate_visit, close_ticket, register_payment_ticket, solve_ticket_problem, select_ticket_contractor, create_ticket_main_info, create_ticket_options, ticket_info, ticket_tree_stage_info, contact_ticket_contractor, open_ticket, TicketCommentApi, total_tickets
 
 urlpatterns = [
     path('home/<str:token>', home, name='home'),
@@ -26,6 +26,7 @@ urlpatterns = [
     path('close-ticket/<int:ticket_id>', close_ticket),
     path('return-to-coordinate-visit/<int:ticket_id>', return_to_coordinate_visit),
     path('delete-ticket/<int:ticket_id>', delete_ticket),
+    path('total-tickets/', total_tickets),
 
     # apis
 

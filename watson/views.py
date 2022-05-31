@@ -76,6 +76,9 @@ class WatsonApi(APIView):
 
         if serializer.is_valid():
             serializer.save()
+            
+            from_email = 'support@utalkto.com'
+            password = 'Support2022..'
 
             from_email = 'support@utalkto.com'
             password = 'Support2022..'

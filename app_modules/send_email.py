@@ -62,7 +62,7 @@ class SendEmail:
             # if it fails again then we raise and exception and the site where the class is being called must 
             # handle the error
             except:
-                raise Exception('Cannot send email')
+                raise Exception('Cannot send email')     
 
 
 

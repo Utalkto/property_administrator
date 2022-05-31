@@ -507,11 +507,7 @@ class TenantViewSet(APIView):
            
             if serializer.is_valid():
                 serializer.save()
-                return Response(
-                    {
-                     'message': 'tenant registered successfully'
-                    }, 
-                    status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(
                     {
