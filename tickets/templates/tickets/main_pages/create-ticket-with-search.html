@@ -115,7 +115,7 @@
                                         <td>{{tenant.unit.property.name}}</td>
                                         <td>{{tenant.unit.id}}</td>
                                         <td>
-                                            <button type="button" class="btn btn-primary" onclick="setTenantInModalTabId(tenant_id='{{tenant.id}}')"
+                                            <button type="button" class="btn btn-primary" onclick="setTenantInModalTabId(tenant_id='{{tenant.id}}'); makeModalVisible();"
                                             data-toggle="modal" data-target="#modal-open-ticket" data-whatever="@mdo" id="open-ticket">
                                             Open a ticket
                                             </button>
@@ -161,9 +161,10 @@
 
 <script>
 
-$('#open-ticket').click(() => {
-  $('#modal-div').removeAttr('hidden');
-})
+function makeModalVisible(modal) {
+
+    $(`#modal-div`).removeAttr('hidden');
+}
     
 $("#close-modal").click(() => {
   $('#modal-div').attr('hidden', 'true');

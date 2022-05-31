@@ -36,7 +36,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 }
 
 .imga img{
-  display:block;
+  margin-top: -1.5rem;
   margin-left: 60px ;
   height: 130px;
   width: 10%;
@@ -385,7 +385,7 @@ h1, h2, h3, h4, h6,
   color: #222222; }
 
 h5, .h5 {
-
+  padding: 4.5px;
   margin-bottom: 0.5rem;
   font-family: inherit;
   font-weight: 500;
@@ -7454,7 +7454,7 @@ sub {
 
 .content-body .container-fluid {
   padding: 15px 30px 0;
-  margin-top: -3.3rem !important; }
+  margin-top: -2.6rem !important; }
 
 @media (max-width: 767px) {
   .content-body .container-fluid {
@@ -8222,7 +8222,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
         background: rgba(10, 150, 121, 0.45);
         color: #7571f9; }
       .nk-sidebar .metismenu > li.active > a {
-        background: #F3F1FA;
+        background: red;
         color: #464a53; }
       .nk-sidebar .metismenu > li.active ul a {
         color: #464a53; }
