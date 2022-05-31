@@ -138,6 +138,9 @@ class Units(models.Model):
     
     unit_number = models.IntegerField(default=1)
 
+    def __str__(self) -> str:
+        return f'{self.id} - {self.property.id}' 
+
     
 class TenantType(models.Model):
     tenan_type = models.CharField(max_length=120)
@@ -154,12 +157,12 @@ class Tenants(models.Model):
     date_deposit_received = models.DateField(default=None ,null=True)
     
     email = CharField(max_length=50)
-    email2 = CharField(max_length=50, null=True, default=None)
-    emergency_contact = CharField(max_length=50, null=True, default=None)
-    emergency_contact_name = CharField(max_length=50, null=True, default=None)
+    email2 = CharField(max_length=50, null=True, default=None, blank=True)
+    emergency_contact = CharField(max_length=50, null=True, default=None, blank=True)
+    emergency_contact_name = CharField(max_length=50, null=True, default=None, blank=True)
     
-    lease_start_date = models.DateField(default=None, null=True)
-    lease_expiration_date = models.DateField(default=None, null=True)
+    lease_start_date = models.DateField(default=None, null=True, blank=True)
+    lease_expiration_date = models.DateField(default=None, null=True, blank=True)
     
     payments_delay = IntegerField(default=0)
     payments_on_time = IntegerField(default=0)
@@ -167,10 +170,10 @@ class Tenants(models.Model):
     name = CharField(max_length=50) 
     
     phone = CharField(max_length=50, null=False)
-    phone2 = CharField(max_length=50, null=True, default=None)
+    phone2 = CharField(max_length=50, null=True, default=None, blank=True)
     preferred_communications = CharField(max_length=20)
     
-    secondary_communications = CharField(max_length=20, null=True, default=None)
+    secondary_communications = CharField(max_length=20, null=True, default=None, blank=True)
     standing_qualification=models.IntegerField(default=0)
     
     tenant_type = models.ForeignKey(TenantType, null=True, default=None, on_delete=models.CASCADE)

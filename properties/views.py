@@ -361,7 +361,13 @@ class UnitsViewSet(APIView):
     @swagger_auto_schema(
     responses={200: UnitSerializerPost()})
     def post(self, request, unit_id):
-        
+
+        print('------------------------------------')
+        print('------------------------------------')
+        print(request.data)
+        print('------------------------------------')
+        print('------------------------------------')
+
         try: 
             request.data['landlord'] = request.user.id
             
@@ -389,14 +395,14 @@ class UnitsViewSet(APIView):
 
     
     @swagger_auto_schema(
-    responses={200: UnitsSerializer()})
+    responses={200: UnitSerializerPost()})
     def put(self, request, unit_id):
         
         try:
             unit = Units.objects.get(id=unit_id)
 
             request.data['landlord'] = request.user.id
-            serializer = UnitsSerializer(instance=unit, data=request.data)
+            serializer = UnitSerializerPost(instance=unit, data=request.data)
             
             if serializer.is_valid():
                 serializer.save()
