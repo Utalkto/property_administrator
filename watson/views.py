@@ -80,6 +80,9 @@ class WatsonApi(APIView):
             from_email = 'support@utalkto.com'
             password = 'Support2022..'
 
+            from_email = 'support@utalkto.com'
+            password = 'Support2022..'
+
             # email to the client 
             SendEmail(
                 send_to=email,

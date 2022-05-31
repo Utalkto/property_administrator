@@ -99,7 +99,7 @@ $("#close-ticket").click(() => {
 
            
           sleep(1000).then(() => {
-            window.location.href = `http://localhost:8000/tickets/home/${$('#auth-token').val()}`;
+            window.location.href = `http://154.12.240.122:8000/tickets/home/${$('auth-token').val()}`;
           });
 
             
@@ -145,7 +145,7 @@ $('#problem-not-solved').click(() => {
           },
           success: function (response) {
 
-            window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+            window.location.href = `http://154.12.240.122:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
 
           
           },
@@ -190,7 +190,7 @@ $('#supplier-did-not-attend').click(() => {
           },
           success: function (response) {
 
-            window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+            window.location.href = `http://154.12.240.122:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
 
           
           },
@@ -242,7 +242,7 @@ $("#button-delete").click(() => {
 
            
           sleep(1000).then(() => {
-            window.location.href = `http://localhost:8000/tickets/home/${$('#auth-token').val()}`;
+            window.location.href = `http://154.12.240.122:8000/tickets/home/${$('#auth-token').val()}`;
           });
           
           },

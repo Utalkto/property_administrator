@@ -503,14 +503,7 @@ class TenantViewSet(APIView):
 
         try: 
             request.data['landlord'] = request.user.id
-            serializer =  TenantSerializer(data=request.data)
-            
-            # tenant_property =  Properties.objects.get(id=t.unit.property.id)
-                    
-            # data = serializer.data
-            # data['property_name'] = tenant_property.name
-            # data['property_id'] = tenant_property.id
-            
+            serializer =  TenantPostSerializer(data=request.data)
            
             if serializer.is_valid():
                 serializer.save()

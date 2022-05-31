@@ -205,7 +205,7 @@ function afterContactSupplier() {
 
     success: function (response) {
 
-      window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+      window.location.href = `http://154.12.240.122:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
       
     },
     error: function (response) {

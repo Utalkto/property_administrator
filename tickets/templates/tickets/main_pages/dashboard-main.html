@@ -12,52 +12,53 @@
 
         <div class="row">
             <div class="col-lg-3 col-sm-6">
-                <div class="card gradient-1">
-                    <div class="card-body">
-                        <h3 class="card-title text-white">Tickets Open</h3>
-                        <div class="d-inline-block">
-                            <h2 class="text-white">{{quantity_tickets_open}}</h2>
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Tickets Open</h4><hr>
+                       <div class="d-inline-block">
+                            <h5 class="text-white">Tickets:  {{quantity_tickets_open}}</h5>
                             <!-- <p class="text-white mb-0">Jan - March 2019</p> -->
-                        </div>
-                        <span class="float-right display-5 opacity-5"><i class="fa fa-shopping-cart"></i></span>
+                        </div></center> 
+                      
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-sm-6">
-                <div class="card gradient-2">
-                    <div class="card-body">
-                        <h3 class="card-title text-white">Maintenance tickets</h3>
-                        <div class="d-inline-block">
-                            <h2 class="text-white">{{maintenance_tickets}}</h2>
-                        </div>
-                        <span class="float-right display-5 opacity-5"><i class="fa fa-money"></i></span>
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Maintenance tickets</h4><hr>
+                     <div class="d-inline-block">
+                           <h5 class="text-white">Maintenance:{{maintenance_tickets}}</h5> 
+                        </div></center> 
+                        
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-sm-6">
-                <div class="card gradient-3">
-                    <div class="card-body">
-                        <h3 class="card-title text-white">Payment tickets</h3>
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Payment tickets</h4><hr>
+                        
                         <div class="d-inline-block">
-                            <h2 class="text-white">{{payment_tickets}}</h2>
-                        </div>
-                        <span class="float-right display-5 opacity-5"><i class="fa fa-users"></i></span>
+                            <h5 class="text-white">Payments: {{payment_tickets}}</h5>
+                        </div></center>
+                        
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-sm-6">
-                <div class="card gradient-4">
-                    <div class="card-body">
-                        <h3 class="card-title text-white">General info tickets</h3>
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">General info tickets</h4><hr>
                         <div class="d-inline-block">
-                            <h2 class="text-white">{{general_info_tickets}}</h2>
-                        </div>
-                        <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
+                            <h5 class="text-white"> General Inf: {{general_info_tickets}}</h5>
+                        </div></center>
+                        
                     </div>
                 </div>
             </div>
-        </div>
-
+        </div> <br><br>
+        <!--text-white-->
         
         <!-- Main table -->
 
@@ -111,7 +112,7 @@
                                                 {{ticket_info.stimated_time_for_solution}}
                                             </td>
                                             <td>
-                                                <a href="{% url 'ticket_info' ticket_id=ticket_info.id token=token %}" class="badge badge-primary badge-sm m-t-5">
+                                                <a href="/tickets/ticket-info/{{token}}/{{ticket_info.id}}" class="badge badge-primary badge-sm m-t-5">
                                                     View more
                                                 </a>
                                                 
