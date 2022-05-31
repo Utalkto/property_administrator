@@ -29,7 +29,7 @@
 
     <!-- Custom Stylesheet -->
 
-    <link href="{% static 'css/newstyle.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
  
 
     <!-- Jquery -->
@@ -65,6 +65,12 @@
     ></script>
 
     {% block local_files %} {% endblock %}
+
+    <style>
+      .page-item.active .page-link{
+          background-color: rgb(79, 158, 125);
+      }
+  </style>
   </head>
 
   <body>
