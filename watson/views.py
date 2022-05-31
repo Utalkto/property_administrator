@@ -77,18 +77,26 @@ class WatsonApi(APIView):
         if serializer.is_valid():
             serializer.save()
 
+            from_email = 'support@utalkto.com'
+            password = 'Support2022..'
+
             # email to the client 
             SendEmail(
                 send_to=email,
                 subject='Confirmación de pedido. Pizzeria La Nona',
-                html=f'<p>{message}</p> su codigo de pedido es {code}</p> {order} <p> Tendra su pedido en 15 minutos. ¡Gracias por preferirnos!</p>'
+                html=f'<p>{message}</p> Su codigo de pedido es {code}</p> {order} <p> Tendra su pedido en 15 minutos. ¡Gracias por preferirnos!</p>',
+                from_email=from_email,
+                password=password
+                
             )
 
             # email to the owner
             SendEmail(
                 send_to=UserEmail.objects.get(id=1).email,
                 subject='Nuevo pedido',
-                html=f'<p>Se ha recibido un nuevo pedido bajo el codigo: {code}</p> {order}'
+                html=f'<p>Se ha recibido un nuevo pedido bajo el codigo: {code}</p> {order}',
+                from_email=from_email,
+                password=password
             )
 
 

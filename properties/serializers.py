@@ -57,6 +57,12 @@ class TenantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tenants
         fields = '__all__'
+
+
+class TenantPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tenants
+        fields = '__all__'
         
         
 class TenantsNameSerializer(serializers.ModelSerializer):

@@ -18,7 +18,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 # models 
 from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants, Team
-from properties.serializers import PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TeamSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant, UnitSerializerPost
+from properties.serializers import PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TeamSerializer, TenantPostSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant, UnitSerializerPost
 
 from register.models import CustomUser
 
@@ -503,7 +503,7 @@ class TenantViewSet(APIView):
 
         try: 
             request.data['landlord'] = request.user.id
-            serializer =  TenantSerializer(data=request.data)
+            serializer =  TenantPostSerializer(data=request.data)
            
             if serializer.is_valid():
                 serializer.save()
@@ -529,10 +529,10 @@ class TenantViewSet(APIView):
     def put(self, request, tenant_id, property_id):
 
         try:
-            unit = Tenants.objects.get(id=tenant_id)
+            tenant = Tenants.objects.get(id=tenant_id)
 
             request.data['landlord'] = request.user.id
-            serializer = TenantSerializer(instance=unit, data=request.data)
+            serializer = TenantPostSerializer(tenant, data=request.data)
             
             if serializer.is_valid():
                 serializer.save()
