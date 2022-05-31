@@ -99,7 +99,7 @@ $("#close-ticket").click(() => {
 
            
           sleep(1000).then(() => {
-            window.location.href = `http://localhost:8000/tickets/`;
+            window.location.href = `http://localhost:8000/tickets/home/${$('#auth-token').val()}`;
           });
 
             

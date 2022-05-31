@@ -5,21 +5,23 @@ from email import encoders
 import smtplib, ssl
 
 class SendEmail:
-    def __init__(self, send_to:str, subject:str, html:str, attach_file=None) -> str:
+    def __init__(self, send_to:str, subject:str, html:str, attach_file=None, from_email='hello@orinocoventures.com', password='OrinocoV2022..') -> str:
         
         self.send_to = send_to
         self.subject = subject
         self.html = html
         self.attach_file = attach_file
+        self.from_email = from_email
+        self.password = password
         
-        self.send_email(send_to=self.send_to, subject=self.subject, html=self.html, attach_file=self.attach_file)                
+        self.send_email(send_to=self.send_to, subject=self.subject, html=self.html, from_email=self.from_email, password=self.password, attach_file=self.attach_file)                
     
     
-    def send_email(self, send_to:str, subject:str, html:str, attach_file):
+    def send_email(self, send_to:str, subject:str, html:str, from_email:str, password:str, attach_file):
         # email settings
         email_message = MIMEMultipart('alternative')
         email_message['Subject'] = subject
-        email_message['From']='hello@orinocoventures.com'
+        email_message['From']= from_email
         email_message['To']= send_to
         
         if 'hostinger' not in send_to:
@@ -41,27 +43,26 @@ class SendEmail:
         # we try to send the email
         try:
             with smtplib.SMTP_SSL("smtp.hostinger.com", 465, context=context) as server:
-                server.login("hello@orinocoventures.com",'OrinocoV2022..' )
+                server.login(from_email, password)
                 
                 server.sendmail(
-                    from_addr="hello@orinocoventures.com", 
+                    from_addr=from_email, 
                     to_addrs=send_to,
                     msg=email_message.as_string())
         except:
             # if it fails then we try one moretime
             try:
                 with smtplib.SMTP_SSL("smtp.hostinger.com", 465, context=context) as server:
-                    server.login("hello@orinocoventures.com",'OrinocoV2022..' )
+                    server.login(from_email, password)
                     
                     server.sendmail(
-                        from_addr="hello@orinocoventures.com", 
+                        from_addr=from_email, 
                         to_addrs=send_to,
                         msg=email_message.as_string())
             # if it fails again then we raise and exception and the site where the class is being called must 
             # handle the error
             except:
-                raise Exception('Cannot send email')
-        
+                raise Exception('Cannot send email')     
 
 
 

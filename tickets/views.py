@@ -526,68 +526,7 @@ class TicketCommentApi(APIView):
                     'message': 'serializer is not valid',
                     'message_error': serializer.errors
                 }, status=status.HTTP_400_BAD_REQUEST)          
-        
-        
-@api_view(['POST'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
-def close_ticket(request, ticket_id):
-    
-    ticket = Ticket.objects.get(id=int(ticket_id))
-    ticket.date_closed = datetime.datetime.now()
-    ticket.save()
-    
-    return Response({'success': True})
-        
-
-@api_view(['POST'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
-def return_to_coordinate_visit(request, ticket_id):
-    
-    ticket=Ticket.objects.get(id=int(ticket_id))
-    
-    update_ticket_status(ticket=ticket, to_status=3)
-    
-    comment = 'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
-    
-    if request.data['no_attendance']:
-        appoinmnet = ticket.ticketappoinment_set.filter(completed=False)[0]
-        
-        appoinmnet.completed = True
-        appoinmnet.supplier_attendance = False
-        
-        appoinmnet.save()
-        
-        
-        comment = f'{ticket.contractor.name} did not attend the appoinment'
-        
-    
-    data_for_comment = {
-        'ticket' : ticket_id,
-        'made_by' : 1,
-        'date': datetime.datetime.now(),
-        'comment': comment
-    }
-    
-    serializer = TicketCommentSerializer(data=data_for_comment)
-    
-    if serializer.is_valid():
-        serializer.save()
-    
-    return Response({'success': True})
-    
-      
-@api_view(['DELETE'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
-def delete_ticket(request, ticket_id):
-    
-    ticket = Ticket.objects.get(id=int(ticket_id))
-    ticket.delete()
-    
-    return Response({'Ticket deleted': True})
-    
+           
 
 class SuppliersApi(APIView):
     
@@ -666,3 +605,82 @@ class SuppliersApi(APIView):
         return Response({
             'success': True,
         })
+
+
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def close_ticket(request, ticket_id):
+    
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    ticket.date_closed = datetime.datetime.now()
+    ticket.save()
+    
+    return Response({'success': True})
+        
+
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def return_to_coordinate_visit(request, ticket_id):
+    
+    ticket=Ticket.objects.get(id=int(ticket_id))
+    
+    update_ticket_status(ticket=ticket, to_status=3)
+    
+    comment = 'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
+    
+    if request.data.get('no_attendance'):
+        appoinmnet = ticket.ticketappoinment_set.filter(completed=False)[0]
+        
+        appoinmnet.completed = True
+        appoinmnet.supplier_attendance = False
+        
+        appoinmnet.save()
+        
+        
+        comment = f'{ticket.contractor.name} did not attend the appoinment'
+        
+    
+    data_for_comment = {
+        'ticket' : ticket_id,
+        'made_by' : 1,
+        'date': datetime.datetime.now(),
+        'comment': comment
+    }
+    
+    serializer = TicketCommentSerializer(data=data_for_comment)
+    
+    if serializer.is_valid():
+        serializer.save()
+    
+    return Response({'success': True})
+    
+      
+@api_view(['DELETE'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def delete_ticket(request, ticket_id):
+    
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    ticket.delete()
+    
+    return Response({'Ticket deleted': True})
+
+
+@api_view(['GET'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def total_tickets(request):
+    
+    total_tickets = Ticket.objects.all().count()
+    opened_tickets = Ticket.objects.filter(date_closed__isnull=True)
+    
+    
+    return Response({
+        'total_tickets' : total_tickets,
+        'opened_tickets' : opened_tickets
+    })
+    
+    
+    

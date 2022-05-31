@@ -47,7 +47,7 @@
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
-                <form action="/tickets/solve-problem/{{ticket.id}}" method="post">
+                <form action="/tickets/solve-problem/{{token}}/{{ticket.id}}" method="post">
                 <div class="modal-body">
                   {% csrf_token %}
 
@@ -127,7 +127,7 @@
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
-                <form action="/tickets/register-payment/{{ticket.id}}" method="post">
+                <form action="/tickets/register-payment/{{token}}/{{ticket.id}}" method="post">
                 <div class="modal-body">
                   {% csrf_token %}
 
@@ -430,7 +430,7 @@
 
                 <a
                 class="badge badge-primary badge-sm m-t-5"
-                href="{{next_to_do.second_action_link}}{{ticket.ticket_type.id}}/{{ticket.id}}"
+                href="{{next_to_do.second_action_link}}{{token}}/{{ticket.ticket_type.id}}/{{ticket.id}}"
                 >
                   {{next_to_do.name_second_action_link}}
                 </a>
