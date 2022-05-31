@@ -27,7 +27,7 @@ class UnitTypes(models.Model):
     unit_type = models.CharField(max_length=100)
     
     def __str__(self) -> str:
-        return self.unit_type
+        return f'{self.unit_type} - {self.id}' 
 
 
 class PropertyCountries(models.Model):
