@@ -7,7 +7,7 @@
     <!-- Modal to send message -->
 
 
-    <div class="col-lg-12">
+    <div class="col-lg-12" id="modal-div" hidden>
         <div class="card">
             <div class="card-body">
                 <div class="bootstrap-modal">
@@ -38,7 +38,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" id="close-modal-2" class="btn btn-secondary" data-dismiss="modal">Close</button>
     
                                 <button id="send-sms-btn" type="button" class="btn btn-primary" onclick="sendMessage(personId=null, sendToTenant=null, sendByEmail=false)">
                                   Send message by phone
@@ -125,7 +125,7 @@
                       <button
                         type="button"
                         class="btn btn-primary"
-                        onclick="setTenantInModalTabId(tenant_id='{{supplier.id}}')"
+                        onclick="setTenantInModalTabId(tenant_id='{{supplier.id}}'); makeModalVisible();"
                         data-toggle="modal"
                         data-target="#modal-send-message"
                         data-whatever="@mdo"
@@ -182,5 +182,26 @@
 
 <script src="{% static 'js/general/main.js' %}"></script>
 
+
+<script>
+
+
+function makeModalVisible(modal) {
+
+$(`#modal-div`).removeAttr('hidden');
+}
+
+$("#close-modal").click(() => {
+  $('#modal-div').attr('hidden', 'true');
+});
+
+
+$("#close-modal-2").click(() => {
+  $('#modal-div').attr('hidden', 'true');
+});
+
+
+
+</script>
 
 {% endblock %}

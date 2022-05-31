@@ -465,11 +465,13 @@ class TenantViewSet(APIView):
                 for t in tenants:
                     
                     serializer = TenantSerializer(t)
-                    tenant_property =  Properties.objects.get(id=t.unit.property.id)
+                    tenant_property = Properties.objects.get(id=t.unit.property.id)
+                    unit_number = Units.objects.get(id=t.unit.id).unit_number
                     
                     data = serializer.data
                     data['property_name'] = tenant_property.name
                     data['property_id'] = tenant_property.id
+                    data['unit_number'] = unit_number
                     
                     data_to_return.append(data)
 
