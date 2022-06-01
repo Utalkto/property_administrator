@@ -87,11 +87,13 @@ class WatsonApi(APIView):
             SendEmail(
                 send_to=email,
                 subject='Confirmación de pedido. Pizzeria La Nona',
-                html=f'<p>{message}</p> Su codigo de pedido es {code}</p> {order} <p> Tendra su pedido en 15 minutos. ¡Gracias por preferirnos!</p>',
+                html=f'<p>{message}</p> <p>Su codigo de pedido es {code}</p> {order} <p> Tendra su pedido en 15 minutos. ¡Gracias por preferirnos!</p>',
                 from_email=from_email,
-                password=password
-                
+                password=password                  
             )
+            
+            f = str()
+            f.find
 
             # email to the owner
             SendEmail(

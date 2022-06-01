@@ -8,6 +8,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from .models import CustomUser
+
+from app_modules.send_email import SendEmail
     
 
 @api_view(['GET'])
@@ -39,6 +41,13 @@ class CustomObtainAuthToken(ObtainAuthToken):
         print('-----------------------------------')
         print(request.data)
         print('-----------------------------------')
+        
+        if not token.user.has_access:
+            SendEmail(
+                send_to='support@utalkto.com',
+                subject='new user',
+                html='<p>There is a user trying to get into kumbio app but its account is not active</p>'
+                )
         
         response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
         token = Token.objects.get(key=response.data['token'])

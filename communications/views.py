@@ -12,6 +12,7 @@ from rest_framework.response import Response
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 
 # twilio 
 from twilio.rest import Client
@@ -162,9 +163,10 @@ class CommunicationsAPI(APIView):
 @check_login
 def communication_feed(request, token):
     
+    user_id = Token.objects.get(key=token).user.id
     
-    tenants = Tenants.objects.filter(unit__property_manager=1)
-    suppliers = Suppliers.objects.all()
+    tenants = Tenants.objects.filter(unit__property_manager=user_id)
+    suppliers = Suppliers.objects.filter(landlord=user_id)
 
     
     return render(

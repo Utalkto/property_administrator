@@ -16,6 +16,10 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 @import url(../plugins/metismenu/css/metisMenu.min.css);
 
 
+@media (max-width: 700px)  {
+    
+}
+
 
 .targetas{
   padding: 12px;

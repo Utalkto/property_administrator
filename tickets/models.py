@@ -20,6 +20,7 @@ class Suppliers(models.Model):
     # foreign keys
     
     city = models.ForeignKey(PropertyCities, null=False, blank=False, on_delete=models.CASCADE)
+    landlord = models.ForeignKey(CustomUser, null=True, default=1, on_delete=models.CASCADE)
     # role = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
     
     work_area = models.ForeignKey(SupplierWorkArea, null=False, blank=False, on_delete=models.CASCADE, default=None)

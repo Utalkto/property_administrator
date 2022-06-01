@@ -537,10 +537,10 @@ class SuppliersApi(APIView):
     def get(self, request, supplier_id:int):
 
         if supplier_id == 'all':
-            serializer = SupplierSerializer(Suppliers.objects.all(), many=True)
+            serializer = SupplierSerializer(Suppliers.objects.filter(landlord=request.user.id), many=True)
 
         else:
-            serializer = SupplierSerializer(Suppliers.objects.filter(id=int(supplier_id)), many=True)
+            serializer = SupplierSerializer(Suppliers.objects.filter(id=int(supplier_id), landlord=request.user.id), many=True)
 
         return Response(serializer.data)
     
