@@ -4,6 +4,10 @@ from django.db import models
 from uuid import uuid4
 # Create your models here.
 
+class Subjects(models.Model):
+    subject = models.TextField()
+
+
 class MessageToWatson(models.Model):
     message = models.TextField()
 
@@ -27,5 +31,7 @@ class Order(models.Model):
     date_time_order = models.DateTimeField(default=timezone.now)
     
     address = models.CharField(max_length=120, null=True, default=None)
+
+    price = models.IntegerField(default=10)
 
     

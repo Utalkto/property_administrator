@@ -11,29 +11,19 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 */
 
 @import url("https://fonts.googleapis.com/css?family=Roboto:400,500,700");
-@import url(../icons/font-awesome/css/font-awesome.min.css);
-@import url(../icons/simple-line-icons/css/simple-line-icons.css);
-@import url(../icons/weather-icons/css/weather-icons.min.css);
-@import url(../icons/cryptocoins/css/cryptocoins.css);
-@import url(../icons/cryptocoins/css/cryptocoins-colors.css);
-@import url(../icons/linea-icons/linea.css);
-@import url(../icons/ionicons/css/ionicons.css);
-@import url(../icons/themify-icons/themify-icons.css);
-@import url(../icons/flag-icon-css/flag-icon.min.css);
-@import url(../icons/material-design-iconic-font/materialdesignicons.min.css);
-@import url(../icons/pe-icon-set-weather/css/pe-icon-set-weather.min.css);
 @import url(../plugins/animate/animate.min.css);
 @import url(../plugins/metismenu/css/metisMenu.min.css);
-@import url(../plugins/bootstrap-select/dist/css/bootstrap-select.min.css);
+/* @import url(../plugins/bootstrap-select/dist/css/bootstrap-select.min.css); */
 
 
 .targetas{
   padding: 12px;
   background-color: #f9fbff;
-  border-radius: 3%;
+  border-radius: 2%;
   height: 200px;
   border: 1px solid #bcbcbc;
 }
+
 
 .imga img{
   margin-top: -1.5rem;
@@ -115,6 +105,15 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 *::before,
 *::after {
   box-sizing: border-box; }
+
+
+
+@media (min-width: 650) and (max-width: 700){
+  .lateral{
+  width: 33%;
+  }
+  }
+
 
 html {
   font-family: sans-serif;
@@ -556,13 +555,15 @@ pre {
   padding-right: 15px;
   padding-left: 15px;
   margin-right: auto;
-  margin-left: auto; }
+  margin-left: auto;
+  }
 
 .row {
   display: flex;
   flex-wrap: wrap;
   margin-right: -15px;
-  margin-left: -15px; }
+  margin-left: -15px; 
+}
 
 .no-gutters {
   margin-right: 0;
@@ -8222,7 +8223,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
         background: rgba(10, 150, 121, 0.45);
         color: #7571f9; }
       .nk-sidebar .metismenu > li.active > a {
-        background: red;
+        background: #F3F1FA;
         color: #464a53; }
       .nk-sidebar .metismenu > li.active ul a {
         color: #464a53; }
@@ -11107,9 +11108,9 @@ table.dataTable thead .sorting::after {
   border-color: rgba(255, 120, 60, 0.8); }
 
 .btn-secondary:active, .btn-secondary:focus, .btn-secondary:hover {
-  background: #6f78b2;
+  background: rgba(10, 160, 80, 0.55);
   color: #fff;
-  border-color: #6f78b2; }
+  border-color:rgba(10, 160, 80, 0.55); }
 
 .btn-success:active, .btn-success:focus, .btn-success:hover {
   background: #47ce47;

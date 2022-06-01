@@ -9,7 +9,7 @@ from .serializers import OrderSerializer
 from rest_framework import status
 from app_modules.send_email import SendEmail
 
-from .models import Order, UserEmail, MessageToWatson
+from .models import Order, Subjects, UserEmail, MessageToWatson
 
 from uuid import uuid4
 
@@ -60,7 +60,7 @@ class WatsonApi(APIView):
             if request.data.get(current_key) is None:
                 break
             details[current_key] = request.data[current_key]
-            order += f'<p> {names[n]} : {request.data[current_key]} </p>'
+            order += f'<p> {names[n]}: {request.data[current_key]} </p>'
             n += 1
 
         
@@ -72,7 +72,8 @@ class WatsonApi(APIView):
 
         request.data['order_code'] = code
 
-        message = MessageToWatson(id=1).message
+        message = MessageToWatson.objects.get(id=1).message
+        subject = Subjects.objects.get(id=1).subject
 
         if serializer.is_valid():
             serializer.save()
@@ -83,11 +84,23 @@ class WatsonApi(APIView):
             from_email = 'support@utalkto.com'
             password = 'Support2022..'
 
+            address = request.data['address']
+            #price = request.data['price']
+
+            print('message')
+            print(message)
+
+            message = str(message).replace('{code}', str(code)).replace('{order}', order).replace('{address}', str(address))
+
+            print('-----------------------')
+            print(message)
+            print('-----------------------')
+
             # email to the client 
             SendEmail(
                 send_to=email,
-                subject='Confirmación de pedido. Pizzeria La Nona',
-                html=f'<p>{message}</p> Su codigo de pedido es {code}</p> {order} <p> Tendra su pedido en 15 minutos. ¡Gracias por preferirnos!</p>',
+                subject=str(subject).replace('{code}', str(code)),
+                html=message,
                 from_email=from_email,
                 password=password
                 

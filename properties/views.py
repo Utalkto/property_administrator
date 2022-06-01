@@ -611,7 +611,7 @@ class TeamApi(APIView):
                     )
             
         serializer = TeamSerializer(team, many=True)
-        return Response(serializer)
+        return Response(serializer.data)
         
         
     def post(self, request):
