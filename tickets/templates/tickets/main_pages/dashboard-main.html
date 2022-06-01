@@ -93,7 +93,7 @@
 
                                         {% with ticket_statuses|index:ticket_info.ticket_status.id as next_to_do %}
                                         <tr>
-                                            <td><img src="./images/avatar/1.jpg" class=" rounded-circle mr-3" alt="">{{ticket_info.id}}</td>
+                                            <td>{{ticket_info.id}}</td>
                                             <td>{{ticket_info.created_by.unit.property.name}}</td>
                                             <td>
                                                 {{ticket_info.created_by.name}}

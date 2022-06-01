@@ -92,7 +92,7 @@
                       <button
                         type="button"
                         class="btn btn-primary"
-                        onclick="setTenantInModalTabId(tenant_id='{{tenant.id}}', feed='True', sendToTenant='True')"
+                        onclick="setTenantInModalTabId(tenant_id='{{tenant.id}}', feed='True', sendToTenant='True'); makeModalVisible();"
                         data-toggle="modal"
                         data-target="#modal-send-message"
                         data-whatever="@mdo"
