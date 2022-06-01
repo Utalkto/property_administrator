@@ -139,7 +139,7 @@ class Units(models.Model):
     unit_number = models.IntegerField(default=1)
 
     def __str__(self) -> str:
-        return f'{self.id} - {self.property.id}' 
+        return f'{self.id} - {self.property.name} - {self.property.id}' 
 
     
 class TenantType(models.Model):

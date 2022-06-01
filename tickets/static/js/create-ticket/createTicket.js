@@ -27,7 +27,7 @@ function nextStage(_nextStage, optionSelected, branchSelected){
 
 
             if (response.completed == true) {
-                window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+                window.location.href = `http://154.12.240.122:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
             }
  
                 addFields(response);
@@ -124,7 +124,7 @@ function getNextInfo(_nextStage, option_id) {
             if (_nextStage == 6) {
 
                 // sending the user to the info ticket with the ticket id t
-                window.location.href = `http://localhost:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
+                window.location.href = `http://154.12.240.122:8000/tickets/ticket-info/${$('#auth-token').val()}/${$('#ticket-id').val()}`;
 
                 
             } 

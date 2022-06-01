@@ -19,7 +19,7 @@ urlpatterns = [
     path('info-to-create-property', data_to_create_property),
     
     path('team', TeamApi.as_view()),
-    path('team/<int:team_id>', TeamApi.as_view()),
+    path('team/<str:team_id>', TeamApi.as_view()),
     
     
     

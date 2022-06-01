@@ -9,7 +9,6 @@ from register.models import CustomUser
 class SupplierWorkArea(models.Model):
     
     work_area = models.CharField(max_length=120)
-    # work_area = models.CharField(max_length=120, default='120')
     
     
     def __str__(self) -> str:

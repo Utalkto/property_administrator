@@ -51,7 +51,7 @@ class RentPaymentApi(APIView):
     
     def put(self, request, payment_id):
         
-        payment = PaymentRent.objects.get(id=payment_id)
+        payment = UnitPayments.objects.get(id=payment_id)
         
         serializer = RentPaymentsPostSerailizer(instance=payment, data=request.data)
         
@@ -70,12 +70,12 @@ class RentPaymentApi(APIView):
     def delete(self, request, payment_id):
         
         try:
-            PaymentRent.objects.get(id=int(payment_id)).delete()
+            UnitPayments.objects.get(id=int(payment_id)).delete()
         except:
             return Response(
                 {
                     'error' : True,
-                    'message_error' : 'There is no PaymentRent object with that id'
+                    'message_error' : 'There is no UnitPayments object with that id'
                 }, status=status.HTTP_404_NOT_FOUND)
             
         return Response({

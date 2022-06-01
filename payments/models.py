@@ -19,13 +19,13 @@ class UnitPayments(models.Model):
     # ------------------------------------------------
     # fields 
     
-    comments = models.CharField(max_length=120, default='')
+    comments = models.CharField(max_length=120, null=True, blank=True, default=None)
         
     payment_date = models.DateField()
     payment_method = models.CharField(max_length=70)
     payment_amount = models.DecimalField(decimal_places=2, max_digits=6)
     
-    reference_code = models.CharField(max_length=100)
+    reference_code = models.CharField(max_length=100, null=True, blank=True, default=None)
 
     # field to add to db    
     month = models.CharField(max_length=120, default='')

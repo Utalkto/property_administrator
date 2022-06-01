@@ -518,7 +518,7 @@ class TenantViewSet(APIView):
                 
                 unit = Units.objects.get(id=int(request.data['unit']))
                 
-                if unit.main_tenant_name is None:
+                if unit.main_tenant_name == 'No tenant':
                     unit.main_tenant_name = request.data['name']
                     unit.save()
                     
@@ -611,7 +611,7 @@ class TeamApi(APIView):
                     )
             
         serializer = TeamSerializer(team, many=True)
-        return Response(serializer)
+        return Response(serializer.data)
         
         
     def post(self, request):

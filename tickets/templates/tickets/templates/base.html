@@ -123,10 +123,11 @@
         *********************************
       <!-**********************************
             Header end ti-comment-alt
-        ***********************************-->
+        ***********************************--> 
   <div class="imga" > 
     <img src="../../../../media/kumbio.png" height="110" width="110">
   </div>
+ 
       {% block sidebar %}
 
 
@@ -150,19 +151,16 @@
               <ul aria-expanded="false">
                 <li><a href="{% url 'home' token=token %}">Home</a></li>
               </ul>
-
-              
             </li>
 
 
-
-            <li class="mega-menu mega-menu-sm">
+            <li>
               <a
                 class="has-arrow"
                 href="javascript:void()"
                 aria-expanded="false"
               >
-                <i class="icon-globe-alt menu-icon"></i
+                <i class="icon-speedometer menu-icon"></i
                 ><span class="nav-text">Ticket Creation</span>
               </a>
               <ul aria-expanded="false">
@@ -170,21 +168,22 @@
               </ul>
             </li>
 
-      
-
-            <li class="mega-menu mega-menu-sm">
+            <li>
               <a
                 class="has-arrow"
                 href="javascript:void()"
                 aria-expanded="false"
               >
-                <i class="icon-globe-alt menu-icon"></i
+                <i class="icon-speedometer menu-icon"></i
                 ><span class="nav-text">Communication</span>
               </a>
               <ul aria-expanded="false">
                 <li><a href="{% url 'communication_feed' token=token %}">Feed</a></li>
               </ul>
             </li>
+
+      
+
           </ul>
         </div>
       </div>
@@ -232,7 +231,7 @@
     ></script>
 
     <!-- tostify -->
-home
+
     <script
       type="text/javascript"
       src="https://cdn.jsdelivr.net/npm/toastify-js"

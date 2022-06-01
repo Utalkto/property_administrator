@@ -21,9 +21,9 @@ from rest_framework import status, authentication, permissions
 
 # models 
 
-from .models import Ticket, TicketPayment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
+from .models import SupplierWorkArea, Ticket, TicketPayment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
 
-from .serializers import SupplierPostSerializer, SupplierSerializer, TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer
+from .serializers import SupplierPostSerializer, SupplierSerializer, TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer, WorkAreaSerializer
 
 # properties
 from properties.models import Properties, Tenants, Units
@@ -675,7 +675,7 @@ def delete_ticket(request, ticket_id):
 def total_tickets(request):
     
     total_tickets = Ticket.objects.all().count()
-    opened_tickets = Ticket.objects.filter(date_closed__isnull=True)
+    opened_tickets = Ticket.objects.filter(date_closed__isnull=True).count()
     
     
     return Response({
@@ -683,5 +683,15 @@ def total_tickets(request):
         'opened_tickets' : opened_tickets
     })
     
-    
+
+class WorkAreaApi(APIView):
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+
+    def get(self, request):
+        serializer = WorkAreaSerializer(SupplierWorkArea.objects.all(), many=True)
+        return Response(serializer.data)
+
+
+
     

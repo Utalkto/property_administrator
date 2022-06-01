@@ -11,26 +11,22 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 */
 
 @import url("https://fonts.googleapis.com/css?family=Roboto:400,500,700");
-
 @import url(../plugins/animate/animate.min.css);
 @import url(../plugins/metismenu/css/metisMenu.min.css);
-
-
-@media (max-width: 700px)  {
-    
-}
+/* @import url(../plugins/bootstrap-select/dist/css/bootstrap-select.min.css); */
 
 
 .targetas{
   padding: 12px;
   background-color: #f9fbff;
-  border-radius: 3%;
+  border-radius: 2%;
   height: 200px;
   border: 1px solid #bcbcbc;
 }
 
+
 .imga img{
-  display:block;
+  margin-top: -1.5rem;
   margin-left: 60px ;
   height: 130px;
   width: 10%;
@@ -109,6 +105,15 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 *::before,
 *::after {
   box-sizing: border-box; }
+
+
+
+@media (min-width: 650) and (max-width: 700){
+  .lateral{
+  width: 33%;
+  }
+  }
+
 
 html {
   font-family: sans-serif;
@@ -379,7 +384,7 @@ h1, h2, h3, h4, h6,
   color: #222222; }
 
 h5, .h5 {
-
+  padding: 4.5px;
   margin-bottom: 0.5rem;
   font-family: inherit;
   font-weight: 500;
@@ -550,13 +555,15 @@ pre {
   padding-right: 15px;
   padding-left: 15px;
   margin-right: auto;
-  margin-left: auto; }
+  margin-left: auto;
+  }
 
 .row {
   display: flex;
   flex-wrap: wrap;
   margin-right: -15px;
-  margin-left: -15px; }
+  margin-left: -15px; 
+}
 
 .no-gutters {
   margin-right: 0;
@@ -7448,7 +7455,7 @@ sub {
 
 .content-body .container-fluid {
   padding: 15px 30px 0;
-  margin-top: -3.3rem !important; }
+  margin-top: -2.6rem !important; }
 
 @media (max-width: 767px) {
   .content-body .container-fluid {
@@ -11101,9 +11108,9 @@ table.dataTable thead .sorting::after {
   border-color: rgba(255, 120, 60, 0.8); }
 
 .btn-secondary:active, .btn-secondary:focus, .btn-secondary:hover {
-  background: #6f78b2;
+  background: rgba(10, 160, 80, 0.55);
   color: #fff;
-  border-color: #6f78b2; }
+  border-color:rgba(10, 160, 80, 0.55); }
 
 .btn-success:active, .btn-success:focus, .btn-success:hover {
   background: #47ce47;
