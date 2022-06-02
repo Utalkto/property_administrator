@@ -1,4 +1,4 @@
-from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Team, TenantType, Tenants, Units
+from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Team, TenantType, Tenants, UnitContractType, Units
 from rest_framework import serializers
 
 
@@ -74,7 +74,6 @@ class TenantGetSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
         
-
 class TenantPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tenants
@@ -85,9 +84,14 @@ class TenantsNameSerializer(serializers.ModelSerializer):
         model = Tenants
         fields = ('id', 'name',)
         
-        
+
+class LeaseTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnitContractType
+
 class UnitsSerializer(serializers.ModelSerializer):
     tenants = TenantsNameSerializer(many=True)
+    lease_typee = LeaseTypeSerializer()
     
     class Meta:
         model = Units
