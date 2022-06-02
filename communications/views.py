@@ -57,7 +57,6 @@ class CommunicationsAPI(APIView):
             'date_time_sent': datetime.datetime.now(),
             'subject' : subject,
             'message' : message,
-            
             'sent_by': 'user',
         }
         

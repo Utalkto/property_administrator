@@ -24,7 +24,7 @@ class UserCountries(models.Model):
     country = models.CharField(max_length=100)
     
     def __str__(self) -> str:
-        return self.country
+        return f'{self.id} - {self.country}'
 
 
 class UserCities(models.Model):
@@ -35,7 +35,7 @@ class UserCities(models.Model):
     city = models.CharField(max_length=100)   
 
     def __str__(self) -> str:
-        return self.city
+        return f'{self.id} - {self.city}'
 
 
 class UserPlans(models.Model):
@@ -43,14 +43,14 @@ class UserPlans(models.Model):
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     
     def __str__(self) -> str:
-        return self.plan
+        return f'{self.id} - {self.plan}'
     
     
 class UserRoles(models.Model):
     role = models.CharField(max_length=100)
 
     def __str__(self) -> str:
-        return self.role 
+        return f'{self.id} - {self.role}'
 
 
 class CustomUserManager(BaseUserManager):

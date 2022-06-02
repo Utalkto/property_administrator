@@ -6,14 +6,23 @@ from uuid import uuid4
 
 class Subjects(models.Model):
     subject = models.TextField()
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.subject}'
 
 
 class MessageToWatson(models.Model):
     message = models.TextField()
+    
+    def __str__(self) -> str:
+        return f'{self.id}'
 
 
 class UserEmail(models.Model):
     email = models.EmailField()
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.email}'
 
 
 class Order(models.Model):
@@ -33,5 +42,8 @@ class Order(models.Model):
     address = models.CharField(max_length=120, null=True, default=None)
 
     price = models.IntegerField(default=10)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.product}'
 
     

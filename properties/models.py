@@ -20,21 +20,21 @@ class PropertyTypes(models.Model):
     property_type = models.CharField(max_length=100)
     
     def __str__(self) -> str:
-        return self.property_type
+        return f'{self.id} - {self.property_type}'
 
 
 class UnitTypes(models.Model):
     unit_type = models.CharField(max_length=100)
     
     def __str__(self) -> str:
-        return f'{self.unit_type} - {self.id}' 
+        return f'{self.id} - {self.unit_type}' 
 
 
 class PropertyCountries(models.Model):
     country = models.CharField(max_length=100)
     
     def __str__(self) -> str:
-        return self.country
+        return f'{self.id} - {self.country}' 
     
 
 class PropertyCities(models.Model):
@@ -46,7 +46,7 @@ class PropertyCities(models.Model):
     city = models.CharField(max_length=100)   
     
     def __str__(self) -> str:
-        return self.city 
+        return f'{self.id} - {self.city}' 
 
 
 class Properties(models.Model):
@@ -72,15 +72,24 @@ class Properties(models.Model):
     
     year_built = IntegerField(null=True)
     year_bought = IntegerField(null=True)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.name}' 
 
 
 
 class UnitContractType(models.Model):
     contract_type = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.contract_type}' 
 
 
 class PetType(models.Model):
     pet_type = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.pet_type}'
 
 
 class Units(models.Model):
@@ -110,6 +119,8 @@ class Units(models.Model):
     has_pet =  BooleanField(null=True, default=None)
     
     lease_typee = models.ForeignKey(UnitContractType, null=True, default=None, on_delete=models.CASCADE)
+    lease_start_date = models.DateField(default=None, null=True, blank=True)
+    lease_expiration_date = models.DateField(default=None, null=True, blank=True)
     
     main_tenant_name = CharField(max_length=150, null=True, default=None)
     
@@ -144,6 +155,9 @@ class Units(models.Model):
     
 class TenantType(models.Model):
     tenan_type = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.tenan_type}'
 
 
 class Tenants(models.Model):
@@ -161,9 +175,6 @@ class Tenants(models.Model):
     emergency_contact = CharField(max_length=50, null=True, default=None, blank=True)
     emergency_contact_name = CharField(max_length=50, null=True, default=None, blank=True)
     
-    lease_start_date = models.DateField(default=None, null=True, blank=True)
-    lease_expiration_date = models.DateField(default=None, null=True, blank=True)
-    
     payments_delay = IntegerField(default=0)
     payments_on_time = IntegerField(default=0)
     
@@ -178,6 +189,9 @@ class Tenants(models.Model):
     
     tenant_type = models.ForeignKey(TenantType, null=True, default=None, on_delete=models.CASCADE)
     
+    def __str__(self) -> str:
+        return f'{self.id} - {self.name}'
+    
 
 class Links(models.Model):
     # Foreign key
@@ -188,4 +202,7 @@ class Links(models.Model):
     link = models.CharField(max_length=500)
     link_name = models.CharField(max_length=150)
     link_type = models.CharField(max_length=150)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.link_name}'
     

@@ -7,7 +7,7 @@ class Status(models.Model):
     name = models.CharField(max_length=50, default= '')
     
     def __str__(self) -> str:
-        return self.name
+        return f'{self.id} - {self.name}'
 
 
 class UnitPayments(models.Model):
@@ -30,8 +30,8 @@ class UnitPayments(models.Model):
     # field to add to db    
     month = models.CharField(max_length=120, default='')
     
-    class Meta:
-        ordering = ('payment_date', )
+    def __str__(self) -> str:
+        return f'{self.id} - {self.reference_code} - {self.payment_date}'
     
     
     
@@ -48,6 +48,6 @@ class UserPayments(models.Model):
     payment_amount = models.DecimalField(decimal_places=2, max_digits=6)
     plan_paid = models.CharField(max_length=70)
     
-    class Meta:
-        ordering = ('payment_date', )
+    def __str__(self) -> str:
+        return f'{self.id} - {self.user.get_full_name()} - {self.payment_date}'
     

@@ -31,6 +31,9 @@ class MessageSent(models.Model):
     
     via = models.CharField(max_length=50, default='')  
     
+    def __str__(self) -> str:
+        return f'{self.id} - {self.via}'
+    
     
     
     

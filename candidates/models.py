@@ -59,12 +59,15 @@ class Candidate(models.Model):
     viewing_score = models.IntegerField(null=True)
     viewing_comments = models.JSONField(null=True)
     
-    # def __str__(self) -> str:
-    #    return str(self.score)
+    def __str__(self) -> str:
+        return f'{self.id} - {self.score}'
 
 
 class CandidateStatus(models.Model):
     status = models.IntegerField()
     string = models.CharField(max_length=100)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.string}'
 
 

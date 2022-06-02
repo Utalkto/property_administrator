@@ -1,11 +1,14 @@
 from django.db import models
 
 from properties.models import Units, Tenants
+from register.models import CustomUser
 from tickets.models import Suppliers
 
 
 class BanksAccounts(models.Model):
     # foreign keys
+    
+    landlord = models.ForeignKey(CustomUser, null=True, default=1, on_delete=models.CASCADE)
    
     # ------------------------------------
     # fields
@@ -22,11 +25,14 @@ class BanksAccounts(models.Model):
     last_4_digits_of_account = models.CharField(max_length=4)
    
     def __str__(self) -> str:
-        return self.bank
+        return f'{self.id} - {self.bank}'
 
 
 class Categories(models.Model):
     name = models.CharField(max_length=60)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.name}'
 
 
 class Expenses(models.Model):
@@ -56,7 +62,7 @@ class Expenses(models.Model):
     sub_account = models.TextField(null=True, default=None)
    
     def __str__(self) -> str:
-        return self.categories.name
+        return f'{self.id} - {self.categories.name}'
    
    
 class PaymentRent(models.Model):
@@ -82,4 +88,4 @@ class PaymentRent(models.Model):
     sub_account = models.TextField()
    
     def __str__(self) -> str:
-        return self.account
+        return f'{self.id} - {self.account}'

@@ -12,7 +12,7 @@ class SupplierWorkArea(models.Model):
     
     
     def __str__(self) -> str:
-        return f'{self.work_area} - {self.id}'
+        return f'{self.id} - {self.work_area}'
     
 
 class Suppliers(models.Model):
@@ -41,14 +41,14 @@ class Suppliers(models.Model):
     
     
     def __str__(self) -> str:
-        return f'{self.name} - {self.id}'
+        return f'{self.id} - {self.name}'
 
 
 class TicketType(models.Model):
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return f'{self.string_part} - {self.id}'
+        return f'{self.id} - {self.string_part}'
 
    
 # tables for maintanence 
@@ -59,7 +59,7 @@ class MaintanenceType(models.Model):
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return f'{self.string_part} - {self.id}'
+        return f'{self.id} - {self.string_part}'
     
 
 class MaintanenceIssueType(models.Model):
@@ -69,7 +69,7 @@ class MaintanenceIssueType(models.Model):
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return f'{self.string_part} - {self.id}'
+        return f'{self.id} - {self.string_part}'
     
 
 # here would be the part of the appliance that is failing 
@@ -80,7 +80,7 @@ class MaintanenceSubIssueType(models.Model):
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return f'{self.string_part} - {self.id}'
+        return f'{self.id} - {self.string_part}'
     
     
 class MaintanenceIssueDescription(models.Model):
@@ -90,7 +90,7 @@ class MaintanenceIssueDescription(models.Model):
     string_part = models.CharField(max_length=120)
 
     def __str__(self) -> str:
-        return f'{self.string_part} - {self.id}'
+        return f'{self.id} - {self.string_part}'
 
 # ----------------------------------------
 
@@ -98,9 +98,9 @@ class TicketAction(models.Model):
     issue_description = models.ForeignKey(MaintanenceIssueDescription, null=False, on_delete=models.CASCADE, default=1)
     action_to_do = models.JSONField()
     
-
-# class TicketIssue(models.Model):
-#     issue = models.CharField(max_length=120)
+    def __str__(self) -> str:
+        return f'{self.id} - {self.issue_description.string_part}'
+    
 
 class TicketPayment(models.Model):
     
@@ -109,12 +109,15 @@ class TicketPayment(models.Model):
     reference_code = models.CharField(max_length=120)
     notes = models.TextField(null=True)
     
+    def __str__(self) -> str:
+        return f'{self.id} - {self.reference_code}'
+    
     
 class TicketPriority(models.Model):
     string_part = models.CharField(max_length=120)
     
     def __str__(self) -> str:
-        return f'{self.string_part} - {self.id}'
+        return f'{self.id} - {self.string_part}'
 
 
 class TicketSteps(models.Model):
@@ -147,7 +150,7 @@ class TicketSteps(models.Model):
     
     
     def __str__(self) -> str:
-        return f'{self.string_part} - {self.id}'
+        return f'{self.id} - {self.string_part}'
     
  
 class Ticket(models.Model):
@@ -195,6 +198,10 @@ class Ticket(models.Model):
     stimated_time_for_solution_date = models.DateField(null=True, default=None)
     solution_date = models.DateField(null=True)
     
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.ticket_type.string_part}'
+    
 
 class TicketComments(models.Model):
     # foreignKeys 
@@ -206,6 +213,9 @@ class TicketComments(models.Model):
     
     date = models.DateTimeField()
     comment = models.TextField()
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.comment}'
 
 
 class TicketAppoinment(models.Model):
@@ -219,6 +229,9 @@ class TicketAppoinment(models.Model):
     date = models.DateTimeField(null=False)
     completed = models.BooleanField(default=False)
     supplier_attendance = models.BooleanField(default=False)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.date}'
     
     
     
