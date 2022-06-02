@@ -15,6 +15,7 @@ from rest_framework.response import Response
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import status, authentication, permissions
@@ -114,11 +115,13 @@ def open_ticket(request, token):
             return HttpResponse(serializer.errors)
 
     
+    user_id = Token.objects.get(key=token).user.id
+
     return render(
         request, 
         'tickets/main_pages/create-ticket-with-search.html',
         {
-            'tenants': Tenants.objects.all(),
+            'tenants': Tenants.objects.filter(landlord=user_id),
             'ticket_types': TicketType.objects.all(),
             'ticket_priorities': TicketPriority.objects.all(),
             'token' : token,
@@ -344,10 +347,10 @@ def contact_ticket_contractor(request, token, ticket_type, ticket_id):
     if ticket.problem is not None:
         work_areas.append(ticket.problem.work_area.id)
     
+    user_id = Token.objects.get(key=token).user.id
     
-    recommended_contractors = Suppliers.objects.filter(work_area__in=work_areas).filter(~Q(id__in=contractors_contacted))
-    other_contractors = Suppliers.objects.filter(~Q(work_area__in=work_areas)).filter(~Q(id__in=contractors_contacted))
-
+    recommended_contractors = Suppliers.objects.filter(work_area__in=work_areas, landlord=user_id).filter(~Q(id__in=contractors_contacted))
+    other_contractors = Suppliers.objects.filter(~Q(work_area__in=work_areas, landlord=user_id)).filter(~Q(id__in=contractors_contacted))
 
     return render (
         request,

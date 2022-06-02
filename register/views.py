@@ -41,6 +41,10 @@ class CustomObtainAuthToken(ObtainAuthToken):
         print('-----------------------------------')
         print(request.data)
         print('-----------------------------------')
+
+        response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
+        token = Token.objects.get(key=response.data['token'])
+
         
         if not token.user.has_access:
             SendEmail(
@@ -49,8 +53,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
                 html='<p>There is a user trying to get into kumbio app but its account is not active</p>'
                 )
         
-        response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
-        token = Token.objects.get(key=response.data['token'])
+
 
         return Response(
             {
