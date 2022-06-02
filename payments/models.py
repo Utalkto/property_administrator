@@ -30,8 +30,8 @@ class UnitPayments(models.Model):
     # field to add to db    
     month = models.CharField(max_length=120, default='')
     
-    class Meta:
-        ordering = ('payment_date', )
+    # class Meta:
+    #     ordering = ('payment_date', )
     
     
     
@@ -48,6 +48,6 @@ class UserPayments(models.Model):
     payment_amount = models.DecimalField(decimal_places=2, max_digits=6)
     plan_paid = models.CharField(max_length=70)
     
-    class Meta:
-        ordering = ('payment_date', )
+    # class Meta:
+    #     ordering = ('payment_date', )
     

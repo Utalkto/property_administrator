@@ -369,9 +369,9 @@ class UnitsViewSet(APIView):
         print('------------------------------------')
 
         try: 
-            request.data['landlord'] = request.user.id
+            request.data['property_manager'] = request.user.id
             
-            _property = Properties.objects.get(id=request.data['landlord'])
+            #_property = Properties.objects.get(id=request.data['landlord'])
             
             serializer =  UnitSerializerPost(data=request.data)
             
@@ -401,7 +401,7 @@ class UnitsViewSet(APIView):
         try:
             unit = Units.objects.get(id=unit_id)
 
-            request.data['landlord'] = request.user.id
+            request.data['property_manager'] = request.user.id
             serializer = UnitSerializerPost(instance=unit, data=request.data)
             
             if serializer.is_valid():
@@ -591,10 +591,10 @@ class TeamApi(APIView):
     def get(self, request, team_id):
         
         if team_id == 'all':
-            team = Team.objects.all()
+            team = Team.objects.filter(landlord=request.user.id)
         else:
             try:
-                team = Team.objects.filter(id=int(team_id))
+                team = Team.objects.filter(id=int(team_id), lanlord=request.user.id)
             except Team.DoesNotExist:
                 return Response(
                         {
@@ -616,16 +616,13 @@ class TeamApi(APIView):
         
     def post(self, request):
         
+        request.data['landlord'] = request.user.id
         serializer = TeamSerializer(data=request.data)
         
         if serializer.is_valid():
             serializer.save()
             
-            return Response(
-                    {
-                     'message': 'created'
-                    }, 
-                    status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(
                 {
@@ -638,7 +635,7 @@ class TeamApi(APIView):
     
     def put(self, request, team_id):
         
-        team = self.check_if_team_exist(team_id=team_id)
+        team = self.check_if_team_exist(team_id=int(team_id))
             
             
         serializer = TeamSerializer(instance=team, data=request.data)
@@ -646,11 +643,7 @@ class TeamApi(APIView):
         if serializer.is_valid():
             serializer.save()
             
-            return Response(
-                    {
-                     'message': 'created'
-                    }, 
-                    status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(
                 {
@@ -661,8 +654,9 @@ class TeamApi(APIView):
 
     
     def delete(self, request, team_id):
-        team = self.check_if_team_exist(team_id=team_id)
-        team.delete()
+        Team.objects.get(id=int(team_id)).delete()
+
+        return Response({'message': 'deleted with success'})
         
             
     def check_if_team_exist(self, team_id):

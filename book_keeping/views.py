@@ -27,12 +27,12 @@ class ExpensesApi(APIView):
         
         if expenses_id == 'all':
             
-            expenses = Expenses.objects.all()
+            expenses = Expenses.objects.filter(unit__property_manager=request.user.id)
             
         else: 
             
             try:
-                expenses = Expenses.objects.filter(id=int(expenses_id))
+                expenses = Expenses.objects.filter(id=int(expenses_id), unit__property_manager=request.user.id)
             except Expenses.DoesNotExist:
                 
                 return Response(

@@ -6,8 +6,11 @@ from register.models import CustomUser
 # main tables 
 
 class Team(models.Model):
+
+    landlord = models.ForeignKey(CustomUser, null=True, default=None, on_delete=models.CASCADE)
+
     name = models.CharField(max_length=120, default='')
-    email = models.URLField(max_length=120, default='')
+    email = models.EmailField(max_length=120, default='')
     phone = models.CharField(max_length=120, default='')
     address = models.CharField(max_length=120, default='')
     role = models.CharField(max_length=120, default='')

@@ -106,13 +106,10 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 *::after {
   box-sizing: border-box; }
 
+@media (max-width:700px){
+  
 
-
-@media (min-width: 650) and (max-width: 700){
-  .lateral{
-  width: 33%;
-  }
-  }
+}
 
 
 html {
@@ -352,7 +349,8 @@ progress {
 
 [type="search"] {
   outline-offset: -2px;
-  -webkit-appearance: none; }
+  -webkit-appearance: none;
+  }
 
 [type="search"]::-webkit-search-cancel-button,
 [type="search"]::-webkit-search-decoration {
@@ -8280,7 +8278,8 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
     margin-left: 1.875rem; }
     .header-left input[type="search"] {
       position: absolute;
-      top: -100%; }
+      top: -100%;
+    }
     [direction="rtl"] .header-left {
       margin-left: auto;
       margin-right: 1.875rem; }
