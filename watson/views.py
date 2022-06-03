@@ -5,11 +5,15 @@ from app_modules.send_email import SendEmail
 from properties.models import Tenants
 from properties.serializers import TenantSerializer
 from .serializers import OrderSerializer
+from rest_framework import status, authentication, permissions
 
 from rest_framework import status
 from app_modules.send_email import SendEmail
 
 from .models import Order, Subjects, UserEmail, MessageToWatson
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+
+
 
 from uuid import uuid4
 
@@ -105,14 +109,11 @@ class WatsonApi(APIView):
                 password=password                  
             )
             
-            f = str()
-            f.find
-
             # email to the owner
             SendEmail(
                 send_to=UserEmail.objects.get(id=1).email,
                 subject='Nuevo pedido',
-                html=f'<p>Se ha recibido un nuevo pedido bajo el codigo: {code}</p> {order}',
+                html=f'<p>Se ha recibido un nuevo pedido bajo el codigo: {code}</p> {order} <p>Dirección: {address}</p> <p>Precio: $10</p>',
                 from_email=from_email,
                 password=password
             )
@@ -193,4 +194,19 @@ class WatsonApi(APIView):
         return Response({'success':True})
         
     
-    
+# @authentication_classes([authentication.TokenAuthentication])
+# @permission_classes([permissions.IsAuthenticated])
+@api_view(['POST'])
+def competition(request):
+
+    phone_number = request.data.get('phone_number')
+
+
+    SendEmail(
+        send_to='acampos@utalkto.com',
+        subject='Winner',
+        html=f'<p>You got a new winner, if you know what I mean, blink blink</p> <p> here is their phone number {phone_number}</p>'
+    )
+
+    return Response({'message': 'Success'})
+

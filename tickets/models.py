@@ -164,6 +164,7 @@ class Ticket(models.Model):
     
     contractor = models.ForeignKey(Suppliers, null=True, blank=False, on_delete=models.CASCADE, default=None)
     action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE, default=None)       
+    
     problem = models.ForeignKey(MaintanenceIssueDescription, null=True, on_delete=models.CASCADE, default=None)
     payment = models.ForeignKey(TicketPayment, null=True, on_delete=models.CASCADE, default=None)
     

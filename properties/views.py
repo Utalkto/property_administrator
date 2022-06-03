@@ -361,17 +361,8 @@ class UnitsViewSet(APIView):
     @swagger_auto_schema(
     responses={200: UnitSerializerPost()})
     def post(self, request, unit_id):
-
-        print('------------------------------------')
-        print('------------------------------------')
-        print(request.data)
-        print('------------------------------------')
-        print('------------------------------------')
-
         try: 
             request.data['property_manager'] = request.user.id
-            
-            #_property = Properties.objects.get(id=request.data['landlord'])
             
             serializer =  UnitSerializerPost(data=request.data)
             
@@ -408,6 +399,15 @@ class UnitsViewSet(APIView):
                 serializer.save()
                 return Response(serializer.data)
             else:
+
+                print('-----------------------------')
+                print('-----------------------------')
+                print(serializer.data)
+                print('-----------------------------')
+                print(serializer.errors)
+                print('-----------------------------')
+                print('-----------------------------')
+
                 return Response(
                     {
                         'error': True, 

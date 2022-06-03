@@ -88,10 +88,12 @@ class TenantsNameSerializer(serializers.ModelSerializer):
 class LeaseTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = UnitContractType
+        fields = '__all__'
 
 class UnitsSerializer(serializers.ModelSerializer):
     tenants = TenantsNameSerializer(many=True)
     lease_typee = LeaseTypeSerializer()
+    property = PropertiesSerializer()
     
     class Meta:
         model = Units
