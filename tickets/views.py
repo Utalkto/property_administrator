@@ -87,6 +87,33 @@ def home(request, token):
         })
 
 
+def tickets_history(request, token):
+    
+    user_id = Token.objects.get(key=token).user.id
+    ticket_statuses = TicketSteps.objects.all().order_by('id')
+    maintenance_tickets = Ticket.objects.filter(ticket_type=1).count()
+    
+    
+    tickets = Ticket.objects.filter(owner=user_id)
+    
+    total = len(tickets)
+    
+    print('---------------------------')
+    print(tickets)
+    print('---------------------------')
+    
+    
+    return render(request, 
+        'tickets/main_pages/tickets-history.html', 
+        {
+            'total_tickets': tickets,
+            'total_count': total,
+            'maintenance_tickets': maintenance_tickets,
+            'ticket_statuses': ticket_statuses,
+            'token': token,
+        })
+    
+
 @check_login
 def open_ticket(request, token):
     
@@ -488,7 +515,6 @@ def register_payment_ticket(request, token:str, ticket_id:int):
     ticket.save()
     
     return redirect('ticket_info', ticket_id=ticket_id, token=token)
-    
     
 # API view
 
