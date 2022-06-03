@@ -53,11 +53,13 @@ def update_ticket_status(ticket:Ticket, to_status:int=None):
 @check_login
 def home(request, token):
     
-    all_tickets_open = Ticket.objects.filter(date_closed__isnull=True)
+    user_id = Token.objects.get(key=token).user.id
     
-    tickets_priority_low = Ticket.objects.filter(priority=3, date_closed__isnull=True)
-    tickets_priority_normal = Ticket.objects.filter(priority=2, date_closed__isnull=True)
-    tickets_priority_emergency = Ticket.objects.filter(priority=1, date_closed__isnull=True)
+    all_tickets_open = Ticket.objects.filter(date_closed__isnull=True, owner=user_id)
+    
+    tickets_priority_low = Ticket.objects.filter(priority=3, date_closed__isnull=True, owner=user_id)
+    tickets_priority_normal = Ticket.objects.filter(priority=2, date_closed__isnull=True, owner=user_id)
+    tickets_priority_emergency = Ticket.objects.filter(priority=1, date_closed__isnull=True, owner=user_id)
     
     tickets_open = [ 
             { 'string':  'Priority Emergency', 'tickets': tickets_priority_emergency},
@@ -129,6 +131,8 @@ def open_ticket(request, token):
         ) 
 
 
+##### DEPRECATED #####
+
 @check_login
 def create_ticket_main_info(request, token):
     
@@ -191,8 +195,9 @@ def create_ticket_main_info(request, token):
                 
                 status=status.HTTP_400_BAD_REQUEST
                 )
-        
-    properties = Properties.objects.all()
+    
+    user_id = Token.objects.get(key=token).user.id
+    properties = Properties.objects.filter(landlord=user_id)
     
     return render(
         request,
@@ -677,8 +682,8 @@ def delete_ticket(request, ticket_id):
 @permission_classes([permissions.IsAuthenticated])
 def total_tickets(request):
     
-    total_tickets = Ticket.objects.all().count()
-    opened_tickets = Ticket.objects.filter(date_closed__isnull=True).count()
+    total_tickets = Ticket.objects.filter(owner=request.user.id).count()
+    opened_tickets = Ticket.objects.filter(date_closed__isnull=True, owner=request.user.id).count()
     
     
     return Response({

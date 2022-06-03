@@ -118,11 +118,11 @@ class BankAccountApi(APIView):
         
         if bank_account_id == 'all':
             
-            expenses = BanksAccounts.objects.all()
+            bank_accounts = BanksAccounts.objects.filter(landlord=request.user.id)
             
         else:
             try:
-                expenses = BanksAccounts.objects.filter(id=int(bank_account_id))
+                bank_accounts = BanksAccounts.objects.filter(id=int(bank_account_id))
             except BanksAccounts.DoesNotExist:
                 
                 return Response(
@@ -131,7 +131,7 @@ class BankAccountApi(APIView):
                         'message_error' : 'There is no BanksAccount object with that id'
                     }, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = BankAccountSerializer(expenses, many=True)
+        serializer = BankAccountSerializer(bank_accounts, many=True)
         
         
         return Response(serializer.data)
