@@ -24,7 +24,7 @@ from rest_framework import status, authentication, permissions
 
 from .models import SupplierWorkArea, Ticket, TicketPayment, TicketPriority, TicketType, MaintanenceType, MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction, TicketSteps, Suppliers
 
-from .serializers import SupplierPostSerializer, SupplierSerializer, TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer, WorkAreaSerializer
+from .serializers import SupplierGetSerializer, SupplierPostSerializer, TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer, WorkAreaSerializer
 
 # properties
 from properties.models import Properties, Tenants, Units
@@ -94,6 +94,8 @@ def open_ticket(request, token):
         
         tenant_id = int(request.POST.get('tenant_id'))
         ticket_priority = int(request.POST.get('ticket_priority'))
+
+        user_id = Token.objects.get(key=token).user.id
         
         data = {
             'created_by': tenant_id,
@@ -103,7 +105,7 @@ def open_ticket(request, token):
             'date_opened' : datetime.datetime.now(),
             'priority': ticket_priority,
             'ticket_status': 1,
-            'owner': 1
+            'owner': user_id
         }
         
         serializer = TicketSerializer(data=data)
@@ -207,6 +209,7 @@ def create_ticket_main_info(request, token):
             'token': token
         })
 
+##### ---------- #####
 
 @check_login
 def create_ticket_options(request,  token:str, ticket_type:int, ticket_id:int):
@@ -276,7 +279,7 @@ def select_ticket_contractor(request, token, ticket_type, ticket_id):
         
         data_for_serializer = dict()
         
-        data_for_serializer['created_by'] = 1
+        data_for_serializer['created_by'] = Token.objects.get(key=token).user.id
         data_for_serializer['ticket'] = ticket_id
         data_for_serializer['date'] = request.POST.get('appoinment_date')
         
@@ -355,7 +358,7 @@ def contact_ticket_contractor(request, token, ticket_type, ticket_id):
     user_id = Token.objects.get(key=token).user.id
     
     recommended_contractors = Suppliers.objects.filter(work_area__in=work_areas, landlord=user_id).filter(~Q(id__in=contractors_contacted))
-    other_contractors = Suppliers.objects.filter(~Q(work_area__in=work_areas, landlord=user_id)).filter(~Q(id__in=contractors_contacted))
+    other_contractors = Suppliers.objects.filter(landlord=user_id).filter(~Q(id__in=contractors_contacted))
 
     return render (
         request,
@@ -513,7 +516,7 @@ class TicketCommentApi(APIView):
         
         request_data['ticket'] = ticket_id
         request_data['date'] = datetime.datetime.now()
-        request_data['made_by'] = 1
+        request_data['made_by'] = request.user.id
         
         serializer = TicketCommentSerializer(data=request_data)
         
@@ -545,22 +548,23 @@ class SuppliersApi(APIView):
     def get(self, request, supplier_id:int):
 
         if supplier_id == 'all':
-            serializer = SupplierSerializer(Suppliers.objects.filter(landlord=request.user.id), many=True)
+            serializer = SupplierGetSerializer(Suppliers.objects.filter(landlord=request.user.id), many=True)
 
         else:
-            serializer = SupplierSerializer(Suppliers.objects.filter(id=int(supplier_id), landlord=request.user.id), many=True)
+            serializer = SupplierGetSerializer(Suppliers.objects.filter(id=int(supplier_id), landlord=request.user.id), many=True)
 
         return Response(serializer.data)
     
     
     def post(self, request):
-        
-        serializer = SupplierSerializer(data=request.data)
+
+        request.data['landlord'] = request.user.id
+        serializer = SupplierPostSerializer(data=request.data)
         
         if serializer.is_valid():
             serializer.save()
             
-            return Response(serializer)
+            return Response(serializer.data)
             
         else:
             return Response(
@@ -574,6 +578,8 @@ class SuppliersApi(APIView):
         
     def put(self, request, supplier_id:int):
         
+        request.data['landlord'] = request.user.id
+
         try:
             supplier = Suppliers.objects.get(id=supplier_id)
         except Suppliers.DoesNotExist:
@@ -590,7 +596,7 @@ class SuppliersApi(APIView):
         if serializer.is_valid():
             serializer.save()
     
-            return Response(serializer)
+            return Response(serializer.data)
         
         else: 
             return Response({
@@ -653,7 +659,7 @@ def return_to_coordinate_visit(request, ticket_id):
     
     data_for_comment = {
         'ticket' : ticket_id,
-        'made_by' : 1,
+        'made_by' : request.user.id,
         'date': datetime.datetime.now(),
         'comment': comment
     }

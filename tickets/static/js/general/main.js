@@ -38,6 +38,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
   btnSendSms.attr("disabled", true);
   btnSendSms.text("Sending...");
 
+
   jsonData = {
     message: message.val(),
     subject: subject.val(),
@@ -58,13 +59,26 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
       }
   }
 
-  if (sendToTenant == 'True') {
-    jsonData.tenant_id = personId;
+  console.log($('#send-to-team').val());
+
+  console.log($('#send-to-team') != null)
+
+  if ( $('#send-to-team').val() != null && $('#send-to-team').val() != 'False') {
+    jsonData.team_id = $('#send-to-team').val();
+  
   } else {
-    jsonData.supplier_id = personId;
+
+    if (sendToTenant == 'True') {
+      jsonData.tenant_id = personId;
+  
+    } else {
+      jsonData.supplier_id = personId;
+  
+    }
   }
 
-  console.log(jsonData)
+  
+  console.log(jsonData);
 
   $.ajax({
     type: "POST",
@@ -95,7 +109,6 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
         },
       }).showToast();
 
-      
 
       console.log(response);
       afterSendMessage(success = false, comFeed = comFeed, supplierFeed = supplierFeed, response = response);

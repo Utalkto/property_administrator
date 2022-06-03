@@ -40,7 +40,7 @@ class WorkAreaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class SupplierSerializer(serializers.ModelSerializer):
+class SupplierGetSerializer(serializers.ModelSerializer):
     work_area = WorkAreaSerializer()
     city = CitySerializer()
     class Meta:

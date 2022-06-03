@@ -5,9 +5,9 @@ from .views import CandidatesViewSet, send_invitations_to_candidates, approve_ca
 
 urlpatterns = [
     # root to create a new candiate
-    path('candidate/<int:unit_id>', CandidatesViewSet.as_view(), name='candidates'),
+    path('candidates/<int:unit_id>', CandidatesViewSet.as_view(), name='candidates'),
     # root to get all or one candidate(s)
-    path('candidate/<int:unit_id>', CandidatesViewSet.as_view(), name='candidates'),
+    path('candidatse/<int:unit_id>', CandidatesViewSet.as_view(), name='candidates'),
     # root to update a candidate
     path('candidate-update/<int:candidate_id>', CandidatesViewSet.as_view(), name='candidates'),
     # root to delete candidate(s)

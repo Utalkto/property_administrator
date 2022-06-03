@@ -3,7 +3,7 @@ from rest_framework import serializers
 from properties.serializers import UnitsSerializerProperty
 from .models import BanksAccounts, Expenses, Categories
 
-from tickets.serializers import SupplierSerializer
+from tickets.serializers import SupplierGetSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ExpensesGetSerializer(serializers.ModelSerializer):
     categories = CategorySerializer()
-    supplier = SupplierSerializer()
+    supplier = SupplierGetSerializer()
     unit = UnitsSerializerProperty()
     
     

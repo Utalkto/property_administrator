@@ -2,7 +2,7 @@ import defusedxml
 from django.db import models
 
 # models for the foreing key 
-from properties.models import Tenants
+from properties.models import Team, Tenants
 from register.models import CustomUser
 from tickets.models import Suppliers
 
@@ -13,6 +13,7 @@ class MessageSent(models.Model):
     
     tenant = models.ForeignKey(Tenants, null=True, blank=False, on_delete=models.CASCADE, default=None)
     supplier = models.ForeignKey(Suppliers, null=True, blank=False, on_delete=models.CASCADE, default=None)
+    team = models.ForeignKey(Team, null=True, blank=False, on_delete=models.CASCADE, default=None)
     
     user = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
 

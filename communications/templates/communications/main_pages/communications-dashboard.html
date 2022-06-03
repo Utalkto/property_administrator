@@ -38,6 +38,7 @@
 
                             <input type="hidden" id="person-id">
                             <input type="hidden" id="send-to-tenant">
+                            <input type="hidden" id="send-to-team">
 
 
                             <div class="modal-body">
@@ -106,7 +107,7 @@
                       <button
                         type="button"
                         class="btn btn-primary"
-                        onclick="setTenantInModalTabId(tenant_id='{{tenant.id}}', feed='True', sendToTenant='True'); makeModalVisible();"
+                        onclick="setTenantInModalTabId(tenant_id='{{tenant.id}}', feed='True', sendToTenant='True'); makeModalVisible(); cleanTeamInModal();"
                         data-toggle="modal"
                         data-target="#modal-send-message"
                         data-whatever="@mdo"
@@ -119,7 +120,7 @@
                     <td>
                       <a
                         class="btn btn-primary"
-                        href="{% url 'messages_details' contact_id=tenant.id token=token %}"
+                        href="{% url 'messages_details' contact_id=tenant.id user_type='tenant' token=token %}"
   
                       >
                         View all messages sent
@@ -139,7 +140,7 @@
                       <button
                         type="button"
                         class="btn btn-primary"
-                        onclick="setTenantInModalTabId(tenant_id='{{supplier.id}}'); makeModalVisible();"
+                        onclick="setTenantInModalTabId(tenant_id='{{supplier.id}}'); makeModalVisible(); cleanTeamInModal();"
                         data-toggle="modal"
                         data-target="#modal-send-message"
                         data-whatever="@mdo"
@@ -152,7 +153,40 @@
                     <td>
                       <a
                         class="btn btn-primary"
-                        href="{% url 'messages_details' contact_id=supplier.id token=token %}"
+                        href="{% url 'messages_details' contact_id=supplier.id user_type='supplier' token=token %}"
+  
+                      >
+                        View all messages sent
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+
+                  {% for t in team %}
+
+                  <tr>
+                    <td>{{t.name}}</td>
+                    <td>{{t.email}}</td>
+                    <td>{{t.phone}}</td>
+                    <td>Team</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="setTeamInModal(team_id='{{t.id}}'); makeModalVisible();"
+                        data-toggle="modal"
+                        data-target="#modal-send-message"
+                        data-whatever="@mdo"
+                      >
+                        Send message
+                      </button>
+                    </td>
+
+
+                    <td>
+                      <a
+                        class="btn btn-primary"
+                        href="{% url 'messages_details' contact_id=t.id user_type='team' token=token %}"
   
                       >
                         View all messages sent
@@ -203,6 +237,8 @@
 function makeModalVisible(modal) {
 
 $(`#modal-div`).removeAttr('hidden');
+
+console.log('here');
 }
 
 $("#close-modal").click(() => {
@@ -213,6 +249,15 @@ $("#close-modal").click(() => {
 $("#close-modal-2").click(() => {
   $('#modal-div').attr('hidden', 'true');
 });
+
+
+function setTeamInModal(team_id) {
+  $("#send-to-team").val(team_id);
+}
+
+function cleanTeamInModal() {
+  $("#send-to-team").val('False');
+}
 
 </script>
 

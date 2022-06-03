@@ -31,6 +31,7 @@ urlpatterns = [
     # apis
 
     path('ticket-comment/<int:ticket_id>', TicketCommentApi.as_view()),
+    path('suppliers/', SuppliersApi.as_view()),
     path('suppliers/<str:supplier_id>', SuppliersApi.as_view()),
     path('work-areas/', WorkAreaApi.as_view() )
     
