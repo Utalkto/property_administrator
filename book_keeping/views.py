@@ -10,8 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 
 # same app
 
-from .models import BanksAccounts, Expenses
-from .serializers import ExpensesGetSerializer, ExpensesPostSerializer, BankAccountSerializer
+from .models import BanksAccounts, Categories, Expenses
+from .serializers import ExpensesGetSerializer, ExpensesPostSerializer, BankAccountSerializer, CategorySerializer
 
 
 # Create your views here.
@@ -196,3 +196,14 @@ class BankAccountApi(APIView):
                 'success': True,
                 'message' : 'Deleted',
             }) 
+
+
+class CategoriesApi(APIView):
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+    
+    def get(self, request):
+        
+        serializer = CategorySerializer(Categories.objects.all(), many=True)
+        return Response(serializer.data)
+

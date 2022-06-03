@@ -282,23 +282,25 @@
                       {{ticket.ticket_type.string_part}}
                     </p>
 
-                    {% if ticket.issue_type.string_part %}
+                    {% if ticket.problem.string_part %}
 
                     <p class="m-b-2">
-                      <strong> Problem:</strong>  {{ticket.issue_type.string_part}}
+                      <strong> Problem:</strong>  {{ticket.problem.maintanence_issue_sub_type.maintanence_issue_type.string_part}} - {{ticket.problem.maintanence_issue_sub_type.string_part}} - {{ticket.problem.string_part}}
                     </p>
 
                     {% elif ticket.sub_issue_type.string_part %}
 
                     <p class="m-b-2">
-                      <strong> Problem:</strong>  {{ticket.sub_issue_type.maintanence_issue_type.string_part}} {{ticket.sub_issue_type.string_part}} 
+                      <strong> Problem:</strong>  {{ticket.sub_issue_type.maintanence_issue_type.string_part}} - {{ticket.sub_issue_type.string_part}} 
                     </p>
 
-                    {% elif ticket.problem.string_part %}
+
+                    {% elif ticket.issue_type.string_part %}
 
                     <p class="m-b-2">
-                      <strong> Problem:</strong>  {{ticket.problem.maintanence_issue_sub_type.maintanence_issue_type.string_part}} {{ticket.problem.maintanence_issue_sub_type.string_part}} {{ticket.problem.string_part}}
+                      <strong> Problem:</strong>  {{ticket.issue_type.string_part}}
                     </p>
+
 
                     {% else %}
 
