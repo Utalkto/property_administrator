@@ -75,7 +75,7 @@ function sendMessage(personId = null, sendToTenant, sendByEmail, comFeed=false, 
     },
     success: function (response) {
       Toastify({
-        text: "Message sent successfully ✅",
+        text: "Message sent successfully",
 
         duration: 3000,
         style: {

@@ -122,7 +122,7 @@ class Units(models.Model):
     has_pet =  BooleanField(null=True, default=None)
     
     lease_typee = models.ForeignKey(UnitContractType, null=True, default=None, on_delete=models.CASCADE)
-    lease_start_date = models.DateField(default=None, null=True, blank=True)
+    lease_start_date = models.DateField(default=None, null=True, blank=True, )
     lease_expiration_date = models.DateField(default=None, null=True, blank=True)
     
     main_tenant_name = CharField(max_length=150, null=True, default=None)
