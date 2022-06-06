@@ -31,6 +31,10 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
   height: 130px;
   width: 10%;
 }
+
+.imga{
+  height: 120px;
+}
 .gradient-1, .dropdown-mega-menu .ext-link.link-1 a, .morris-hover, .datamaps-hoverover {
   background-image: linear-gradient(230deg, #759bff, #000000); }
 

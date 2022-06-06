@@ -203,9 +203,9 @@ def competition(request):
 
 
     SendEmail(
-        send_to='acampos@utalkto.com',
-        subject='Winner',
-        html=f'<p>You got a new winner, if you know what I mean, blink blink</p> <p> here is their phone number {phone_number}</p>'
+        send_to='support@utalkto.com',
+        subject='Nuevo ganador',
+        html=f'<p>Hay un nuevo ganador.</p> <p>Número de teléfono: {phone_number}</p>'
     )
 
     return Response({'message': 'Success'})

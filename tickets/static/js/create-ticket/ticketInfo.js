@@ -33,6 +33,16 @@ function makeComment(ticketId) {
 
 
 function afterCommentMade(data) {
+
+  Toastify({
+    text: "Comment submited",
+
+    duration: 3000,
+    style: {
+      background: "green",
+    },
+  }).showToast();
+
   commentsTitle = $("#ticket-comments-title");
 
   if (commentsTitle === null) {

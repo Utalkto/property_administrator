@@ -17,7 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from register.models import CustomUser
 
 # serializers 
-from .serializers import CandiatesSerializer
+from .serializers import CandiatesSerializer, CandiatesGetSerializer
 
 # models
 from properties.models import Units, Links
@@ -350,29 +350,35 @@ class CandidatesViewSet(APIView):
     @swagger_auto_schema(
     responses={200: CandiatesSerializer()})
     def get(self, request, unit_id):
-        
-        if 'have_viewing_appoinments' in request.data.keys():
-            candidates = get_candidates_with_viewing(unit_id=unit_id)
-            return Response({'candidates': candidates})
-        
-        if 'pending_payments' in request.data.keys():
-            candidates = Candidate.objects.filter(unit=unit_id, status=3)
-            return Response({'candidates': candidates.data})
+
+        if unit_id == 'all':
+
+            candidates = Candidate.objects.filter(property_manager=request.user.id)
+
         else:
+        
+            if 'have_viewing_appoinments' in request.data.keys():
+                candidates = get_candidates_with_viewing(unit_id=unit_id)
+                return Response({'candidates': candidates})
             
-            if 'rejected' in request.data.keys():
-                candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'], rejected=True)
+            if 'pending_payments' in request.data.keys():
+                candidates = Candidate.objects.filter(unit=unit_id, status=3)
+                return Response({'candidates': candidates.data})
             else:
-                candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'])
+                
+                if 'rejected' in request.data.keys():
+                    candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'], rejected=True)
+                else:
+                    candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'])
 
-        if not candidates:
-            return Response(
-                {
-                    'message': 'no candidates meet the provided requirements'
-                }, status=status.HTTP_404_NOT_FOUND)
+            if not candidates:
+                return Response(
+                    {
+                        'message': 'no candidates meet the provided requirements'
+                    }, status=status.HTTP_404_NOT_FOUND)
 
         
-        serializer = CandiatesSerializer(candidates, many=True)
+        serializer = CandiatesGetSerializer(candidates, many=True)
         return Response({'candidates': serializer.data}, status=status.HTTP_200_OK)
     
     

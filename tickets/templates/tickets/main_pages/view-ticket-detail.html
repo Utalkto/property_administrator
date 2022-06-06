@@ -245,6 +245,14 @@
                   </span>
 
                   {% endif %}
+
+                  {% if ticket_status.string_part == "Close Ticket" and ticket.date_closed is not None %}
+
+                  <span class="badge badge-primary badge-sm float-right m-t-5">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+                  {% endif %}
+
                 </p>
                 {% endfor %}
               </div>
@@ -343,10 +351,15 @@
                   <div class="media-body">
                     <span class="float-right"></span>
                     <h4 class="m-0 text-primary">
+                      {% if ticket.date_closed is not None %}
+                      This ticket is closed
+                      {% else %}
                       {{ next_to_do.string_part }}
+                      {% endif %}
                     </h4>
                   </div>
                 </div>
+                {% if ticket.date_closed is  None %}
                 <h5 class="m-b-15">
                   Hi, {{request.user.get_full_name}}, here is what you need to do next:
                 </h5>
@@ -483,6 +496,8 @@
                     Submmit
                   </button>
                 </div>
+
+                {% endif %}
 
                 <hr />
 

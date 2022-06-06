@@ -16,7 +16,7 @@ class Team(models.Model):
     role = models.CharField(max_length=120, default='')
     
     def __str__(self) -> str:
-        return self.name
+        return f'{self.id} - {self.name}'
     
 
 class PropertyTypes(models.Model):
