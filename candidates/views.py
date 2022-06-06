@@ -17,7 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from register.models import CustomUser
 
 # serializers 
-from .serializers import CandiatesSerializer
+from .serializers import CandiatesSerializer, CandiatesGetSerializer
 
 # models
 from properties.models import Units, Links
@@ -378,7 +378,7 @@ class CandidatesViewSet(APIView):
                     }, status=status.HTTP_404_NOT_FOUND)
 
         
-        serializer = CandiatesSerializer(candidates, many=True)
+        serializer = CandiatesGetSerializer(candidates, many=True)
         return Response({'candidates': serializer.data}, status=status.HTTP_200_OK)
     
     

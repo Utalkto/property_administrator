@@ -104,9 +104,18 @@
                                             <td>{{ticket_info.date_opened}}</td>
                                             <td>{{ticket_info.date_closed}}</td>
                                             <td>{{ticket_info.contractor}}</td>
+
+                                            {% if ticket_info.date_closed is None %}
                                             <td>
                                                 {{next_to_do.string_part}}
                                             </td>
+                                            {% else %}
+                                            
+                                            <td>
+                                                Closed
+                                            </td>
+
+                                            {% endif %}
                                             <td>
                                                 {{ticket_info.owner.get_full_name}}
                                             </td>

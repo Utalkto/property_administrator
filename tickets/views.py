@@ -66,9 +66,9 @@ def home(request, token):
             { 'string':  'Priority Normal', 'tickets': tickets_priority_normal},
             { 'string':  'Priority Low', 'tickets': tickets_priority_low }] 
             
-    maintenance_tickets = Ticket.objects.filter(ticket_type=1, date_closed__isnull=True).count()
-    payment_tickets = Ticket.objects.filter(ticket_type=2, date_closed__isnull=True).count()
-    general_info_tickets = Ticket.objects.filter(ticket_type=3, date_closed__isnull=True).count()
+    maintenance_tickets = Ticket.objects.filter(ticket_type=1, date_closed__isnull=True, owner=user_id).count()
+    payment_tickets = Ticket.objects.filter(ticket_type=2, date_closed__isnull=True, owner=user_id).count()
+    general_info_tickets = Ticket.objects.filter(ticket_type=3, date_closed__isnull=True, owner=user_id).count()
     ticket_statuses = TicketSteps.objects.all().order_by('id')
     
     return render(
@@ -91,16 +91,12 @@ def tickets_history(request, token):
     
     user_id = Token.objects.get(key=token).user.id
     ticket_statuses = TicketSteps.objects.all().order_by('id')
-    maintenance_tickets = Ticket.objects.filter(ticket_type=1).count()
+    maintenance_tickets = Ticket.objects.filter(ticket_type=1, owner=user_id).count()
     
     
     tickets = Ticket.objects.filter(owner=user_id)
     
     total = len(tickets)
-    
-    print('---------------------------')
-    print(tickets)
-    print('---------------------------')
     
     
     return render(request, 
@@ -385,7 +381,7 @@ def contact_ticket_contractor(request, token, ticket_type, ticket_id):
     user_id = Token.objects.get(key=token).user.id
     
     recommended_contractors = Suppliers.objects.filter(work_area__in=work_areas, landlord=user_id).filter(~Q(id__in=contractors_contacted))
-    other_contractors = Suppliers.objects.filter(landlord=user_id).filter(~Q(id__in=contractors_contacted))
+    other_contractors = Suppliers.objects.filter(landlord=user_id).filter(~Q(id__in=contractors_contacted,)).exclude(work_area__in=work_areas)
 
     return render (
         request,
@@ -655,6 +651,9 @@ def close_ticket(request, ticket_id):
     
     ticket = Ticket.objects.get(id=int(ticket_id))
     ticket.date_closed = datetime.datetime.now()
+
+    update_ticket_status(ticket)
+
     ticket.save()
     
     return Response({'success': True})
@@ -671,16 +670,17 @@ def return_to_coordinate_visit(request, ticket_id):
     
     comment = f'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
     
+    appoinmnet = ticket.ticketappoinment_set.filter(completed=False)[0]
+    appoinmnet.completed = True
+
+
     if request.data.get('no_attendance'):
-        appoinmnet = ticket.ticketappoinment_set.filter(completed=False)[0]
         
-        appoinmnet.completed = True
         appoinmnet.supplier_attendance = False
-        
-        appoinmnet.save()
-        
-        
         comment = f'{ticket.contractor.name} did not attend the appoinment'
+
+    appoinmnet.save()
+    
         
     
     data_for_comment = {

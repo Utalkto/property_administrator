@@ -239,6 +239,14 @@ class PropertiesViewSet(APIView):
         data = request.data.copy()
         
         data['landlord'] =  request.user.id
+        data['city'] = int(request.data['city'])
+
+        print('-----------------------------')
+        print('-----------------------------')
+        print(data)
+        print(type(data['city']))
+        print('-----------------------------')
+        print('-----------------------------')
         
         
         serializer = PropertiesPostSerializer(data=data)
@@ -252,6 +260,13 @@ class PropertiesViewSet(APIView):
                 }, 
                 status=status.HTTP_201_CREATED)
         else:
+
+            print('-----------------------------')
+            print('-----------------------------')
+            print(serializer.errors)
+            print('-----------------------------')
+            print('-----------------------------')
+
             return Response(
                 {
                     'error': True, 
@@ -368,6 +383,11 @@ class UnitsViewSet(APIView):
             
             if serializer.is_valid():
                 serializer.save()
+
+                property = Properties.objects.get(id=int(request.data['property']))
+                property.number_of_units = property.number_of_units + 1
+                property.save()
+
                 return Response(
                     serializer.data, 
                     status=status.HTTP_201_CREATED)
