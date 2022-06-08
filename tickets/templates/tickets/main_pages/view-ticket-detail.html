@@ -253,6 +253,15 @@
                   </span>
                   {% endif %}
 
+                  {% if ticket_status.string_part == "Follow up" and ticket.date_closed is not None %}
+
+                  <span class="badge badge-primary badge-sm float-right m-t-5">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+                  {% endif %}
+
+
+
                 </p>
                 {% endfor %}
               </div>
