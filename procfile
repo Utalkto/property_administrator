@@ -1,1 +1,1 @@
-web: gunicorn properties_manager_api.wsgi
+web: gunicorn properties_manager_api.wsgi --log-file -
