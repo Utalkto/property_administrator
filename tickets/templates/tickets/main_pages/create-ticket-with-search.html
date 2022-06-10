@@ -31,7 +31,7 @@
                                         {% csrf_token %}
                                         <div class="form-group">
                                            
-                                            <label>Select ticket type:</label>
+                                            <label>Ticket Type:</label>
                                             <select class="form-control" id="ticket-type" name="ticket_type">
                                                 {% for ticket_type in ticket_types %}
                                                 
@@ -44,7 +44,7 @@
 
                                         <div class="form-group"> 
                                         
-                                            <label>Select Ticket Priority:</label>
+                                            <label>Ticket Priority:</label>
 
                                             <select class="form-control" id="ticket-priotity" name="ticket_priority">
                                                 {% for ticket_priority in ticket_priorities %}
@@ -58,7 +58,7 @@
                                         <div class="form-group"> 
                                 
                                             <label for="contractor-solution" class="col-form-label"
-                                            >Stimated time for solution:</label
+                                            >Target Completion Date:</label
                                             >
                                             <input
                                             placeholder="yyyy-mm-dd"

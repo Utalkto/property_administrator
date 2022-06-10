@@ -159,7 +159,7 @@
                 ><span class="nav-text">Dashboard</span>
               </a>
               <ul aria-expanded="false">
-                <li><a href="{% url 'home' token=token %}">Opened Tickets</a></li>
+                <li><a href="{% url 'home' token=token %}">Open Tickets</a></li>
                 <li><a href="{% url 'tickets_history' token=token %}">History</a></li>
               </ul>
             </li>
@@ -172,10 +172,10 @@
                 aria-expanded="false"
               >
                 <i class="icon-speedometer menu-icon"></i
-                ><span class="nav-text">Ticket Creation</span>
+                ><span class="nav-text">Create Ticket</span>
               </a>
               <ul aria-expanded="false">
-                <li><a href="{% url 'open_ticket' token=token %}">Create Ticket</a></li>
+                <li><a href="{% url 'open_ticket' token=token %}">New Ticket</a></li>
               </ul>
             </li>
 
