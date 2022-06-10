@@ -14,7 +14,6 @@ from .models import Order, Subjects, UserEmail, MessageToWatson
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 
-
 from uuid import uuid4
 
 
