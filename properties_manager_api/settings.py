@@ -108,10 +108,10 @@ WSGI_APPLICATION = 'properties_manager_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd2efrclgtbked6',
-        'USER': 'ufbpyoglczgsto',
-        'PASSWORD': '8e3e707f3b82ab171ed16d2d42d57dcde2c18e3c8ed0174854a1d396573f4e82',
-        'HOST': 'ec2-52-86-56-90.compute-1.amazonaws.com',
+        'NAME': 'daoaeem4e2b44v',
+        'USER': 'pagsdurrgjbhkg',
+        'PASSWORD': 'fba44d79bda6d6bba21c3bd487ca342fe11b150e73cf19e2f061134e83ad9198',
+        'HOST': 'ec2-52-44-13-158.compute-1.amazonaws.com',
         'PORT': '5432',
     }
 }
