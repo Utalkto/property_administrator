@@ -210,3 +210,42 @@ def competition(request):
 
     return Response({'message': 'Success'})
 
+
+
+import requests
+
+URL = 'http://178.18.250.142/vicidial/non_agent_api.php'
+
+@api_view(['POST'])
+def trivia(request):
+    
+    parameters = {
+        'source':'test',
+        'user':'carga_lead',
+        'pass':'Ncrg4900',
+        'function':'add_lead',
+        'phone_number':request.data['phone_number'],
+        'phone_code':1,
+        'list_id':250,
+        'dnc_check':'N',
+        'campaign_dnc_check':'Y',
+        'campaign_id':'in_sms',
+        'first_name':request.data['first_name'],
+        'last_name':request.data['last_name'],
+        'address1':request.data['address'],
+        'city':request.data['city'],
+        'state':'VE',
+        'add_to_hopper':'Y',
+    }
+    
+    response = requests.request("POST", URL, params=parameters)
+    
+    print('--------------------------------')
+    print('--------------------------------')
+    print(response.text)
+    print('--------------------------------')
+    print('--------------------------------')
+    
+    
+    return Response({'message':'success'})
+    
