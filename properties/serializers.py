@@ -90,7 +90,7 @@ class LeaseTypeSerializer(serializers.ModelSerializer):
         model = UnitContractType
         fields = '__all__'
 
-class UnitsSerializer(serializers.ModelSerializer):
+class UnitsSerializerGet(serializers.ModelSerializer):
     tenants = TenantsNameSerializer(many=True)
     lease_typee = LeaseTypeSerializer()
     property = PropertiesSerializer()

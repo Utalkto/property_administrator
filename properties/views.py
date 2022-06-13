@@ -1,5 +1,6 @@
 # python 
 # twilio 
+import datetime 
 from twilio.rest import Client
 
 # django 
@@ -18,7 +19,9 @@ from drf_yasg.utils import swagger_auto_schema
 
 # models 
 from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants, Team
-from properties.serializers import PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, PropertyTypeSerializer, TeamSerializer, TenantPostSerializer, TenantSerializer, UnitsSerializer, UnitsSerializerNoTenant, UnitSerializerPost
+from properties.serializers import (PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, 
+                                    PropertyTypeSerializer, TeamSerializer, TenantPostSerializer,
+                                    TenantSerializer, UnitsSerializerGet, UnitSerializerPost)
 
 from register.models import CustomUser
 
@@ -26,6 +29,7 @@ from candidates.models import Candidate
 
 # modules created for the app
 from app_modules.send_email import SendEmail
+from app_modules.main import convert_to_bool
 
 
 
@@ -35,7 +39,6 @@ TEST_TOKEN = 'Token 71ed6e07240ac3c48e44b5a43b5c89e453382f2a'
 # other fucntions
 
 def put_candidate_as_tenant(candidate):
-    
     for adult in candidate.adults_information:
         new_tenant = Tenants(
             landlord=Units.objects.get(id=candidate.unit.id).properties.landlord,
@@ -72,7 +75,7 @@ def data_to_create_property(request):
 
 @swagger_auto_schema(
     method='post',
-    responses={200: UnitsSerializer()})
+    responses={200: UnitsSerializerGet()})
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
@@ -205,24 +208,23 @@ class PropertiesViewSet(APIView):
     authentication_classes = (TokenAuthentication,) 
     @swagger_auto_schema(
     responses={200: PropertiesSerializer()})
-    def get(self, request, property_id):
+    def get(self, request,  client_id, property_id=0):
         """ 
-        Summary: Get all properties a landord has 
+        Summary: Get all properties an organization has 
         
         Args:
-            request (_type_): data sent from front
+            request (dict): data sent from front
 
         Returns:
-            Serializer Class, dictionary, JSON: list of properties that a landlord has
+            Serializer Class, dictionary, JSON: list of properties that an organization has
         """
         
         if property_id == 0:
-            serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id), many=True)
-            # city name 
-            # property type string
+            serializer = PropertiesSerializer(Properties.objects.filter(client=client_id), many=True)
             
         else:
-            serializer = PropertiesSerializer(Properties.objects.filter(landlord = request.user.id, id = property_id), many=True)
+            serializer = PropertiesSerializer(Properties.objects.get(client=client_id, id=property_id))
+        
         
         return Response(serializer.data)
     
@@ -240,14 +242,6 @@ class PropertiesViewSet(APIView):
         
         data['landlord'] =  request.user.id
         data['city'] = int(request.data['city'])
-
-        print('-----------------------------')
-        print('-----------------------------')
-        print(data)
-        print(type(data['city']))
-        print('-----------------------------')
-        print('-----------------------------')
-        
         
         serializer = PropertiesPostSerializer(data=data)
         
@@ -260,13 +254,6 @@ class PropertiesViewSet(APIView):
                 }, 
                 status=status.HTTP_201_CREATED)
         else:
-
-            print('-----------------------------')
-            print('-----------------------------')
-            print(serializer.errors)
-            print('-----------------------------')
-            print('-----------------------------')
-
             return Response(
                 {
                     'error': True, 
@@ -344,33 +331,90 @@ class UnitsViewSet(APIView):
     authentication_classes = (TokenAuthentication,) 
     
     @swagger_auto_schema(
-    responses={200: UnitsSerializer()})
-    def get(self, request, unit_id):
-         
-        if unit_id == 0:
-            
-            units = Units.objects.filter(property_manager=request.user.id)
-            
-            serializer = UnitsSerializer(units, many=True)
-            
-            return Response(
-                serializer.data, 
-                status=status.HTTP_200_OK)
+    responses={200: UnitsSerializerGet()})
+    def get(self, request, client_id):
         
-        try:
-            units = Units.objects.filter(id=unit_id , property_manager=request.user.id)
-            serializer = UnitsSerializer(units, many=True)
-            return Response(
-                serializer.data, 
-                status=status.HTTP_200_OK)
+        """
+        
+        Units - Get
+        
+        rent_info (bool): indicates if number of units rented and not rented is needed
+        leases (bool): indicates if the number of units wich leases are going to exp 
+        unit_id (str): indicates the id of the unit that is needed, if set to "all" 
+        returns all the units a client owns
+
+        Returns:
+            _type_: _description_
+        """
+        
+        # if not request.GET._mutable:
+        #     request.GET._mutable = True
+        
+        if not request.GET:
+            return Response({
+                'message':'parameters cannot be empty, you must indicate at least one of these parameters:',
+                'rent_info (bool)': 'indicates if number of units rented and not rented is needed',
+                'leases (bool)': 'indicates if the number of units wich leases are going to exp' ,
+                'unit_id (str)': 'indicates the id of the unit that is needed, if set to "all" returns all the units a client owns',
+                'view_all (bool)': 'idicates if sent more information when "for_rent" or "lease" are set'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        response = dict()
+        view_all = request.GET.get('view_all')
             
-        except Units.DoesNotExist:
-            return Response(
-                {
-                'error': True, 
-                 'message ': 'unit does not exist'
-                }, 
-                status=status.HTTP_404_NOT_FOUND)
+        if request.GET.get('rent_info'):
+            
+            rent_info = Units.objects.filter(property__client=client_id, rented=False)
+            rented = Units.objects.filter(property__client=client_id, rented=True)
+
+            response['quantity_for_rent'] = rent_info.count()
+            response['quantity_rented'] = rented.count()
+            
+            if view_all:
+                response['units_for_rent'] = UnitsSerializerGet(rent_info, many=True).data
+                response['units_rented'] = UnitsSerializerGet(rented, many=True).data
+                
+        delta = datetime.timedelta(days=90)
+        
+        new_datetime = datetime.datetime.now() + delta
+        year = new_datetime.strftime('%Y')
+        month = new_datetime.strftime('%m')
+        
+        if request.GET.get('leases'):
+            leases = Units.objects.filter(property__client=client_id,
+                                          lease_expiration_date__year__lte=year,
+                                          lease_expiration_date__month__lte=month)
+            
+            response['number_of_leases_to_exp'] = leases.count()
+            if view_all:
+                response['units_with_leases_to_exp'] = UnitsSerializerGet(leases, many=True).data
+
+
+        unit_id = request.GET.get('unit_id')
+        if unit_id:
+            if unit_id == 'all':
+                units = Units.objects.filter(property__client=client_id)
+                serializer = UnitsSerializerGet(units, many=True)
+            
+            else:
+                unit_id = int(unit_id)
+                try:
+                    units = Units.objects.filter(id=unit_id, property__client=client_id)
+                    serializer = UnitsSerializerGet(units, many=True)
+                    
+                except Units.DoesNotExist:
+                    return Response(
+                        {
+                        'error': True, 
+                        'message ': 'unit does not exist'
+                        }, 
+                        status=status.HTTP_404_NOT_FOUND)
+        
+            response['units'] = serializer.data
+        
+        return Response(
+        response, 
+        status=status.HTTP_200_OK)
         
     
     @swagger_auto_schema(
@@ -419,14 +463,6 @@ class UnitsViewSet(APIView):
                 serializer.save()
                 return Response(serializer.data)
             else:
-
-                print('-----------------------------')
-                print('-----------------------------')
-                print(serializer.data)
-                print('-----------------------------')
-                print(serializer.errors)
-                print('-----------------------------')
-                print('-----------------------------')
 
                 return Response(
                     {

@@ -1,7 +1,7 @@
 from faker import Faker
 import random
 
-from register.models import UserCountries, UserCities, UserPlans, UserRoles
+from register.models import Country, City, KumbioPlan, UserRoles
 
 from properties.models import PetType, PropertyTypes, TenantType, UnitTypes, PropertyCountries, PropertyCities, Properties, Units, Tenants
 from properties.serializers import TenantSerializer, UnitsSerializerNoTenant, PropertiesSerializer
@@ -22,15 +22,15 @@ class FillDataBase:
     
     def __init__(self, number_of_data:int = 10) -> None:
         
-        country = UserCountries(country="Canada")
+        country = Country(country="Canada")
         country.save()
-        p = UserPlans(plan='free', cost=0)
+        p = KumbioPlan(plan='free', cost=0)
         p.save()
 
         for i in range(number_of_data):
-            c = UserCities(country = country, city = fake.unique.city())
+            c = City(country = country, city = fake.unique.city())
             c.save()
-            up = UserPlans(plan=f'plan{i}', cost=random.choice([10, 20, 30]))
+            up = KumbioPlan(plan=f'plan{i}', cost=random.choice([10, 20, 30]))
             up.save()
             us = UserRoles(role=f'role{i}')
             us.save()

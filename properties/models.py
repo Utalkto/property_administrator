@@ -1,7 +1,7 @@
 from operator import truediv
 from django.db import models
 from django.db.models.fields import CharField, BooleanField, IntegerField, TextField, DecimalField, DateField
-from register.models import CustomUser
+from register.models import CustomUser, OrganizationClient
 
 # main tables 
 
@@ -54,7 +54,7 @@ class PropertyCities(models.Model):
 
 class Properties(models.Model):
     # foreign keys 
-    landlord = models.ForeignKey(CustomUser, null=False, blank=False ,on_delete=models.CASCADE)
+    client = models.ForeignKey(OrganizationClient, null=False, blank=False, on_delete=models.CASCADE, default=1)
     city = models.ForeignKey(PropertyCities, null=False, blank=False ,on_delete=models.CASCADE)
     property_type = models.ForeignKey(PropertyTypes, null=False, blank=False, on_delete=models.CASCADE)
     

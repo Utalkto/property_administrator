@@ -15,21 +15,22 @@ from django.utils import timezone
 # /token/login/ - to get token,
 # /token/logout/ - to logout.
 
-
 def seven_day_hence():
     return timezone.now() + timezone.timedelta(days=7)
 
+# GENERAL TABLES THAT aHAVE MANY RELATIONSHIPS WITH OTHERS
 
-class UserCountries(models.Model):
+
+class Country(models.Model):
     country = models.CharField(max_length=100)
     
     def __str__(self) -> str:
         return f'{self.id} - {self.country}'
 
 
-class UserCities(models.Model):
+class City(models.Model):
     # Foreign key
-    country = models.ForeignKey(UserCountries, null=False, blank=False, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, null=False, blank=False, on_delete=models.CASCADE)
     # --------------------------------
     # fields
     city = models.CharField(max_length=100)   
@@ -37,18 +38,74 @@ class UserCities(models.Model):
     def __str__(self) -> str:
         return f'{self.id} - {self.city}'
 
+# ---------------------------------------------------
+# ORGANIZATION TABLES 
 
-class UserPlans(models.Model):
+
+class KumbioPlanPermission(models.Model):
+    
+    # This is going to be a list a list of modules, enumerated from 1 to N, 
+    modules = models.CharField(max_length=120)
+    
+    number_of_clients_allowed = models.IntegerField()
+    number_of_units_allowed = models.IntegerField()
+    number_of_properties_allowed = models.IntegerField()
+    number_of_users_allowed = models.IntegerField()
+    
+
+class KumbioPlan(models.Model):
     plan = models.CharField(max_length=100)
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     
     def __str__(self) -> str:
         return f'{self.id} - {self.plan}'
+
+
+class Organization(models.Model): 
+    # foreignkeys 
+
+    country = models.ForeignKey(Country, null=False, blank=False, on_delete=models.CASCADE)
+    plan = models.ForeignKey(KumbioPlan, null=False, blank=False, on_delete=models.CASCADE)
+
+    # Fields
+    # ---------------------------------------------------
     
+    date_created = models.DateTimeField()
+    due_date = models.DateTimeField()
     
+    name = models.CharField(max_length=120)
+    
+    payment_status = models.BooleanField()
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.name}'
+
+
+class OrganizationClient(models.Model):
+    
+    # Foreign key
+    organization = models.ForeignKey(Organization, null=False, blank=False, on_delete=models.CASCADE)
+    # --------------------------------
+    # fields
+    
+    date_created = models.DateTimeField()
+    
+    email = models.EmailField()
+    
+    name = models.CharField(max_length=120)
+    
+    phone_number = models.CharField(max_length=120)
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.name}'
+
+# ---------------------------------------------------
+# USER TABLES 
+
+
 class UserRoles(models.Model):
     role = models.CharField(max_length=100)
-
+    
     def __str__(self) -> str:
         return f'{self.id} - {self.role}'
 
@@ -61,8 +118,8 @@ class CustomUserManager(BaseUserManager):
         user = self.model(
             email=email, 
             username=username, 
-            plan=UserPlans.objects.get(id=1), 
-            city=UserCities.objects.get(id=1), 
+            # plan=UserPlans.objects.get(id=1), 
+            # city=UserCities.objects.get(id=1), 
             role=UserRoles.objects.get(id=1),  
             **extra_fields)
         user.set_password(password)
@@ -84,15 +141,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     # foreignkeys 
     
-    plan = models.ForeignKey(UserPlans, null=False, blank=False, on_delete=models.CASCADE, default=1) # default is 1 for free
-    city = models.ForeignKey(UserCities, null=False, blank=False, on_delete=models.CASCADE, default=1)
-    
-    # roles
-    # free > 1
-    # landlord > 2
-    # property_manager > 3
-    # tenat > 4
-    
+    organization = models.ForeignKey(Organization, null=False, blank=False, on_delete=models.CASCADE, default=1)
+    country = models.ForeignKey(Country, null=True, blank=True, default=True, on_delete=models.CASCADE)
+    city = models.ForeignKey(City, null=True, blank=True, default=True, on_delete=models.CASCADE)
     role = models.ForeignKey(UserRoles, null=False, blank=False, on_delete=models.CASCADE, default=1)
     
     # -----------------------------------------------------------
@@ -120,7 +171,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     has_access = models.BooleanField(default=False)
     
+    
+    # USER PERMISSIONS 
+    
+    can_delete_data = models.BooleanField(default=True)
+    can_edit_data = models.BooleanField(default=True)
+    can_add_data = models.BooleanField(default=True)
+    
+    modules_access = models.CharField(default='1,2,3', max_length=120)    
+    clients_access = models.CharField(default='1', max_length=120)
+    property_access = models.JSONField(default=dict)
 
+    
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 

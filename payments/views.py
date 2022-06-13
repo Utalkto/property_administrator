@@ -27,7 +27,7 @@ class RentPaymentApi(APIView):
     
 
     def get(self, request):
-
+        
         serializer = RentPaymentGetSerializer(UnitPayments.objects.filter(unit__property_manager=request.user.id), many=True)
         
         return Response(serializer.data)

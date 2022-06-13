@@ -1,3 +1,4 @@
+from modulefinder import ReplacePackage
 from rest_framework import status
 
 from rest_framework import status, authentication, permissions
@@ -23,24 +24,6 @@ def get_role(request, format=None):
 
 class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        
-        # try:
-        #     username = CustomUser.objects.get(email__iexact=request.data['email']).username
-            
-        # except CustomUser.DoesNotExist:
-            
-        #     return Response({
-        #         "non_field_errors": [
-        #             "Unable to log in with provided credentials. here" 
-        #         ]
-        #     })
-        
-        
-        # request.data['username'] = username
-        
-        print('-----------------------------------')
-        print(request.data)
-        print('-----------------------------------')
 
         response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
         token = Token.objects.get(key=response.data['token'])
@@ -53,12 +36,26 @@ class CustomObtainAuthToken(ObtainAuthToken):
                 html='<p>There is a user trying to get into kumbio app but its account is not active</p>'
                 )
         
-
-
-        return Response(
-            {
-                'token': token.key, 
-                'name': token.user.get_full_name(), 
-                'active': token.user.has_access
-            })
+        
+        if token.user.organization.payment_status:
+            return Response(
+                {
+                    'token': token.key, 
+                    'name': token.user.get_full_name(), 
+                    'active': token.user.has_access,
+                })
+            
+        else:
+            if token.user.role == 2:
+                return Response({
+                    'message': 'Your account is inactive since your plan has experied, please renew your plan to access again'
+                }, status=status.HTTP_402_PAYMENT_REQUIRED)
+                
+            else:
+                return Response(
+                    {
+                        'message': 'Access denied',
+                        
+                    }, status=status.HTTP_401_UNAUTHORIZED
+                )
     

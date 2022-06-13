@@ -28,7 +28,7 @@ from .serializers import SupplierGetSerializer, SupplierPostSerializer, TicketAp
 
 # properties
 from properties.models import Properties, Tenants, Units
-from properties.serializers import UnitsSerializer, TenantSerializer
+from properties.serializers import UnitsSerializerGet, TenantSerializer, UnitsSerializerGet
 
 from app_modules.decorators import check_login
 
@@ -165,7 +165,7 @@ def create_ticket_main_info(request, token):
     
     if next_stage == '1':
         
-        units = UnitsSerializer(Units.objects.filter(property=int(request.GET.get('option_id'))), many=True)
+        units = UnitsSerializerGet(Units.objects.filter(property=int(request.GET.get('option_id'))), many=True)
         return JsonResponse({'options': units.data, 'stage_title': 'Select Unit', 'next_stage': 2} )
     
     elif next_stage == '2':

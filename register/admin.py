@@ -1,8 +1,12 @@
 from django.contrib import admin
-from .models import CustomUser, UserCountries, UserCities, UserRoles, UserPlans 
+from .models import (CustomUser,  Country, City, UserRoles, KumbioPlan, 
+                     Organization, OrganizationClient, KumbioPlanPermission )
 
+admin.site.register(Organization)
 admin.site.register(CustomUser)
-admin.site.register(UserCountries)
-admin.site.register(UserCities)
+admin.site.register(Country)
+admin.site.register(City)
 admin.site.register(UserRoles)
-admin.site.register(UserPlans)
+admin.site.register(KumbioPlan)
+admin.site.register(OrganizationClient)
+admin.site.register(KumbioPlanPermission)
