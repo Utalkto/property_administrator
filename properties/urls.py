@@ -19,9 +19,4 @@ urlpatterns = [
     
     path('team', TeamApi.as_view()),
     path('team/<str:team_id>', TeamApi.as_view()),
-    
-    
-    
-    
-
 ]

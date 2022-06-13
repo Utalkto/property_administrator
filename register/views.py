@@ -8,7 +8,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
-from .models import CustomUser
+from .serializers import UserPermissionsSerializser
 
 from app_modules.send_email import SendEmail
     
@@ -19,7 +19,6 @@ from app_modules.send_email import SendEmail
 def get_role(request, format=None):
     data = {'role': request.user.role.role}
     return Response(data, status=status.HTTP_200_OK)
-
 
 
 class CustomObtainAuthToken(ObtainAuthToken):
@@ -33,7 +32,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
             SendEmail(
                 send_to='support@utalkto.com',
                 subject='new user',
-                html='<p>There is a user trying to get into kumbio app but its account is not active</p>'
+                html='<p>There is an user trying to get into kumbio app but its account is not active</p>'
                 )
         
         
@@ -41,8 +40,9 @@ class CustomObtainAuthToken(ObtainAuthToken):
             return Response(
                 {
                     'token': token.key, 
-                    'name': token.user.get_full_name(), 
+                    'name': token.user.get_full_name(),
                     'active': token.user.has_access,
+                    'user_permissions': UserPermissionsSerializser(token.user)
                 })
             
         else:

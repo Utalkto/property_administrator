@@ -21,7 +21,7 @@ from drf_yasg.utils import swagger_auto_schema
 from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants, Team
 from properties.serializers import (PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, 
                                     PropertyTypeSerializer, TeamSerializer, TenantPostSerializer,
-                                    TenantSerializer, UnitsSerializerGet, UnitSerializerPost)
+                                    TenantSerializer, UnitsSerializerGet, UnitPostSerializer)
 
 from register.models import CustomUser
 
@@ -339,9 +339,14 @@ class UnitsViewSet(APIView):
         Units - Get
         
         rent_info (bool): indicates if number of units rented and not rented is needed
+        
         leases (bool): indicates if the number of units wich leases are going to exp 
+        
         unit_id (str): indicates the id of the unit that is needed, if set to "all" 
         returns all the units a client owns
+        
+        'view_all (bool)': 'idicates if sent more information when "for_rent" or "lease" are set'
+        
 
         Returns:
             _type_: _description_
@@ -356,7 +361,6 @@ class UnitsViewSet(APIView):
                 'rent_info (bool)': 'indicates if number of units rented and not rented is needed',
                 'leases (bool)': 'indicates if the number of units wich leases are going to exp' ,
                 'unit_id (str)': 'indicates the id of the unit that is needed, if set to "all" returns all the units a client owns',
-                'view_all (bool)': 'idicates if sent more information when "for_rent" or "lease" are set'
             }, status=status.HTTP_400_BAD_REQUEST)
         
         response = dict()
@@ -418,60 +422,41 @@ class UnitsViewSet(APIView):
         
     
     @swagger_auto_schema(
-    responses={200: UnitSerializerPost()})
-    def post(self, request, unit_id):
-        try: 
-            request.data['property_manager'] = request.user.id
-            
-            serializer =  UnitSerializerPost(data=request.data)
-            
-            if serializer.is_valid():
-                serializer.save()
+    responses={200: UnitPostSerializer()})
+    def post(self, request, client_id):
+        
+        request.data['client_id'] = client_id
+        
+        serializer = UnitPostSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
 
-                property = Properties.objects.get(id=int(request.data['property']))
-                property.number_of_units = property.number_of_units + 1
-                property.save()
+            property = Properties.objects.get(id=int(request.data['property']))
+            property.number_of_units = property.number_of_units + 1
+            property.save()
 
-                return Response(
-                    serializer.data, 
-                    status=status.HTTP_201_CREATED)
-            else:
-                return Response(
-                    {
-                        'error': True, 
-                        'message': 'serializer is not valid', 
-                        'serializer_error': serializer.errors
-                    }, 
-                    status=status.HTTP_400_BAD_REQUEST)
-       
-       # !!! 
-        except CustomUser.DoesNotExist:
-            return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
-
+            return Response(
+                serializer.data, 
+                status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {
+                    'error': True, 
+                    'message': 'serializer is not valid', 
+                    'serializer_error': serializer.errors
+                }, 
+                status=status.HTTP_400_BAD_REQUEST)
     
+
     @swagger_auto_schema(
-    responses={200: UnitSerializerPost()})
-    def put(self, request, unit_id):
+    responses={200: UnitPostSerializer()})
+    def put(self, request, client_id):
+        
+        unit_id = client_id
         
         try:
             unit = Units.objects.get(id=unit_id)
-
-            request.data['property_manager'] = request.user.id
-            serializer = UnitSerializerPost(instance=unit, data=request.data)
-            
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            else:
-
-                return Response(
-                    {
-                        'error': True, 
-                        'message': 'serializer is not valid', 
-                        'serializer_error': serializer.errors
-                    },
-                    status=status.HTTP_400_BAD_REQUEST)
-
         except Units.DoesNotExist:
             return Response(
                 {'error': True, 
@@ -479,22 +464,38 @@ class UnitsViewSet(APIView):
                  }, 
                 status=status.HTTP_404_NOT_FOUND)
 
-
-    def delete(self, request, unit_id):
+        request.data['property_manager'] = request.user.id
+        serializer = UnitPostSerializer(instance=unit, data=request.data)
         
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+
+            return Response(
+                {
+                    'error': True, 
+                    'message': 'serializer is not valid', 
+                    'serializer_error': serializer.errors
+                },
+                status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, client_id):
+        unit_id = client_id
         try:
             unit = Units.objects.get(id=unit_id)
             unit.delete()
             return Response(
                 {
-                    "message": "the unit has been eliminated successfully"
+                    'message': 'The unit has been eliminated successfully'
                 }, 
                 status=status.HTTP_200_OK)
         
         except Units.DoesNotExist:
             return Response(
                 {'error': True, 
-                 'message': 'the unit does not exist'
+                 'message': 'The unit does not exist'
                 }, 
                 status=status.HTTP_404_NOT_FOUND)       
        

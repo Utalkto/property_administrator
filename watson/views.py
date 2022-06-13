@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from app_modules.send_email import SendEmail
-from properties.models import Tenants
-from properties.serializers import TenantSerializer
+from properties.models import Properties, Tenants, Units
+from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializerGet
 from .serializers import OrderSerializer
 from rest_framework import status, authentication, permissions
 
@@ -247,4 +247,83 @@ def trivia(request):
     
     
     return Response({'message':'success'})
+
+
+@api_view(['POST'])
+def property_api(request):
+
+    property_name = request.data['property_name']
+
+    try:
+        property_serializer = PropertiesSerializer(Properties.objects.get(name=property_name))
     
+    except Properties.DoesNotExist:
+        return Response({
+            'message': f'property with name "{property_name}" does not exist in the data base'
+            })
+        
+        
+    unit_serializer = UnitsSerializerGet(Units.objects.filter(property=property_serializer.data['id']).first())
+
+    unit_serializer = unit_serializer.data
+    
+    if unit_serializer['balcony']:
+        unit_serializer['balcony'] = 'Yes, there is a private balcony.'
+    else:
+        unit_serializer['balcony'] = 'No, unfortunately there is no balcony.'
+        
+    if unit_serializer['video_tour']:
+        unit_serializer['video_tour'] = "Yes, we can arrange a video tour! At the moment we don't have any video from the unit, but in a few days we can record a few and send them to you.You can request a viewing and fill our form so we can have your contact information."
+    else:
+        unit_serializer['video_tour'] = 'No, unfortunately there is no balcony.'
+        
+    if unit_serializer['private_unit']:
+        unit_serializer['private_unit'] = 'The unit is completely private.'
+    else:
+        unit_serializer['private_unit'] = 'No, this unit is not private.'
+        
+    if unit_serializer['yard']:
+        unit_serializer['yard'] = "Yes, the unit has a yard."
+    else:
+        unit_serializer['yard'] = "Unfortunately, there isn't a fenced yard"
+        
+    if unit_serializer['outdoor_storage']:
+        unit_serializer['outdoor_storage'] = "Yes, the unit has an outdoor storage."
+    else:
+        unit_serializer['outdoor_storage'] = "Unfortunately, there isn't outdoor storage."
+
+    
+    if 'washer' in unit_serializer['servicesss'].keys() or 'dryer' in unit_serializer['servicesss'].keys():
+        unit_serializer['washer_dryer'] = 'There is a washer and a dryer in the unit.'
+    else:
+        unit_serializer['washer_dryer'] = "Unfortunately, the unit does not have these appliances."
+        
+    if unit_serializer['basement_unit']:
+        unit_serializer['basement_unit'] = 'Yes, the unit is a basement unit.'
+    else:
+        unit_serializer['basement_unit'] = "No, the unit is not a basement unit."
+        
+    if unit_serializer['people_above']:
+        unit_serializer['people_above'] = 'Yes, there are people above the unit.'
+    else:
+        unit_serializer['people_above'] = "No, there aren't people above."
+    
+    if unit_serializer['unemployed_people']:
+        unit_serializer['unemployed_people'] = 'Absolutely! We encourage everyone to go through the application process.'
+    else:
+        unit_serializer['unemployed_people'] = "No, we don't accept unemployed people in this unit."
+        
+    if unit_serializer['kids']:
+        unit_serializer['kids'] = 'Absolutely, kids are allowed in the unit.'
+    else:
+        unit_serializer['kids'] = "No, kids aren't allowed in the unit."
+        
+    if unit_serializer['pet_friendly']:
+        unit_serializer['pet_friendly'] = f'Yes, some pets are allowed.'
+    else:
+        unit_serializer['pet_friendly'] = "No, pets aren't allowed in the unit."
+
+    
+    d = {**property_serializer.data, **unit_serializer}
+
+    return Response(d)

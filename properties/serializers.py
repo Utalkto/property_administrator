@@ -99,7 +99,7 @@ class UnitsSerializerGet(serializers.ModelSerializer):
         model = Units
         fields = '__all__'
 
-class UnitSerializerPost(serializers.ModelSerializer):
+class UnitPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Units
         fields = '__all__'

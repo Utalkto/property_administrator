@@ -98,7 +98,7 @@ class PetType(models.Model):
 class Units(models.Model):
     # foreign keys 
      
-    property_manager = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
+    client = models.ForeignKey(OrganizationClient, null=False, blank=False, on_delete=models.CASCADE, default=1)
     property = models.ForeignKey(Properties, null=False, blank=False, on_delete=models.CASCADE)
     unit_type = models.ForeignKey(UnitTypes, null=False, blank=False, on_delete=models.CASCADE)
     
@@ -151,6 +151,28 @@ class Units(models.Model):
     pet_typee = models.ForeignKey(PetType, null=True, default=None, on_delete=models.CASCADE)
     
     unit_number = models.IntegerField(default=1)
+    
+    availability = models.CharField(max_length=120, null=True, blank=True, default=None)
+
+    balcony = models.BooleanField(null=True, blank=True, default=False)
+
+    lease_information = models.TextField(null=True, blank=True, default=None)
+    video_tour = models.BooleanField(null=True, blank=True, default=False)
+    private_unit = models.BooleanField(null=True, blank=True, default=True)
+
+    yard = models.BooleanField(null=True, blank=True, default=False)
+
+    outdoor_storage = models.BooleanField(null=True, blank=True, default=False)
+    basement_unit = models.BooleanField(null=True, blank=True, default=False)
+    people_above = models.BooleanField(null=True, blank=True, default=False)
+    unemployed_people = models.BooleanField(null=True, blank=True, default=False)
+    kids = models.BooleanField(null=True, blank=True, default=False)
+    pet_friendly = models.BooleanField(null=True, blank=True, default=False)
+    
+    utilities_cost = models.CharField(max_length=120, null=True, blank=True, default='')
+    utilities_included = models.TextField(null=True, blank=True, default='')
+    can_utilities_be_included = models.TextField(null=True, blank=True, default='')
+
 
     def __str__(self) -> str:
         return f'{self.id} - {self.property.name} - {self.property.id}' 
