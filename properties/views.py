@@ -18,7 +18,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 # models 
-from properties.models import Properties, PropertyCities, PropertyCountries, PropertyTypes, Units, Tenants, Team
+from properties.models import Properties, PropertyCountries, PropertyTypes, Units, Tenants, Team
 from properties.serializers import (PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, 
                                     PropertyTypeSerializer, TeamSerializer, TenantPostSerializer,
                                     TenantSerializer, UnitsSerializerGet, UnitPostSerializer)
@@ -30,10 +30,6 @@ from candidates.models import Candidate
 # modules created for the app
 from app_modules.send_email import SendEmail
 from app_modules.main import convert_to_bool
-
-
-
-TEST_TOKEN = 'Token 71ed6e07240ac3c48e44b5a43b5c89e453382f2a'
 
 
 # other fucntions

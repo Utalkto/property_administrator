@@ -34,7 +34,6 @@ class UnitPayments(models.Model):
         return f'{self.id} - {self.reference_code} - {self.payment_date}'
     
     
-    
 class UserPayments(models.Model):
     # foreing keys 
     user = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
@@ -50,4 +49,20 @@ class UserPayments(models.Model):
     
     def __str__(self) -> str:
         return f'{self.id} - {self.user.get_full_name()} - {self.payment_date}'
+    
+
+
+# The difference between this model and the one above is that, the model above will work as a receipt saver
+# and this one will generate the payments a needs to meet every month as requested
+class UnitMonthlyPayments(models.Model):
+    
+    # foreing keys 
+    unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    # ------------------------------------------------
+    # fields 
+    
+    month = models.CharField(max_length=120)
+    amount_to_pay = models.DecimalField(decimal_places=2, max_digits=10)
+    pay_on_time = models.BooleanField()
+    
     

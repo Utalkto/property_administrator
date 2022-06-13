@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import UnitPayments
+from .models import UnitMonthlyPayments, UnitPayments
 
-from properties.serializers import UnitsSerializerProperty, TenantsNameSerializer
+from properties.serializers import UnitsSerializerGet, UnitsSerializerProperty, TenantsNameSerializer
 
 from .models import Status
 
@@ -24,4 +24,17 @@ class RentPaymentGetSerializer(serializers.ModelSerializer):
 class RentPaymentsPostSerailizer(serializers.ModelSerializer):
     class Meta:
         model = UnitPayments
+        fields = '__all__'
+        
+        
+class UnitMonthlyPaymentsGetSerializer(serializers.ModelSerializer):
+    unit = UnitsSerializerGet()
+    class Meta:
+        model = UnitMonthlyPayments
+        fields = '__all__'
+
+
+class UnitMonthlyPaymentsPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnitMonthlyPayments
         fields = '__all__'
