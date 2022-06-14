@@ -152,7 +152,7 @@ class Units(models.Model):
     
     unit_number = models.IntegerField(default=1)
     
-    availability = models.CharField(max_length=120, null=True, blank=True, default=None)
+    availability = models.DateField(null=True, blank=True, default=None)
 
     balcony = models.BooleanField(null=True, blank=True, default=False)
 
@@ -172,7 +172,8 @@ class Units(models.Model):
     utilities_cost = models.CharField(max_length=120, null=True, blank=True, default='')
     utilities_included = models.TextField(null=True, blank=True, default='')
     can_utilities_be_included = models.TextField(null=True, blank=True, default='')
-
+    
+    max_weeks_to_move = models.IntegerField(null=True, default=0)
 
     def __str__(self) -> str:
         return f'{self.id} - {self.property.name} - {self.property.id}' 

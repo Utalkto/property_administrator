@@ -5,7 +5,7 @@ from app_modules.send_email import SendEmail
 from properties.models import Properties, Tenants, Units
 from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializerGet
 from .serializers import OrderSerializer
-from rest_framework import status, authentication, permissions
+from rest_framework import status
 
 from rest_framework import status
 from app_modules.send_email import SendEmail
@@ -13,9 +13,10 @@ from app_modules.send_email import SendEmail
 from .models import Order, Subjects, UserEmail, MessageToWatson
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
+import datetime
 
-from uuid import uuid4
-
+import inflect
+p = inflect.engine()
 
 from random import randint
 
@@ -213,7 +214,7 @@ def competition(request):
 
 import requests
 
-URL = 'http://178.18.250.142/vicidial/non_agent_api.php'
+TRIVIA_URL = 'http://178.18.250.142/vicidial/non_agent_api.php'
 
 @api_view(['POST'])
 def trivia(request):
@@ -237,7 +238,7 @@ def trivia(request):
         'add_to_hopper':'Y',
     }
     
-    response = requests.request("POST", URL, params=parameters)
+    response = requests.request("POST", TRIVIA_URL, params=parameters)
     
     print('--------------------------------')
     print('--------------------------------')
@@ -266,6 +267,16 @@ def property_api(request):
     unit_serializer = UnitsSerializerGet(Units.objects.filter(property=property_serializer.data['id']).first())
 
     unit_serializer = unit_serializer.data
+
+
+    date_time_obj = datetime.datetime.strptime(unit_serializer['availability'], '%Y-%m-%d')
+
+    availability_date = date_time_obj.strftime('%B')
+    availability_date += " " + p.ordinal(date_time_obj.strftime('%d'))
+    unit_serializer['availability'] = availability_date
+    
+    unit_serializer['limit_date'] = date_time_obj + datetime.timedelta(weeks=2)
+    
     
     if unit_serializer['balcony']:
         unit_serializer['balcony'] = 'Yes, there is a private balcony.'
