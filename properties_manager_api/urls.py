@@ -39,12 +39,13 @@ urlpatterns = [
    path('api/v1/', include('djoser.urls')),
    path('api/v1/', include('djoser.urls.authtoken')),
     
-   # apps urls 
+   # API urls 
    path('api/v1/', include('register.urls')),
    path('api/v1/', include('properties.urls')),
    path('api/v1/', include('candidates.urls')),
    path('api/v1/', include('payments.urls')),
    path('api/v1/', include('book_keeping.urls')),
+   path('api/v1/', include('comments.urls')),
    
    # tickets module with django 
    path('tickets/', include('tickets.urls')),

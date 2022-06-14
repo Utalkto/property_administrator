@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'fill_db',
     'watson',
     'book_keeping',    
+    'comments',
     # third party apps
     
     'rest_framework',

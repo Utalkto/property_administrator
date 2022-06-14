@@ -80,7 +80,6 @@ class Properties(models.Model):
         return f'{self.id} - {self.name}' 
 
 
-
 class UnitContractType(models.Model):
     contract_type = models.CharField(max_length=120)
     
@@ -111,7 +110,7 @@ class Units(models.Model):
     bathrooms = IntegerField()
     
     deposit_amount = DecimalField(max_digits=19, decimal_places=2)
-    debt = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
+    debt = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=0)
     details = models.TextField(null=True, default=None)
     date_deposit_received = DateField(null=True, default=None)
     

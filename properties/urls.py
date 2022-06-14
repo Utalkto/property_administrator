@@ -4,8 +4,7 @@ from .views import PropertiesViewSet, TeamApi, TenantViewSet, UnitsViewSet, vaca
 
 urlpatterns = [
     
-    path('properties',PropertiesViewSet.as_view()),
-    path('properties/<int:property_id>/<int:client_id>',PropertiesViewSet.as_view()),
+    path('properties/<int:client_id>',PropertiesViewSet.as_view()),
     
     path('units/<int:client_id>',UnitsViewSet.as_view()),
     

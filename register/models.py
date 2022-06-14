@@ -179,9 +179,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     can_add_data = models.BooleanField(default=True)
     
     modules_access = models.CharField(default='1,2,3', max_length=120)    
-    clients_access = models.CharField(default='1', max_length=120)
-    property_access = models.JSONField(default=dict)
-
+    clients_access = models.JSONField(default=dict)
     
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]

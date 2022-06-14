@@ -60,9 +60,17 @@ class UnitMonthlyPayments(models.Model):
     unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
     # ------------------------------------------------
     # fields 
+    debt = models.DecimalField(decimal_places=2, max_digits=10)
     
-    month = models.CharField(max_length=120)
-    amount_to_pay = models.DecimalField(decimal_places=2, max_digits=10)
-    pay_on_time = models.BooleanField()
+    month = models.IntegerField(default=1)
+    year = models.IntegerField(default=2022)
+    paid_on_time = models.BooleanField()
+    
+    def __str__(self) -> str:
+        return f'{self.id} - {self.month} - {self.year}'
     
     
+
+class CurrentPaymentDate(models.Model):
+    month = models.IntegerField()
+    year = models.IntegerField()

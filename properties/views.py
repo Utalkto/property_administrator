@@ -204,30 +204,40 @@ class PropertiesViewSet(APIView):
     authentication_classes = (TokenAuthentication,) 
     @swagger_auto_schema(
     responses={200: PropertiesSerializer()})
-    def get(self, request,  client_id, property_id=0):
+    def get(self, request,  client_id):
         """ 
-        Summary: Get all properties an organization has 
+        Summary: Get a property a user has or an organization owns 
         
         Args:
-            request (dict): data sent from front
+            client_id <int> (required) = The id of the client the sets of units are going to be created
+            property_id <int><query_parameter> (optional) = The id of the property that is needed, 
+            leave empty to get all
 
         Returns:
             Serializer Class, dictionary, JSON: list of properties that an organization has
         """
         
-        if property_id == 0:
-            serializer = PropertiesSerializer(Properties.objects.filter(client=client_id), many=True)
+        if request.GET.get('property_id'):
+            properties = Properties.objects.filter(id=int(request.GET['property_id']))
             
         else:
-            serializer = PropertiesSerializer(Properties.objects.get(client=client_id, id=property_id))
+            try:
+                properties_with_access = request.user.clients_access[f'client-{client_id}']['properties']
+            except:
+                return Response({
+                    'error': 'Invalid access'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+            
+            properties = Properties.objects.filter(id__in=properties_with_access)
         
         
+        serializer = PropertiesSerializer(properties, many=True)
         return Response(serializer.data)
     
 
     @swagger_auto_schema(
     responses={200: PropertiesPostSerializer()})
-    def post(self, request):
+    def post(self, request, client_id):
         """
         Summary: create new property 
 
@@ -236,7 +246,7 @@ class PropertiesViewSet(APIView):
         """
         data = request.data.copy()
         
-        data['landlord'] =  request.user.id
+        data['client'] =  client_id
         data['city'] = int(request.data['city'])
         
         serializer = PropertiesPostSerializer(data=data)
@@ -245,7 +255,7 @@ class PropertiesViewSet(APIView):
             serializer.save()
             return Response(
                 {
-                    "message": "property created with success",
+                    'message': 'property created with success',
                     'property': serializer.data
                 }, 
                 status=status.HTTP_201_CREATED)
@@ -332,7 +342,7 @@ class UnitsViewSet(APIView):
         
         """
         
-        Units - Get
+        Units - GET
         
         rent_info (bool): indicates if number of units rented and not rented is needed
         
@@ -347,10 +357,7 @@ class UnitsViewSet(APIView):
         Returns:
             _type_: _description_
         """
-        
-        # if not request.GET._mutable:
-        #     request.GET._mutable = True
-        
+
         if not request.GET:
             return Response({
                 'message':'parameters cannot be empty, you must indicate at least one of these parameters:',
