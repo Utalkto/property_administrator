@@ -198,7 +198,7 @@ def set_unit_rented(request, candidate_id):
 
 # CLASSES --------------------------------------
 
-class PropertiesViewSet(APIView):
+class PropertiesAPI(APIView):
     
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
@@ -331,7 +331,7 @@ class PropertiesViewSet(APIView):
                 status=status.HTTP_404_NOT_FOUND)
     
 
-class UnitsViewSet(APIView):
+class UnitsAPI(APIView):
  
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
@@ -340,20 +340,17 @@ class UnitsViewSet(APIView):
     responses={200: UnitsSerializerGet()})
     def get(self, request, client_id):
         
-        """
+        """ UnitsAPI GET
         
-        Units - GET
+        rent_info <bool><Optional>: indicates if number of units rented and not rented is needed
         
-        rent_info (bool): indicates if number of units rented and not rented is needed
+        leases_to_exp <bool><Optional>: indicates if the number of units wich leases are going to exp 
         
-        leases (bool): indicates if the number of units wich leases are going to exp 
-        
-        unit_id (str): indicates the id of the unit that is needed, if set to "all" 
+        unit_id <int><Optional>: indicates the id of the unit that is needed, if set to "all" 
         returns all the units a client owns
         
-        'view_all (bool)': 'idicates if sent more information when "for_rent" or "lease" are set'
+        'view_all <bool><Optional>': 'idicates if sent more information when "for_rent" or "lease" are set'
         
-
         Returns:
             _type_: _description_
         """
@@ -387,41 +384,38 @@ class UnitsViewSet(APIView):
         year = new_datetime.strftime('%Y')
         month = new_datetime.strftime('%m')
         
-        if request.GET.get('leases'):
-            leases = Units.objects.filter(property__client=client_id,
+        if request.GET.get('leases_to_exp'):
+            leases_to_exp = Units.objects.filter(property__client=client_id,
                                           lease_expiration_date__year__lte=year,
                                           lease_expiration_date__month__lte=month)
             
-            response['number_of_leases_to_exp'] = leases.count()
+            response['number_of_leases_to_exp'] = leases_to_exp.count()
             if view_all:
-                response['units_with_leases_to_exp'] = UnitsSerializerGet(leases, many=True).data
+                response['units_with_leases_to_exp'] = UnitsSerializerGet(leases_to_exp, many=True).data
 
 
         unit_id = request.GET.get('unit_id')
-        if unit_id:
-            if unit_id == 'all':
-                units = Units.objects.filter(property__client=client_id)
-                serializer = UnitsSerializerGet(units, many=True)
-            
-            else:
-                unit_id = int(unit_id)
-                try:
-                    units = Units.objects.filter(id=unit_id, property__client=client_id)
-                    serializer = UnitsSerializerGet(units, many=True)
-                    
-                except Units.DoesNotExist:
-                    return Response(
-                        {
-                        'error': True, 
-                        'message ': 'unit does not exist'
-                        }, 
-                        status=status.HTTP_404_NOT_FOUND)
         
-            response['units'] = serializer.data
+        if unit_id is None:
+            units = Units.objects.filter(property__client=client_id)
+            units_serializer = UnitsSerializerGet(units, many=True)
         
-        return Response(
-        response, 
-        status=status.HTTP_200_OK)
+        else:
+            unit_id = int(unit_id)
+            try:
+                units = Units.objects.filter(id=unit_id, property__client=client_id)
+                units_serializer = UnitsSerializerGet(units, many=True)
+                
+            except Units.DoesNotExist:
+                return Response(
+                    {
+                    'error': 'Unit.DoesNotExist: the unit with provided id does not exist', 
+                    }, 
+                    status=status.HTTP_404_NOT_FOUND)
+    
+        response['units'] = units_serializer.data
+        
+        return Response(response)
         
     
     @swagger_auto_schema(
@@ -439,17 +433,12 @@ class UnitsViewSet(APIView):
             property.number_of_units = property.number_of_units + 1
             property.save()
 
-            return Response(
-                serializer.data, 
-                status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(
                 {
-                    'error': True, 
-                    'message': 'serializer is not valid', 
-                    'serializer_error': serializer.errors
-                }, 
-                status=status.HTTP_400_BAD_REQUEST)
+                    'error': serializer.errors, 
+                }, status=status.HTTP_400_BAD_REQUEST)
     
 
     @swagger_auto_schema(
@@ -462,10 +451,9 @@ class UnitsViewSet(APIView):
             unit = Units.objects.get(id=unit_id)
         except Units.DoesNotExist:
             return Response(
-                {'error': True, 
-                 'message': 'the unit does not exist'
-                 }, 
-                status=status.HTTP_404_NOT_FOUND)
+                {
+                    'error': 'Unit.DoesNotExist: the unit with provided id does not exist'
+                }, status=status.HTTP_404_NOT_FOUND)
 
         request.data['property_manager'] = request.user.id
         serializer = UnitPostSerializer(instance=unit, data=request.data)
@@ -477,11 +465,8 @@ class UnitsViewSet(APIView):
 
             return Response(
                 {
-                    'error': True, 
-                    'message': 'serializer is not valid', 
-                    'serializer_error': serializer.errors
-                },
-                status=status.HTTP_400_BAD_REQUEST)
+                    'error': serializer.errors, 
+                }, status=status.HTTP_400_BAD_REQUEST)
 
 
     def delete(self, request, client_id):
@@ -497,8 +482,8 @@ class UnitsViewSet(APIView):
         
         except Units.DoesNotExist:
             return Response(
-                {'error': True, 
-                 'message': 'The unit does not exist'
+                {
+                    'error': 'Unit.DoesNotExist: the unit with provided id does not exist'
                 }, 
                 status=status.HTTP_404_NOT_FOUND)       
        

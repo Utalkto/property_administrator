@@ -8,12 +8,12 @@ class Comment(models.Model):
     
     client = models.ForeignKey(OrganizationClient, null=False, blank=False, on_delete=models.CASCADE)
     made_by = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
-      
+    
     # -------------------------------------------------------
     
     comment = models.TextField()
     date_made = models.DateTimeField()
-    users_taged = models.CharField(max_length=120)
+    users_taged = models.JSONField(default=list)
     
 
 class CommentAnswer(models.Model):
@@ -27,7 +27,7 @@ class CommentAnswer(models.Model):
     
     answer = models.TextField()
     date_made = models.DateTimeField()
-    users_taged = models.CharField(max_length=120)
+    users_taged = models.JSONField(default=list)
     
     
 
