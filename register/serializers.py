@@ -32,10 +32,12 @@ class OrganizationGetSerializer(serializers.ModelSerializer):
         model = Organization
         fields = '__all__'
 
+
 class OrganizationClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationClient
         fields = '__all__'
+
 
 class OrganizationClientGetSerializer(serializers.ModelSerializer):
     organization = OrganizationGetSerializer()
@@ -54,8 +56,7 @@ class UserPermissionsSerializser(serializers.ModelSerializer):
             'can_edit_data',
             'can_add_data',
             'modules_access',
-            'clients_access',
-            'property_access',)
+            'clients_access',)
         
             
 class UserSerializer(serializers.ModelSerializer):
