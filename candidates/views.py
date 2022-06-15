@@ -20,7 +20,7 @@ from register.models import CustomUser
 from .serializers import CandiatesSerializer, CandiatesGetSerializer
 
 # models
-from properties.models import Units, Links
+from properties.models import Unit, Links
 from .models import Candidate
 
 # modules created for the app
@@ -391,7 +391,7 @@ class CandidatesViewSet(APIView):
         
         """
         try:
-            current_unit = Units.objects.get(id=unit_id)
+            current_unit = Unit.objects.get(id=unit_id)
         except ObjectDoesNotExist:
             return Response(
                 {

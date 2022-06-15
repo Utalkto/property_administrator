@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from app_modules.send_email import SendEmail
-from properties.models import Properties, Tenants, Units
+from properties.models import Property, Tenants, Unit
 from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializerGet
 from .serializers import OrderSerializer
 from rest_framework import status
@@ -256,15 +256,15 @@ def property_api(request):
     property_name = request.data['property_name']
 
     try:
-        property_serializer = PropertiesSerializer(Properties.objects.get(name=property_name))
+        property_serializer = PropertiesSerializer(Property.objects.get(name=property_name))
     
-    except Properties.DoesNotExist:
+    except Property.DoesNotExist:
         return Response({
             'message': f'property with name "{property_name}" does not exist in the data base'
             })
         
         
-    unit_serializer = UnitsSerializerGet(Units.objects.filter(property=property_serializer.data['id']).first())
+    unit_serializer = UnitsSerializerGet(Unit.objects.filter(property=property_serializer.data['id']).first())
 
     unit_serializer = unit_serializer.data
 

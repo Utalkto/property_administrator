@@ -2,17 +2,23 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
+from re import I
 import smtplib, ssl
 
+import os
+
 class SendEmail:
-    def __init__(self, send_to:str, subject:str, html:str, attach_file=None, from_email='hello@orinocoventures.com', password='OrinocoV2022..') -> str:
+    def __init__(self, send_to:str, subject:str, html:str, attach_file=None, 
+                 from_email='EMAIL_1', password='EMAIL_PASSWORD_1') -> str:
+        
         
         self.send_to = send_to
         self.subject = subject
         self.html = html
         self.attach_file = attach_file
-        self.from_email = from_email
-        self.password = password
+        self.from_email = os.environ.get(from_email)
+        self.password = os.environ.get(password)
+  
         
         self.send_email(send_to=self.send_to, subject=self.subject, html=self.html, from_email=self.from_email, password=self.password, attach_file=self.attach_file)                
     

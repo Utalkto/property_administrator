@@ -3,7 +3,8 @@ import random
 
 from register.models import Country, City, KumbioPlan, UserRoles
 
-from properties.models import PetType, PropertyTypes, TenantType, UnitTypes, PropertyCountries, PropertyCities, Properties, Units, Tenants
+from properties.models import (PetType, PropertyType, TenantType, UnitType, PropertyCountries, 
+                               PropertyCities, Property, Unit, Tenants)
 from properties.serializers import TenantSerializer, UnitsSerializerNoTenant, PropertiesSerializer
 
 from candidates.models import Candidate, CandidateStatus
@@ -67,10 +68,10 @@ def create_property_dependecy():
     c = PropertyCountries(country='canada')
     c.save()
     
-    pt = PropertyTypes(property_type='appartment')
+    pt = PropertyType(property_type='appartment')
     pt.save()
     
-    ut = UnitTypes(unit_type="first unit type")
+    ut = UnitType(unit_type="first unit type")
     ut.save()
     
     

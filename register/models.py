@@ -1,5 +1,5 @@
+# python
 # django 
-
 from django.db import models
 
 from django.contrib.auth.models import (
@@ -10,6 +10,9 @@ from django.contrib.auth.models import (
 
 from django.utils import timezone
 
+# from properties.models import Property, Tenants, Unit
+# from tickets.models import Suppliers
+
 # /users/ - to signup a new user,
 # /users/me/ - to get user information,
 # /token/login/ - to get token,
@@ -18,7 +21,7 @@ from django.utils import timezone
 def seven_day_hence():
     return timezone.now() + timezone.timedelta(days=7)
 
-# GENERAL TABLES THAT aHAVE MANY RELATIONSHIPS WITH OTHERS
+# GENERAL TABLES THAT HAVE MANY RELATIONSHIPS WITH OTHERS
 
 
 class Country(models.Model):
@@ -51,7 +54,7 @@ class KumbioPlanPermission(models.Model):
     number_of_units_allowed = models.IntegerField()
     number_of_properties_allowed = models.IntegerField()
     number_of_users_allowed = models.IntegerField()
-    
+
 
 class KumbioPlan(models.Model):
     plan = models.CharField(max_length=100)
@@ -199,4 +202,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f'{self.email} - {self.id}'
 
-
+    
+    
+    

@@ -1,6 +1,9 @@
-from operator import truediv
+# django
 from django.db import models
 from django.db.models.fields import CharField, BooleanField, IntegerField, TextField, DecimalField, DateField
+
+from django.utils import timezone
+
 from register.models import CustomUser, OrganizationClient
 
 # main tables 
@@ -19,14 +22,14 @@ class Team(models.Model):
         return f'{self.id} - {self.name}'
     
 
-class PropertyTypes(models.Model):
+class PropertyType(models.Model):
     property_type = models.CharField(max_length=100)
     
     def __str__(self) -> str:
         return f'{self.id} - {self.property_type}'
 
 
-class UnitTypes(models.Model):
+class UnitType(models.Model):
     unit_type = models.CharField(max_length=100)
     
     def __str__(self) -> str:
@@ -52,11 +55,11 @@ class PropertyCities(models.Model):
         return f'{self.id} - {self.city}' 
 
 
-class Properties(models.Model):
+class Property(models.Model):
     # foreign keys 
     client = models.ForeignKey(OrganizationClient, null=False, blank=False, on_delete=models.CASCADE, default=1)
     city = models.ForeignKey(PropertyCities, null=False, blank=False ,on_delete=models.CASCADE)
-    property_type = models.ForeignKey(PropertyTypes, null=False, blank=False, on_delete=models.CASCADE)
+    property_type = models.ForeignKey(PropertyType, null=False, blank=False, on_delete=models.CASCADE)
     
     # ------------------------------
     # fields 
@@ -76,9 +79,17 @@ class Properties(models.Model):
     year_built = IntegerField(null=True)
     year_bought = IntegerField(null=True)
     
+    datetime_created = models.DateTimeField(default=timezone.now)
+    create_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='property_create_by')
+    
+    last_time_edited = models.DateTimeField(null=True, default=None)
+    last_edition_made_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT, 
+                                             default=None, related_name='property_last_edited_by')
+
+    
     def __str__(self) -> str:
         return f'{self.id} - {self.name}' 
-
+    
 
 class UnitContractType(models.Model):
     contract_type = models.CharField(max_length=120)
@@ -94,12 +105,12 @@ class PetType(models.Model):
         return f'{self.id} - {self.pet_type}'
 
 
-class Units(models.Model):
+class Unit(models.Model):
     # foreign keys 
      
     client = models.ForeignKey(OrganizationClient, null=False, blank=False, on_delete=models.CASCADE, default=1)
-    property = models.ForeignKey(Properties, null=False, blank=False, on_delete=models.CASCADE)
-    unit_type = models.ForeignKey(UnitTypes, null=False, blank=False, on_delete=models.CASCADE)
+    property = models.ForeignKey(Property, null=False, blank=False, on_delete=models.CASCADE)
+    unit_type = models.ForeignKey(UnitType, null=False, blank=False, on_delete=models.CASCADE)
     
     #  ------------------------------------
     #  fields
@@ -173,6 +184,13 @@ class Units(models.Model):
     can_utilities_be_included = models.TextField(null=True, blank=True, default='')
     
     max_weeks_to_move = models.IntegerField(null=True, default=0)
+    
+    datetime_created = models.DateTimeField(default=timezone.now)
+    create_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='unit_create_by')
+    
+    last_time_edited = models.DateTimeField(null=True, default=None)
+    last_edition_made_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT, 
+                                             default=None, related_name='unit_last_edited_by')
 
     def __str__(self) -> str:
         return f'{self.id} - {self.property.name} - {self.property.id}' 
@@ -188,8 +206,9 @@ class TenantType(models.Model):
 class Tenants(models.Model):
     # foreign keys
     
-    landlord = models.ForeignKey(CustomUser, default=1, null=False, blank=False, on_delete=models.CASCADE)
-    unit = models.ForeignKey(Units, related_name='tenants', null=False, blank=False ,on_delete=models.CASCADE)
+    #landlord = models.ForeignKey(CustomUser, default=1, null=False, blank=False, on_delete=models.CASCADE)
+    client = models.ForeignKey(OrganizationClient, default=1, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, related_name='tenants', null=False, blank=False ,on_delete=models.CASCADE)
     
     # -------------------------------------------------------
     # fields
@@ -213,6 +232,14 @@ class Tenants(models.Model):
     standing_qualification=models.IntegerField(default=0)
     
     tenant_type = models.ForeignKey(TenantType, null=True, default=None, on_delete=models.CASCADE)
+    
+    datetime_created = models.DateTimeField(default=timezone.now)
+    create_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='tenant_create_by')
+    
+    last_time_edited = models.DateTimeField(null=True, default=None)
+    last_edition_made_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT, 
+                                             default=None, related_name='tenant_last_edited_by')
+
     
     def __str__(self) -> str:
         return f'{self.id} - {self.name}'

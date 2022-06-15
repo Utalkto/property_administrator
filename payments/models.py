@@ -1,7 +1,7 @@
 from django.db import models
 
 from register.models import CustomUser
-from properties.models import Tenants, Units
+from properties.models import Tenants, Unit
 
 class Status(models.Model):
     name = models.CharField(max_length=50, default= '')
@@ -12,7 +12,7 @@ class Status(models.Model):
 
 class UnitPayments(models.Model):
     # foreing keys 
-    unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=False, blank=False, on_delete=models.CASCADE)
     tenant = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE)
     
     status = models.ForeignKey(Status, null=False, blank=False, on_delete=models.CASCADE)
@@ -57,7 +57,7 @@ class UserPayments(models.Model):
 class UnitMonthlyPayments(models.Model):
     
     # foreing keys 
-    unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=False, blank=False, on_delete=models.CASCADE)
     # ------------------------------------------------
     # fields 
     debt = models.DecimalField(decimal_places=2, max_digits=10)

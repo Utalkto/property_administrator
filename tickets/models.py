@@ -1,5 +1,5 @@
 from django.db import models
-from properties.models import Tenants, Units, PropertyCities
+from properties.models import Tenants, Unit, PropertyCities
 
 from register.models import CustomUser
 
@@ -157,7 +157,7 @@ class Ticket(models.Model):
     # foreignKeys 
     created_by = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE)
     ticket_type = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
-    unit =  models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    unit =  models.ForeignKey(Unit, null=False, blank=False, on_delete=models.CASCADE)
     priority =  models.ForeignKey(TicketPriority, null=False, blank=False, on_delete=models.CASCADE)
     ticket_status =  models.ForeignKey(TicketSteps, null=False, blank=False, on_delete=models.CASCADE)
     owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)

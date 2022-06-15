@@ -1,11 +1,11 @@
 from django.urls import  path
 
-from .views import (PropertiesAPI, TeamApi, TenantViewSet, UnitsAPI, 
+from .views import (PropertyAPI, TeamApi, TenantViewSet, UnitsAPI, 
                     vacantUnit, set_unit_rented, data_to_create_property)
 
 urlpatterns = [
     
-    path('properties/<int:client_id>',PropertiesAPI.as_view()),
+    path('properties/<int:client_id>',PropertyAPI.as_view()),
     
     path('units/<int:client_id>',UnitsAPI.as_view()),
     

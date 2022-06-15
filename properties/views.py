@@ -1,9 +1,15 @@
 # python 
-# twilio 
 import datetime 
+
+# twilio 
 from twilio.rest import Client
 
 # django 
+
+from django.utils import timezone
+
+# rest_framework
+
 from rest_framework import status, authentication, permissions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.views import APIView
@@ -16,14 +22,16 @@ from django.db.models import Q
 
 from drf_yasg.utils import swagger_auto_schema
 
-
 # models 
-from properties.models import Properties, PropertyCountries, PropertyTypes, Units, Tenants, Team
+from properties.models import Property, PropertyCountries, PropertyType, Unit, Tenants, Team
 from properties.serializers import (PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, 
                                     PropertyTypeSerializer, TeamSerializer, TenantPostSerializer,
                                     TenantSerializer, UnitsSerializerGet, UnitPostSerializer)
 
 from register.models import CustomUser
+
+from logs.models import Log
+from logs.serializers import LogSerializer
 
 from candidates.models import Candidate
 
@@ -33,12 +41,11 @@ from app_modules.main import convert_to_bool
 
 
 # other fucntions
-
 def put_candidate_as_tenant(candidate):
     for adult in candidate.adults_information:
         new_tenant = Tenants(
-            landlord=Units.objects.get(id=candidate.unit.id).properties.landlord,
-            unit=Units.objects.get(id=candidate.unit.id),
+            landlord=Unit.objects.get(id=candidate.unit.id).properties.landlord,
+            unit=Unit.objects.get(id=candidate.unit.id),
             email=candidate.adults_information[adult]['email'],
             name=candidate.adults_information[adult]['name']
             )
@@ -53,7 +60,7 @@ def put_candidate_as_tenant(candidate):
 def data_to_create_property(request):
     
     countries = PropertyCountries.objects.all()
-    property_types = PropertyTypes.objects.all()
+    property_types = PropertyType.objects.all().order_by('id')
     
     countries_serializer = CountrySerializer(countries, many=True)
     property_type_serializer = PropertyTypeSerializer(property_types, many=True)
@@ -88,7 +95,7 @@ def vacantUnit(request, unit_id):
             Serializer Class, dictionary, JSON: list of properties that a landlord has # change here 
             
         """
-    unit = Units.objects.get(id=unit_id)
+    unit = Unit.objects.get(id=unit_id)
     unit.rented = not unit.rented
     unit.save()
     
@@ -148,7 +155,7 @@ def set_unit_rented(request, candidate_id):
     candidate.status = 3
     candidate.save()
     
-    unit = Units.objects.get(id=candidate.unit.id)
+    unit = Unit.objects.get(id=candidate.unit.id)
     unit.rented = True
     
     unit.number_of_residents = candidate.number_of_children + candidate.number_of_adults
@@ -198,7 +205,7 @@ def set_unit_rented(request, candidate_id):
 
 # CLASSES --------------------------------------
 
-class PropertiesAPI(APIView):
+class PropertyAPI(APIView):
     
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
@@ -218,7 +225,7 @@ class PropertiesAPI(APIView):
         """
         
         if request.GET.get('property_id'):
-            properties = Properties.objects.filter(id=int(request.GET['property_id']))
+            properties = Property.objects.filter(id=int(request.GET['property_id']))
             
         else:
             try:
@@ -228,7 +235,7 @@ class PropertiesAPI(APIView):
                     'error': 'Invalid access'
                 }, status=status.HTTP_401_UNAUTHORIZED)
             
-            properties = Properties.objects.filter(id__in=properties_with_access)
+            properties = Property.objects.filter(id__in=properties_with_access)
         
         
         serializer = PropertiesSerializer(properties, many=True)
@@ -238,99 +245,152 @@ class PropertiesAPI(APIView):
     @swagger_auto_schema(
     responses={200: PropertiesPostSerializer()})
     def post(self, request, client_id):
-        """
-        Summary: create new property 
+        """ Summary: PropertyAPI POST
+        
+        paremeters:
+            client_id (int)(required): indicates the client to which the property is going to be created 
 
         Returns:
-            JSON: saying if it was a success
+            JSON: new property object created with provided information
         """
-        data = request.data.copy()
+        property_data = request.data.copy()
         
-        data['client'] =  client_id
-        data['city'] = int(request.data['city'])
+        current_time = timezone.now()
+                
+        property_data['client'] =  client_id
+        property_data['city'] = int(request.data['city'])
+        property_data['datetime_created'] = current_time
+        property_data['created_by'] = request.user.id
         
-        serializer = PropertiesPostSerializer(data=data)
+        property_serializer = PropertiesPostSerializer(data=property_data)
         
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {
-                    'message': 'property created with success',
-                    'property': serializer.data
-                }, 
-                status=status.HTTP_201_CREATED)
+        if property_serializer.is_valid():
+            property_serializer.save()
+            
+            log_data = {
+                'client': client_id,
+                'made_by': request.user.id,
+                'property': property_serializer.data['id'],
+                'action': 'CREATE',
+                'date_made': current_time,
+                'new_data': property_serializer.data                
+            }
+            
+            log_serializer = LogSerializer(data=log_data)
+            
+            if log_serializer.is_valid():
+                log_serializer.save()
+            
+            
+            return Response(property_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(
                 {
-                    'error': True, 
-                    'message': 'serializer is not valid', 
-                    'serializer_error': serializer.errors
+                    'error': property_serializer.errors,
                 }, 
                 status=status.HTTP_400_BAD_REQUEST)
     
     
     @swagger_auto_schema(
     responses={200: PropertiesPostSerializer()})
-    def put(self, request, property_id):
+    def put(self, request, client_id):
         
-        """
-        Summary: update a property
+        """ Summary: PropertyAPI GET
 
         Returns:
             JSON, dictionary: saying if it was a success
-        """
-        
+        """            
         try:
-            _property = Properties.objects.get(id=property_id)
-            request.data['landlord'] = request.user.id
+            _property:Property = Property.objects.get(int(request.data['property_id']))
+        except Property.DoesNotExist:
+            return Response(
+                {
+                    'error': 'Property.DoesNotExist: the property with that id does not exist', 
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
+        except ValueError:
+            return Response({'error': f'ValueError: property_id must be int'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return Response({'error': f'KeyError: property_id must be provided'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        current_time = timezone.now()
+        
+        previous_data = PropertiesPostSerializer(_property)
+        property_serializer = PropertiesPostSerializer(instance=_property, data=request.data)
+        
+        if property_serializer.is_valid():
+            property_serializer.save()
             
-            _property = PropertiesPostSerializer(instance=_property, data=request.data)
-
-            if _property.is_valid():
-                _property.save()
-                return Response(
-                    {
-                        'message': 'the property was updated successfully', 
-                        'data': _property.data
-                    }, 
-                    status=status.HTTP_200_OK)
-            else:
-                return  Response(
-                    {
-                        'error': True, 
-                        'message': 'serializer is not valid', 
-                        'serializer_error': _property.errors
-                    }, 
-                    status=status.HTTP_400_BAD_REQUEST)
-
-        except Properties.DoesNotExist:
-            return Response(
+            _property.last_edition_made_by = request.user.id
+            _property.last_time_edited = current_time
+            _property.save()
+            
+            log_data = {
+                'client': client_id,
+                'made_by': request.user.id,
+                'property': _property.id,
+                'action': 'EDIT',
+                'date_made': current_time,
+                'previous_data': previous_data,
+                'new_data': property_serializer.data                
+            }
+            
+            log_serializer = LogSerializer(data=log_data)
+            
+            if log_serializer.is_valid():
+                log_serializer.save()
+            
+            return Response(property_serializer.data)
+        else:
+            return  Response(
                 {
-                    'error': True, 
-                    'message': 'property does not exist'
+                    'error': property_serializer.errors
                 }, 
-                status=status.HTTP_404_NOT_FOUND)
+                status=status.HTTP_400_BAD_REQUEST)
+
     
-    
-    def delete(self, request, property_id):
+    def delete(self, request, client_id):
         try:
-            _property = Properties.objects.get(id=property_id)
-            _property.delete()
-            return Response(
-                {
-                'message': 'The property has been deleted'
-                }, 
-                status=status.HTTP_200_OK)
+            _property:Property = Property.objects.get(id=int(request.GET['property_id']))
         
-        except Properties.DoesNotExist:  
+        except ValueError:
+            return Response({'error': f'ValueError: property_id must be int'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        except KeyError:
+            return Response({'error': f'KeyError: property_id must be provided'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+    
+        except Property.DoesNotExist:  
             return Response(
                 {
-                'error': True, 
-                'mensaje': 'The property does not exist'
+                'error': 'Property.DoesNotExist: the property with that id does not exist', 
                 }, 
                 status=status.HTTP_404_NOT_FOUND)
-    
-
+            
+        log_data = {
+            'client': client_id,
+            'made_by': request.user.id,
+            'deleted_property': _property.id,
+            'action': 'DELETE',
+            'date_made': timezone.now(),
+        }
+        
+        log_serializer = LogSerializer(data=log_data)
+        
+        if log_serializer.is_valid():
+            log_serializer.save()
+        
+        _property.delete()
+        
+        return Response(
+            {
+                'message': 'The property has been deleted'
+            })
+        
+        
 class UnitsAPI(APIView):
  
     permission_classes = (IsAuthenticated,) 
@@ -352,7 +412,7 @@ class UnitsAPI(APIView):
         'view_all <bool><Optional>': 'idicates if sent more information when "for_rent" or "lease" are set'
         
         Returns:
-            _type_: _description_
+            JSON: Unit objects
         """
 
         if not request.GET:
@@ -368,8 +428,8 @@ class UnitsAPI(APIView):
             
         if request.GET.get('rent_info'):
             
-            rent_info = Units.objects.filter(property__client=client_id, rented=False)
-            rented = Units.objects.filter(property__client=client_id, rented=True)
+            rent_info = Unit.objects.filter(property__client=client_id, rented=False)
+            rented = Unit.objects.filter(property__client=client_id, rented=True)
 
             response['quantity_for_rent'] = rent_info.count()
             response['quantity_rented'] = rented.count()
@@ -385,7 +445,7 @@ class UnitsAPI(APIView):
         month = new_datetime.strftime('%m')
         
         if request.GET.get('leases_to_exp'):
-            leases_to_exp = Units.objects.filter(property__client=client_id,
+            leases_to_exp = Unit.objects.filter(property__client=client_id,
                                           lease_expiration_date__year__lte=year,
                                           lease_expiration_date__month__lte=month)
             
@@ -397,16 +457,16 @@ class UnitsAPI(APIView):
         unit_id = request.GET.get('unit_id')
         
         if unit_id is None:
-            units = Units.objects.filter(property__client=client_id)
+            units = Unit.objects.filter(property__client=client_id)
             units_serializer = UnitsSerializerGet(units, many=True)
         
         else:
             unit_id = int(unit_id)
             try:
-                units = Units.objects.filter(id=unit_id, property__client=client_id)
+                units = Unit.objects.filter(id=unit_id, property__client=client_id)
                 units_serializer = UnitsSerializerGet(units, many=True)
                 
-            except Units.DoesNotExist:
+            except Unit.DoesNotExist:
                 return Response(
                     {
                     'error': 'Unit.DoesNotExist: the unit with provided id does not exist', 
@@ -424,20 +484,38 @@ class UnitsAPI(APIView):
         
         request.data['client_id'] = client_id
         
-        serializer = UnitPostSerializer(data=request.data)
+        unit_serializer = UnitPostSerializer(data=request.data)
+        current_time = timezone.now()
         
-        if serializer.is_valid():
-            serializer.save()
-
-            property = Properties.objects.get(id=int(request.data['property']))
+        request.data['datetime_created'] = current_time
+        request.data['created_by'] = request.user.id
+        
+        if unit_serializer.is_valid():
+            unit_serializer.save()
+            
+            property:Property = Property.objects.get(id=int(request.data['property']))
             property.number_of_units = property.number_of_units + 1
             property.save()
+            
+            log_data = {
+                'client': client_id,
+                'made_by': request.user.id,
+                'property': unit_serializer.data['id'],
+                'action': 'CREATE',
+                'date_made': current_time,
+                'new_data': unit_serializer.data                
+            }
+            
+            log_serializer = LogSerializer(data=log_data)
+            
+            if log_serializer.is_valid():
+                log_serializer.save()
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(unit_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(
                 {
-                    'error': serializer.errors, 
+                    'error': unit_serializer.errors, 
                 }, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -445,34 +523,65 @@ class UnitsAPI(APIView):
     responses={200: UnitPostSerializer()})
     def put(self, request, client_id):
         
-        unit_id = client_id
+        """UnitsAPI PUT
+        
+        parameters:
+            queryparameter:
+                unit_id (int)(required): the id of the unit that is going to be modified
+
+        Returns:
+            _type_: _description_
+        """
         
         try:
-            unit = Units.objects.get(id=unit_id)
-        except Units.DoesNotExist:
+            unit = Unit.objects.get(id= request.GET['unit_id'])
+        except ValueError:
+            return Response({'error': f'ValueError: unit_id must be int'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return Response({'error': f'KeyError: unit_id must be provided'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Unit.DoesNotExist:
             return Response(
                 {
                     'error': 'Unit.DoesNotExist: the unit with provided id does not exist'
                 }, status=status.HTTP_404_NOT_FOUND)
+            
+        current_time = timezone.now()
 
         request.data['property_manager'] = request.user.id
-        serializer = UnitPostSerializer(instance=unit, data=request.data)
+        unit_serializer = UnitPostSerializer(instance=unit, data=request.data)
         
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        if unit_serializer.is_valid():
+            unit_serializer.save()
+            
+            log_data = {
+                'client': client_id,
+                'made_by': request.user.id,
+                'unit': unit.id,
+                'action': 'CREATE',
+                'date_made': current_time,
+                'new_data': unit_serializer.data                
+            }
+            
+            log_serializer = LogSerializer(data=log_data)
+            
+            if log_serializer.is_valid():
+                log_serializer.save()
+            
+            return Response(unit_serializer.data)
         else:
 
             return Response(
                 {
-                    'error': serializer.errors, 
+                    'error': unit_serializer.errors, 
                 }, status=status.HTTP_400_BAD_REQUEST)
 
 
     def delete(self, request, client_id):
         unit_id = client_id
         try:
-            unit = Units.objects.get(id=unit_id)
+            unit = Unit.objects.get(id=unit_id)
             unit.delete()
             return Response(
                 {
@@ -480,7 +589,7 @@ class UnitsAPI(APIView):
                 }, 
                 status=status.HTTP_200_OK)
         
-        except Units.DoesNotExist:
+        except Unit.DoesNotExist:
             return Response(
                 {
                     'error': 'Unit.DoesNotExist: the unit with provided id does not exist'
@@ -510,8 +619,8 @@ class TenantViewSet(APIView):
                 for t in tenants:
                     
                     serializer = TenantSerializer(t)
-                    tenant_property = Properties.objects.get(id=t.unit.property.id)
-                    unit_number = Units.objects.get(id=t.unit.id).unit_number
+                    tenant_property = Property.objects.get(id=t.unit.property.id)
+                    unit_number = Unit.objects.get(id=t.unit.id).unit_number
                     
                     data = serializer.data
                     data['property_name'] = tenant_property.name
@@ -533,8 +642,8 @@ class TenantViewSet(APIView):
                 data['tenants'] = serializer.data
                 
                 try :
-                    data['property_name'] = Properties.objects.get(id=property_id).name
-                except Properties.DoesNotExist:
+                    data['property_name'] = Property.objects.get(id=property_id).name
+                except Property.DoesNotExist:
                     return Response(
                         {
                             'error': True,
@@ -561,7 +670,7 @@ class TenantViewSet(APIView):
             if serializer.is_valid():
                 serializer.save()
                 
-                unit = Units.objects.get(id=int(request.data['unit']))
+                unit = Unit.objects.get(id=int(request.data['unit']))
                 
                 if unit.main_tenant_name == 'No tenant':
                     unit.main_tenant_name = request.data['name']

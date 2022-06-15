@@ -1,14 +1,14 @@
 from django.db import models
 
 from register.models import CustomUser
-from properties.models import Units
+from properties.models import Unit
 
 
 class Candidate(models.Model):
     # foreign keys
     
     property_manager = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
-    unit = models.ForeignKey(Units, null=False, blank=False, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=False, blank=False, on_delete=models.CASCADE)
     
     # ---------------------------------
     # fields

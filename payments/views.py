@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from rest_framework.views import APIView
 
-from properties.models import Units
+from properties.models import Unit
 from django.utils import timezone
 
 
@@ -197,9 +197,9 @@ class MonthlyPaymentsApi(APIView):
         unit_id = request.data.get('unit_id')
         
         if unit_id is None:
-            units = Units.objects.all()
+            units = Unit.objects.all()
         elif unit_id is not None:
-            units = [Units.objects.get(id=int(unit_id))]
+            units = [Unit.objects.get(id=int(unit_id))]
 
         
         last_payment_record = UnitMonthlyPayments.objects.last()
@@ -289,9 +289,9 @@ class MonthlyPaymentsApi(APIView):
         try:
             payment_id = int(request.GET['payment_id'])
         except ValueError:
-            return Response({'error': f'ValueError, payment id must be int not {payment_id}'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f'ValueError: payment_id must be int not {type(payment_id)}'}, status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
-            return Response({'error': f'client_id must be provided'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f'KeyError: client_id must be provided'}, status=status.HTTP_400_BAD_REQUEST)
         
         
         payment = UnitMonthlyPayments.objects.get(id=payment_id)

@@ -40,12 +40,7 @@ class CommentsAPI(APIView):
     authentication_classes = (TokenAuthentication,)
     
     def get(self, request, client_id):
-        
         comment_id = request.data.get('comment_id')
-        
-        print('-------------------------')
-        print(comment_id)
-        print('-------------------------')
         
         if comment_id is not None:
             try:
@@ -94,32 +89,6 @@ class CommentsAPI(APIView):
             })
         
         return Response(serializer.data)
-            
-
-class CommentAnswersAPI(APIView):
-    
-    permission_classes = (IsAuthenticated,) 
-    authentication_classes = (TokenAuthentication,)
-    
-    
-    def get(self, request, client_id):
-        pass
-    
-    def post(self, request, client_id):
-        
-        answer:str = request.data.get('answer')
-        users_taged = check_taged_users(answer)
-        
-        request.data['client'] = client_id
-        request.data['users_taged'] = users_taged
-        request.data['made_by'] = request.user.id
-        request.data['date_made'] = timezone.now()
-        
-        serializer = AnswerSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            
-            serializer.save()
         
         
     

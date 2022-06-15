@@ -1,6 +1,6 @@
 from django.db import models
 
-from properties.models import Units, Tenants
+from properties.models import Unit, Tenants
 from register.models import CustomUser
 from tickets.models import Suppliers
 
@@ -37,7 +37,7 @@ class Categories(models.Model):
 
 class Expenses(models.Model):
     # foreign keys
-    unit = models.ForeignKey(Units, default =None, null=True, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, default =None, null=True, on_delete=models.CASCADE)
     # add property relationship
     categories = models.ForeignKey(Categories, default=None, null=False, blank=False, on_delete=models.CASCADE)
     supplier = models.ForeignKey(Suppliers, default=None, null=True, on_delete=models.CASCADE)
@@ -69,7 +69,7 @@ class PaymentRent(models.Model):
     # foreign keys
    
     tenant = models.ForeignKey(Tenants, null=False, blank=False ,on_delete=models.CASCADE)
-    unit = models.ForeignKey(Units, null=False, blank=False ,on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=False, blank=False ,on_delete=models.CASCADE)
 
     # -----------------------------
     # field

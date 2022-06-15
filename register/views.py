@@ -41,7 +41,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
                     'token': token.key, 
                     'name': token.user.get_full_name(),
                     'active': token.user.has_access,
-                    'user_permissions': UserPermissionsSerializser(token.user)
+                    'user_permissions': UserPermissionsSerializser(token.user).data
                 })
             
         else:
