@@ -1,7 +1,6 @@
 from django.utils import timezone
 from django.db import models
 
-from uuid import uuid4
 # Create your models here.
 
 class Subjects(models.Model):

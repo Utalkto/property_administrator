@@ -5,7 +5,7 @@ from register.models import Country, City, KumbioPlan, UserRoles
 
 from properties.models import (PetType, PropertyType, TenantType, UnitType, PropertyCountries, 
                                PropertyCities, Property, Unit, Tenants)
-from properties.serializers import TenantSerializer, UnitsSerializerNoTenant, PropertiesSerializer
+from properties.serializers import TenantSerializer, UnitSerializer, PropertySerializer
 
 from candidates.models import Candidate, CandidateStatus
 from candidates.serializers import CandiatesSerializer
@@ -102,7 +102,7 @@ def crear_propiedades():
         "year_bought": year_bou
     }
 
-    serializer = PropertiesSerializer (data=data)
+    serializer = PropertySerializer (data=data)
 
     if serializer.is_valid():
         serializer.save()
@@ -167,7 +167,7 @@ def crear_unidades():
         "tenant": 1
     }
 
-    serializer = UnitsSerializerNoTenant(data=data)
+    serializer = UnitSerializer(data=data)
 
     if serializer.is_valid():
         serializer.save()

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 
 from app_modules.send_email import SendEmail
 from properties.models import Property, Tenants, Unit
-from properties.serializers import PropertiesSerializer, TenantSerializer, UnitsSerializerGet
+from properties.serializers import PropertySerializer, TenantSerializer, UnitRelatedFieldsSerializer
 from .serializers import OrderSerializer
 from rest_framework import status
 
@@ -256,7 +256,7 @@ def property_api(request):
     property_name = request.data['property_name']
 
     try:
-        property_serializer = PropertiesSerializer(Property.objects.get(name=property_name))
+        property_serializer = PropertySerializer(Property.objects.get(name=property_name))
     
     except Property.DoesNotExist:
         return Response({
@@ -264,7 +264,7 @@ def property_api(request):
             })
         
         
-    unit_serializer = UnitsSerializerGet(Unit.objects.filter(property=property_serializer.data['id']).first())
+    unit_serializer = UnitRelatedFieldsSerializer(Unit.objects.filter(property=property_serializer.data['id']).first())
 
     unit_serializer = unit_serializer.data
 

@@ -15,12 +15,12 @@ class Log(models.Model):
     # foreignkeys 
 
     client = models.ForeignKey(OrganizationClient, null=False, blank=False, on_delete=models.CASCADE)
-    made_by = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
+    made_by = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.PROTECT)
     
-    unit = models.ForeignKey(Unit, null=True, blank=True, default=None, on_delete=models.CASCADE)
-    property = models.ForeignKey(Property, null=True, blank=True, default=None, on_delete=models.CASCADE)
-    tenant = models.ForeignKey(Tenants, null=True, blank=True, default=None, on_delete=models.CASCADE)
-    supplier = models.ForeignKey(Suppliers, null=True, blank=True, default=None, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=True, blank=True, default=None, on_delete=models.PROTECT)
+    property = models.ForeignKey(Property, null=True, blank=True, default=None, on_delete=models.PROTECT)
+    tenant = models.ForeignKey(Tenants, null=True, blank=True, default=None, on_delete=models.PROTECT)
+    supplier = models.ForeignKey(Suppliers, null=True, blank=True, default=None, on_delete=models.PROTECT)
     
     deleted_unit = models.IntegerField(null=True, blank=True, default=None)
     deleted_property = models.IntegerField(null=True, blank=True, default=None)

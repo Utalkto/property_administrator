@@ -23,10 +23,10 @@ from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
 
 # models 
-from properties.models import Property, PropertyCountries, PropertyType, Unit, Tenants, Team
-from properties.serializers import (PropertiesPostSerializer, CountrySerializer, PropertiesSerializer, 
-                                    PropertyTypeSerializer, TeamSerializer, TenantPostSerializer,
-                                    TenantSerializer, UnitsSerializerGet, UnitPostSerializer)
+from .models import Property, PropertyCountries, PropertyType, Unit, Tenants, Team
+from .serializers import (PropertyRelatedFieldsSerializer, CountrySerializer, PropertySerializer, 
+                                    PropertyTypeSerializer, TeamSerializer, TenantRelatedFieldsSerializer,
+                                    TenantSerializer, UnitSerializer, UnitRelatedFieldsSerializer)
 
 from register.models import CustomUser
 
@@ -78,7 +78,7 @@ def data_to_create_property(request):
 
 @swagger_auto_schema(
     method='post',
-    responses={200: UnitsSerializerGet()})
+    responses={200: UnitRelatedFieldsSerializer()})
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
@@ -210,14 +210,14 @@ class PropertyAPI(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
     @swagger_auto_schema(
-    responses={200: PropertiesSerializer()})
+    responses={200: PropertyRelatedFieldsSerializer()})
     def get(self, request,  client_id):
         """ 
         Summary: Get a property a user has or an organization owns 
         
         Args:
-            client_id <int> (required) = The id of the client the sets of units are going to be created
-            property_id <int><query_parameter> (optional) = The id of the property that is needed, 
+            client_id (int) (required) = The id of the client the sets of units are going to be created
+            property_id (int)(query_parameter) (optional) = The id of the property that is needed, 
             leave empty to get all
 
         Returns:
@@ -228,22 +228,34 @@ class PropertyAPI(APIView):
             properties = Property.objects.filter(id=int(request.GET['property_id']))
             
         else:
-            try:
-                properties_with_access = request.user.clients_access[f'client-{client_id}']['properties']
-            except:
-                return Response({
-                    'error': 'Invalid access'
-                }, status=status.HTTP_401_UNAUTHORIZED)
+            if client_id == 'all':
+                properties_with_access = list()
+                for key in request.user.clients_access.keys():
+                    access = request.user.clients_access[key]['properties']
+                    properties_with_access.extend(access)
+            else:
+                try:
+                    client_id = int(client_id)
+                    properties_with_access = request.user.clients_access[f'client-{client_id}']['properties']
+                except ValueError:
+                    return Response({
+                        'error': 'ValueError: the value of client_id is not valid it must be int'
+                    }, status=status.HTTP_401_UNAUTHORIZED)
+                
+                except:
+                    return Response({
+                        'error': 'Invalid access'
+                    }, status=status.HTTP_401_UNAUTHORIZED)
             
             properties = Property.objects.filter(id__in=properties_with_access)
         
         
-        serializer = PropertiesSerializer(properties, many=True)
+        serializer = PropertyRelatedFieldsSerializer(properties, many=True)
         return Response(serializer.data)
     
 
     @swagger_auto_schema(
-    responses={200: PropertiesPostSerializer()})
+    responses={200: PropertySerializer()})
     def post(self, request, client_id):
         """ Summary: PropertyAPI POST
         
@@ -262,7 +274,7 @@ class PropertyAPI(APIView):
         property_data['datetime_created'] = current_time
         property_data['created_by'] = request.user.id
         
-        property_serializer = PropertiesPostSerializer(data=property_data)
+        property_serializer = PropertySerializer(data=property_data)
         
         if property_serializer.is_valid():
             property_serializer.save()
@@ -292,10 +304,10 @@ class PropertyAPI(APIView):
     
     
     @swagger_auto_schema(
-    responses={200: PropertiesPostSerializer()})
+    responses={200: PropertySerializer()})
     def put(self, request, client_id):
         
-        """ Summary: PropertyAPI GET
+        """ Summary: PropertyAPI PUT
 
         Returns:
             JSON, dictionary: saying if it was a success
@@ -317,8 +329,8 @@ class PropertyAPI(APIView):
         
         current_time = timezone.now()
         
-        previous_data = PropertiesPostSerializer(_property)
-        property_serializer = PropertiesPostSerializer(instance=_property, data=request.data)
+        previous_data = PropertySerializer(_property)
+        property_serializer = PropertySerializer(instance=_property, data=request.data)
         
         if property_serializer.is_valid():
             property_serializer.save()
@@ -383,12 +395,15 @@ class PropertyAPI(APIView):
         if log_serializer.is_valid():
             log_serializer.save()
         
-        _property.delete()
-        
-        return Response(
-            {
-                'message': 'The property has been deleted'
-            })
+            _property.delete()
+            
+            return Response(
+                {
+                    'message': 'The property has been deleted'
+                })
+
+        else:
+            return Response({'error': log_serializer.errors})
         
         
 class UnitsAPI(APIView):
@@ -397,7 +412,7 @@ class UnitsAPI(APIView):
     authentication_classes = (TokenAuthentication,) 
     
     @swagger_auto_schema(
-    responses={200: UnitsSerializerGet()})
+    responses={200: UnitRelatedFieldsSerializer()})
     def get(self, request, client_id):
         
         """ UnitsAPI GET
@@ -409,7 +424,7 @@ class UnitsAPI(APIView):
         unit_id <int><Optional>: indicates the id of the unit that is needed, if set to "all" 
         returns all the units a client owns
         
-        'view_all <bool><Optional>': 'idicates if sent more information when "for_rent" or "lease" are set'
+        'view_all <bool><Optional>': 'idicates if send more information when "for_rent" or "lease" are set'
         
         Returns:
             JSON: Unit objects
@@ -428,15 +443,37 @@ class UnitsAPI(APIView):
             
         if request.GET.get('rent_info'):
             
-            rent_info = Unit.objects.filter(property__client=client_id, rented=False)
-            rented = Unit.objects.filter(property__client=client_id, rented=True)
+            if client_id == 'all':
+                
+                list_of_clients = request.user.clients_access.keys()
+                
+                # change here because list_of_clients must be integers, now it is str
+                
+                for_rent = Unit.objects.filter(property__client__in=list_of_clients, rented=False)
+                rented = Unit.objects.filter(property__client__in=list_of_clients, rented=True)
+                
+            else:
+                try:
+                    client_id = int(client_id)
+                except ValueError:
+                    return Response({'error': 'ValueError: client id must be int'})
+                
+                # validate the client id to see if it can be accessed to the user
+                
+                if str(client_id) in request.user.clients_access.keys():
+                    for_rent = Unit.objects.filter(property__client=client_id, rented=False)
+                    rented = Unit.objects.filter(property__client=client_id, rented=True)
+                else:
+                    return Response({
+                        'error': 'Access is not valid'
+                    }, status=status.HTTP_401_UNAUTHORIZED)
 
-            response['quantity_for_rent'] = rent_info.count()
+            response['quantity_for_rent'] = for_rent.count()
             response['quantity_rented'] = rented.count()
             
             if view_all:
-                response['units_for_rent'] = UnitsSerializerGet(rent_info, many=True).data
-                response['units_rented'] = UnitsSerializerGet(rented, many=True).data
+                response['units_for_rent'] = UnitRelatedFieldsSerializer(for_rent, many=True).data
+                response['units_rented'] = UnitRelatedFieldsSerializer(rented, many=True).data
                 
         delta = datetime.timedelta(days=90)
         
@@ -451,20 +488,25 @@ class UnitsAPI(APIView):
             
             response['number_of_leases_to_exp'] = leases_to_exp.count()
             if view_all:
-                response['units_with_leases_to_exp'] = UnitsSerializerGet(leases_to_exp, many=True).data
+                response['units_with_leases_to_exp'] = UnitRelatedFieldsSerializer(leases_to_exp, many=True).data
 
 
         unit_id = request.GET.get('unit_id')
         
         if unit_id is None:
+            if client_id == 'all':
+                client_id = 1
+                
+                ### CONTINUE HERE ###
+                
             units = Unit.objects.filter(property__client=client_id)
-            units_serializer = UnitsSerializerGet(units, many=True)
+            units_serializer = UnitRelatedFieldsSerializer(units, many=True)
         
         else:
             unit_id = int(unit_id)
             try:
                 units = Unit.objects.filter(id=unit_id, property__client=client_id)
-                units_serializer = UnitsSerializerGet(units, many=True)
+                units_serializer = UnitRelatedFieldsSerializer(units, many=True)
                 
             except Unit.DoesNotExist:
                 return Response(
@@ -479,12 +521,12 @@ class UnitsAPI(APIView):
         
     
     @swagger_auto_schema(
-    responses={200: UnitPostSerializer()})
+    responses={200: UnitSerializer()})
     def post(self, request, client_id):
         
         request.data['client_id'] = client_id
         
-        unit_serializer = UnitPostSerializer(data=request.data)
+        unit_serializer = UnitSerializer(data=request.data)
         current_time = timezone.now()
         
         request.data['datetime_created'] = current_time
@@ -520,7 +562,7 @@ class UnitsAPI(APIView):
     
 
     @swagger_auto_schema(
-    responses={200: UnitPostSerializer()})
+    responses={200: UnitSerializer()})
     def put(self, request, client_id):
         
         """UnitsAPI PUT
@@ -550,10 +592,9 @@ class UnitsAPI(APIView):
         current_time = timezone.now()
 
         request.data['property_manager'] = request.user.id
-        unit_serializer = UnitPostSerializer(instance=unit, data=request.data)
+        unit_serializer = UnitSerializer(instance=unit, data=request.data)
         
         if unit_serializer.is_valid():
-            unit_serializer.save()
             
             log_data = {
                 'client': client_id,
@@ -568,6 +609,11 @@ class UnitsAPI(APIView):
             
             if log_serializer.is_valid():
                 log_serializer.save()
+                
+            unit_serializer.save()
+            unit.last_edition_made_by = request.user.id
+            unit.last_time_edited = current_time
+            unit.save()
             
             return Response(unit_serializer.data)
         else:
@@ -579,23 +625,42 @@ class UnitsAPI(APIView):
 
 
     def delete(self, request, client_id):
-        unit_id = client_id
-        try:
-            unit = Unit.objects.get(id=unit_id)
-            unit.delete()
-            return Response(
-                {
-                    'message': 'The unit has been eliminated successfully'
-                }, 
-                status=status.HTTP_200_OK)
         
+        try:
+            unit = Unit.objects.get(id= request.GET['unit_id'])
+        except ValueError:
+            return Response({'error': f'ValueError: unit_id must be int'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return Response({'error': f'KeyError: unit_id must be provided'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
         except Unit.DoesNotExist:
             return Response(
                 {
                     'error': 'Unit.DoesNotExist: the unit with provided id does not exist'
-                }, 
-                status=status.HTTP_404_NOT_FOUND)       
-       
+                }, status=status.HTTP_404_NOT_FOUND)
+        
+        log_data = {
+            'client': client_id,
+            'made_by': request.user.id,
+            'deleted_unit': unit.id,
+            'action': 'DELETE',
+            'date_made': timezone.now(),
+        }
+        
+        log_serializer = LogSerializer(data=log_data)
+        
+        if log_serializer.is_valid():
+            log_serializer.save()
+            unit.delete()
+            
+            return Response(
+                {
+                    'message': 'The unit has been eliminated successfully'
+                })
+        else:
+            return Response({'error': log_serializer.errors})
+        
 
 class TenantViewSet(APIView):
 
@@ -618,7 +683,7 @@ class TenantViewSet(APIView):
                 
                 for t in tenants:
                     
-                    serializer = TenantSerializer(t)
+                    serializer = TenantRelatedFieldsSerializer(t)
                     tenant_property = Property.objects.get(id=t.unit.property.id)
                     unit_number = Unit.objects.get(id=t.unit.id).unit_number
                     
@@ -631,7 +696,7 @@ class TenantViewSet(APIView):
 
             # get all tenants in a unit 
             else:
-                serializer = TenantSerializer(
+                serializer = TenantRelatedFieldsSerializer(
                     Tenants.objects.filter(
                         unit__property_manager__id = request.user.id, 
                         unit__property__id = property_id), 
@@ -646,11 +711,8 @@ class TenantViewSet(APIView):
                 except Property.DoesNotExist:
                     return Response(
                         {
-                            'error': True,
-                            'message': 'Property does not exist'
-                        }, 
-                        status=status.HTTP_404_NOT_FOUND
-                    )
+                            'error': 'Property.DoesNotExist: The id does not exist'
+                        }, status=status.HTTP_404_NOT_FOUND)
                 
                 data_to_return = data
            
@@ -665,7 +727,7 @@ class TenantViewSet(APIView):
 
         try: 
             request.data['landlord'] = request.user.id
-            serializer =  TenantPostSerializer(data=request.data)
+            serializer =  TenantSerializer(data=request.data)
            
             if serializer.is_valid():
                 serializer.save()
@@ -697,7 +759,7 @@ class TenantViewSet(APIView):
             tenant = Tenants.objects.get(id=tenant_id)
 
             request.data['landlord'] = request.user.id
-            serializer = TenantPostSerializer(tenant, data=request.data)
+            serializer = TenantSerializer(tenant, data=request.data)
             
             if serializer.is_valid():
                 serializer.save()
@@ -722,18 +784,18 @@ class TenantViewSet(APIView):
     def delete(self, request, tenant_id, property_id):
 
         try:
-            tenent = Tenants.objects.get(id=tenant_id)
-            tenent.delete()
+            tenant = Tenants.objects.get(id=tenant_id)
+            tenant.delete()
             return Response(
                 {
-                    "message": "the tenent has been eliminated successfully"
+                    "message": "the tenant has been eliminated successfully"
                 }, 
                 status=status.HTTP_200_OK)
         
         except Tenants.DoesNotExist:
             return Response(
                 {'error': True, 
-                 'message': 'the tenent does not exist'
+                 'message': 'the tenant does not exist'
                 }, 
                 status=status.HTTP_404_NOT_FOUND)  
 

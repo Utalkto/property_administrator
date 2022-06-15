@@ -29,13 +29,13 @@ class PropertyTypeSerializer(serializers.ModelSerializer):
         fields = '__all__' 
 
 
-class PropertiesPostSerializer(serializers.ModelSerializer):
+class PropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = Property
         fields = '__all__'
 
 
-class PropertiesSerializer(serializers.ModelSerializer):
+class PropertyRelatedFieldsSerializer(serializers.ModelSerializer):
     city = CitySerializer()
     property_type = PropertyTypeSerializer()
     
@@ -45,42 +45,25 @@ class PropertiesSerializer(serializers.ModelSerializer):
 
 
 class TenantTypeSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = TenantType
         fields = '__all__'
     
 
 class TenantSerializer(serializers.ModelSerializer):
-    
-    tenant_type = TenantTypeSerializer()
-    
     class Meta:
         model = Tenants
         fields = '__all__'
 
 
-class TenantPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tenants
-        fields = '__all__'
-        
-        
-class TenantGetSerializer(serializers.ModelSerializer):
-    
+class TenantRelatedFieldsSerializer(serializers.ModelSerializer):
     tenant_type = TenantTypeSerializer()
-    
     class Meta:
         model = Tenants
         fields = '__all__'
         
         
-class TenantPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tenants
-        fields = '__all__'
-        
-class TenantsNameSerializer(serializers.ModelSerializer):
+class TenantNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tenants
         fields = ('id', 'name',)
@@ -91,40 +74,24 @@ class LeaseTypeSerializer(serializers.ModelSerializer):
         model = UnitContractType
         fields = '__all__'
 
-class UnitsSerializerGet(serializers.ModelSerializer):
-    tenants = TenantsNameSerializer(many=True)
+
+class UnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Unit
+        fields = '__all__'
+
+
+class UnitRelatedFieldsSerializer(serializers.ModelSerializer):
+    tenants = TenantNameSerializer(many=True)
     lease_typee = LeaseTypeSerializer()
-    property = PropertiesSerializer()
+    property = PropertySerializer()
     
     class Meta:
         model = Unit
         fields = '__all__'
 
-class UnitPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Unit
-        fields = '__all__'
-
-       
-
-class UnitsSerializerNoTenant(serializers.ModelSerializer):
-    # property = PropertiesSerializer()
-    class Meta:
-        model = Unit
         
-        fields = '__all__'
-
-        
-
-class UnitsSerializerProperty(serializers.ModelSerializer):
-    property = PropertiesSerializer()
-    class Meta:
-        model = Unit
-        fields = '__all__'
-        
-
 class TeamSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Team
         fields = '__all__'

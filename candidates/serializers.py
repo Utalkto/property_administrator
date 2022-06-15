@@ -1,11 +1,11 @@
 from rest_framework import serializers
 from .models import Candidate
 
-from properties.serializers import UnitsSerializerGet
+from properties.serializers import UnitRelatedFieldsSerializer
 
 
 class CandiatesGetSerializer(serializers.ModelSerializer):
-    unit = UnitsSerializerGet()
+    unit = UnitRelatedFieldsSerializer()
     class Meta:
         model = Candidate
         fields = '__all__'

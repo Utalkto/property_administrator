@@ -24,7 +24,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
 
         response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
-        token = Token.objects.get(key=response.data['token'])
+        token:Token = Token.objects.get(key=response.data['token'])
 
         
         if not token.user.has_access:

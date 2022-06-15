@@ -1,4 +1,5 @@
-from .models import Ticket, TicketAppoinment, TicketType, TicketPriority, TicketComments, Suppliers, SupplierWorkArea
+from .models import (Ticket, TicketAppoinment, TicketType, TicketPriority, 
+                     TicketComments, Suppliers, SupplierWorkArea)
 from rest_framework import serializers
 
 
