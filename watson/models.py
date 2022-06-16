@@ -45,4 +45,26 @@ class Order(models.Model):
     def __str__(self) -> str:
         return f'{self.id} - {self.product}'
 
+
+class Calendar(models.Model):
+    name = models.CharField(max_length=120)
+    
+    
+class CalendarAvailability(models.Model):
+    calendar = models.ForeignKey(Calendar, null=False, blank=False, on_delete=models.CASCADE)
+    
+    # ---------------------------------------
+    # fields
+    
+    date = models.DateField()
+    hour = models.CharField(max_length=120)
+    email_of_attendee = models.EmailField(null=True, default=None)
+    duration = models.CharField(max_length=120)
+    
+    
+    def save(self, *args, **kwargs):
+        if self.email_of_attendee == 'email@none.com':
+            self.email_of_attendee = None
+            
+        super(CalendarAvailability, self).save(*args, **kwargs)
     

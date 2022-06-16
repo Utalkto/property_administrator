@@ -108,7 +108,6 @@ class PetType(models.Model):
 class Unit(models.Model):
     # foreign keys 
      
-    client = models.ForeignKey(OrganizationClient, null=False, blank=False, on_delete=models.CASCADE, default=1)
     property = models.ForeignKey(Property, null=False, blank=False, on_delete=models.CASCADE)
     unit_type = models.ForeignKey(UnitType, null=False, blank=False, on_delete=models.CASCADE)
     
@@ -186,7 +185,7 @@ class Unit(models.Model):
     max_weeks_to_move = models.IntegerField(null=True, default=0)
     
     datetime_created = models.DateTimeField(default=timezone.now)
-    create_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='unit_create_by')
+    created_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='unit_create_by')
     
     last_time_edited = models.DateTimeField(null=True, default=None)
     last_edition_made_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT, 
@@ -206,7 +205,6 @@ class TenantType(models.Model):
 class Tenants(models.Model):
     # foreign keys
     
-    #landlord = models.ForeignKey(CustomUser, default=1, null=False, blank=False, on_delete=models.CASCADE)
     client = models.ForeignKey(OrganizationClient, default=1, on_delete=models.CASCADE)
     unit = models.ForeignKey(Unit, related_name='tenants', null=False, blank=False ,on_delete=models.CASCADE)
     

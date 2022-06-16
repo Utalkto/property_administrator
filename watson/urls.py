@@ -1,7 +1,7 @@
 # django
 
 from django.urls import path
-from .views import WatsonApi, competition, trivia, property_api
+from .views import WatsonApi, competition, open_dental, trivia, property_api
 
 
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     path('competition/', competition),
     path('trivia/', trivia),
     path('property/', property_api),
+    path('open_dental/', open_dental)
 ]

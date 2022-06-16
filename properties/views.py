@@ -5,11 +5,9 @@ import datetime
 from twilio.rest import Client
 
 # django 
-
 from django.utils import timezone
 
 # rest_framework
-
 from rest_framework import status, authentication, permissions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.views import APIView
@@ -30,14 +28,12 @@ from .serializers import (PropertyRelatedFieldsSerializer, CountrySerializer, Pr
 
 from register.models import CustomUser
 
-from logs.models import Log
 from logs.serializers import LogSerializer
 
 from candidates.models import Candidate
 
 # modules created for the app
 from app_modules.send_email import SendEmail
-from app_modules.main import convert_to_bool
 
 
 # other fucntions
@@ -52,6 +48,70 @@ def put_candidate_as_tenant(candidate):
         
         new_tenant.save()
     return "created"
+
+
+def register_log(made_by:int, action:int, client_id:int, date_made:timezone, previous_data:dict=None, 
+                 new_data:dict=None, tenant_id:int=None, unit_id:int=None, property_id:int=None):
+    
+    """Register the action the user made in the table of logs
+    
+    ACTION LOG MUST BE ONE OF THESE 
+    
+        1: CREATE
+        2: EDIT
+        3: DELETE
+    """
+
+    ACTION_LOG = {
+        1: 'CREATE',
+        2: 'EDIT',
+        3: 'DELETE'
+    }
+    
+    assert client_id in ACTION_LOG.keys(), 'client_id parameter must be 1:CREATE, 2:EDIT or 3:DELETE'
+
+    log_data = {
+                'client': client_id,
+                'made_by': made_by,
+                'action': ACTION_LOG[action],
+                'date_made': date_made,
+            }
+    
+    
+    if previous_data:
+        log_data['previous_data'] = previous_data
+    
+    if new_data:
+        log_data['new_data'] = new_data
+        
+    is_deleted_data = ''
+    if ACTION_LOG == 3:
+        is_deleted_data = 'deleted_'
+        
+    if tenant_id:
+        log_data[f'{is_deleted_data}tenant']
+        
+    elif unit_id:
+        log_data[f'{is_deleted_data}unit']
+    
+    elif property_id:
+        log_data[f'{is_deleted_data}property']
+            
+    log_serializer = LogSerializer(data=log_data)
+
+    if log_serializer.is_valid():
+        log_serializer.save()
+
+    else:
+        print('------------------------')
+        print('------------- log serializer error -----------')
+        print(log_serializer)
+        print('------------------------')
+        print('------------------------')
+
+    
+# API --------------------------------------------
+# ------------------------------------------------
 
 
 @api_view(['GET'])
@@ -236,11 +296,11 @@ class PropertyAPI(APIView):
             else:
                 try:
                     client_id = int(client_id)
-                    properties_with_access = request.user.clients_access[f'client-{client_id}']['properties']
+                    properties_with_access = request.user.clients_access[client_id]['properties']
                 except ValueError:
                     return Response({
-                        'error': 'ValueError: the value of client_id is not valid it must be int'
-                    }, status=status.HTTP_401_UNAUTHORIZED)
+                        'error': 'ValueError: the value of client_id is not valid it must be int or set to "all"'
+                    }, status=status.HTTP_400_BAD_REQUEST)
                 
                 except:
                     return Response({
@@ -279,20 +339,12 @@ class PropertyAPI(APIView):
         if property_serializer.is_valid():
             property_serializer.save()
             
-            log_data = {
-                'client': client_id,
-                'made_by': request.user.id,
-                'property': property_serializer.data['id'],
-                'action': 'CREATE',
-                'date_made': current_time,
-                'new_data': property_serializer.data                
-            }
-            
-            log_serializer = LogSerializer(data=log_data)
-            
-            if log_serializer.is_valid():
-                log_serializer.save()
-            
+            register_log(made_by=request.user.id, 
+                        action=1, 
+                        client_id=client_id, 
+                        date_made=current_time, 
+                        property_id=property_serializer.data['id'], 
+                        new_data=property_serializer.data)
             
             return Response(property_serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -339,20 +391,13 @@ class PropertyAPI(APIView):
             _property.last_time_edited = current_time
             _property.save()
             
-            log_data = {
-                'client': client_id,
-                'made_by': request.user.id,
-                'property': _property.id,
-                'action': 'EDIT',
-                'date_made': current_time,
-                'previous_data': previous_data,
-                'new_data': property_serializer.data                
-            }
-            
-            log_serializer = LogSerializer(data=log_data)
-            
-            if log_serializer.is_valid():
-                log_serializer.save()
+            register_log(made_by=request.user.id, 
+                    action=2, 
+                    client_id=client_id, 
+                    date_made=current_time, 
+                    property_id=property_serializer.data['id'], 
+                    previous_data=previous_data,
+                    new_data=property_serializer.data)
             
             return Response(property_serializer.data)
         else:
@@ -381,29 +426,19 @@ class PropertyAPI(APIView):
                 'error': 'Property.DoesNotExist: the property with that id does not exist', 
                 }, 
                 status=status.HTTP_404_NOT_FOUND)
-            
-        log_data = {
-            'client': client_id,
-            'made_by': request.user.id,
-            'deleted_property': _property.id,
-            'action': 'DELETE',
-            'date_made': timezone.now(),
-        }
         
-        log_serializer = LogSerializer(data=log_data)
+        register_log(made_by=request.user.id, 
+                    action=3, 
+                    client_id=client_id, 
+                    date_made=timezone.now(), 
+                    property_id=_property.id)
         
-        if log_serializer.is_valid():
-            log_serializer.save()
+        _property.delete()
         
-            _property.delete()
-            
-            return Response(
-                {
-                    'message': 'The property has been deleted'
-                })
-
-        else:
-            return Response({'error': log_serializer.errors})
+        return Response(
+            {
+                'message': 'The property has been deleted'
+            })
         
         
 class UnitsAPI(APIView):
@@ -417,14 +452,17 @@ class UnitsAPI(APIView):
         
         """ UnitsAPI GET
         
-        rent_info <bool><Optional>: indicates if number of units rented and not rented is needed
+        rent_info (bool)(Optional) here: indicates if number of units rented and not rented is needed
         
-        leases_to_exp <bool><Optional>: indicates if the number of units wich leases are going to exp 
+        leases_to_exp (bool)(Optional): indicates if the number of units wich leases are going to exp 
         
-        unit_id <int><Optional>: indicates the id of the unit that is needed, if set to "all" 
+        unit_id (int)(Optional): indicates the id of the unit that is needed, if set to "all" 
         returns all the units a client owns
         
-        'view_all <bool><Optional>': 'idicates if send more information when "for_rent" or "lease" are set'
+        get_general_info (bool)(Optional): indicates to get the general infomation of units objects, when this is 
+        set, unit_id must be givem too 
+        
+        'view_all (bool)(Optional)': 'idicates if send more information when "for_rent" or "lease" are set'
         
         Returns:
             JSON: Unit objects
@@ -433,21 +471,22 @@ class UnitsAPI(APIView):
         if not request.GET:
             return Response({
                 'message':'parameters cannot be empty, you must indicate at least one of these parameters:',
-                'rent_info (bool)': 'indicates if number of units rented and not rented is needed',
-                'leases (bool)': 'indicates if the number of units wich leases are going to exp' ,
-                'unit_id (str)': 'indicates the id of the unit that is needed, if set to "all" returns all the units a client owns',
+                'rent_info (bool)': 'returns the number of units that are rented and not rented',
+                'leases (bool)': 'returns the number of units wich leases are going to exp' ,
+                'unit_id (str)': 'returns the info of the id given, if set to "all" returns all the units a client owns',
+                'get_general_info (bool)(Optional)': 'indicates to get the general infomation of units objects, when this is set, unit_id must be givem too',
             }, status=status.HTTP_400_BAD_REQUEST)
         
         response = dict()
         view_all = request.GET.get('view_all')
+        unit_id = request.GET.get('unit_id')
+        
             
         if request.GET.get('rent_info'):
             
             if client_id == 'all':
                 
                 list_of_clients = request.user.clients_access.keys()
-                
-                # change here because list_of_clients must be integers, now it is str
                 
                 for_rent = Unit.objects.filter(property__client__in=list_of_clients, rented=False)
                 rented = Unit.objects.filter(property__client__in=list_of_clients, rented=True)
@@ -491,30 +530,37 @@ class UnitsAPI(APIView):
                 response['units_with_leases_to_exp'] = UnitRelatedFieldsSerializer(leases_to_exp, many=True).data
 
 
-        unit_id = request.GET.get('unit_id')
-        
-        if unit_id is None:
-            if client_id == 'all':
-                client_id = 1
-                
-                ### CONTINUE HERE ###
-                
-            units = Unit.objects.filter(property__client=client_id)
-            units_serializer = UnitRelatedFieldsSerializer(units, many=True)
-        
-        else:
-            unit_id = int(unit_id)
-            try:
-                units = Unit.objects.filter(id=unit_id, property__client=client_id)
+        if request.GET.get('get_general_info'):
+            
+            if unit_id is None:
+                return Response({
+                    'error': 'KeyError : when get_general_info is set, unit_id must be given (set to "all" to return all the units a client owns)',
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            
+            if unit_id == 'all':
+                if client_id == 'all':
+                    client_list = request.user.clients_access.keys()
+                    units = Unit.objects.filter(property__client__in=client_list)
+                    
+                else:
+                    units = Unit.objects.filter(client=client_id)
+                    
                 units_serializer = UnitRelatedFieldsSerializer(units, many=True)
-                
-            except Unit.DoesNotExist:
-                return Response(
-                    {
-                    'error': 'Unit.DoesNotExist: the unit with provided id does not exist', 
-                    }, 
-                    status=status.HTTP_404_NOT_FOUND)
-    
+            
+            else:
+                unit_id = int(unit_id)
+                try:
+                    units = Unit.objects.filter(id=unit_id, property__client=client_id)
+                    units_serializer = UnitRelatedFieldsSerializer(units, many=True)
+                    
+                except Unit.DoesNotExist:
+                    return Response(
+                        {
+                        'error': 'Unit.DoesNotExist: the unit with provided id does not exist', 
+                        }, 
+                        status=status.HTTP_404_NOT_FOUND)
+        
         response['units'] = units_serializer.data
         
         return Response(response)
@@ -539,19 +585,12 @@ class UnitsAPI(APIView):
             property.number_of_units = property.number_of_units + 1
             property.save()
             
-            log_data = {
-                'client': client_id,
-                'made_by': request.user.id,
-                'property': unit_serializer.data['id'],
-                'action': 'CREATE',
-                'date_made': current_time,
-                'new_data': unit_serializer.data                
-            }
-            
-            log_serializer = LogSerializer(data=log_data)
-            
-            if log_serializer.is_valid():
-                log_serializer.save()
+            register_log(made_by=request.user.id, 
+                action=1, 
+                client_id=client_id, 
+                date_made=current_time, 
+                unit_id=unit_serializer.data['id'], 
+                new_data=unit_serializer.data)
 
             return Response(unit_serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -576,7 +615,7 @@ class UnitsAPI(APIView):
         """
         
         try:
-            unit = Unit.objects.get(id= request.GET['unit_id'])
+            unit:Unit = Unit.objects.get(id=request.GET['unit_id'])
         except ValueError:
             return Response({'error': f'ValueError: unit_id must be int'}, 
                             status=status.HTTP_400_BAD_REQUEST)
@@ -591,25 +630,22 @@ class UnitsAPI(APIView):
             
         current_time = timezone.now()
 
-        request.data['property_manager'] = request.user.id
+        request.data['last_time_edited'] = current_time
+        request.data['last_edition_made_by'] = request.user.id
+        previous_data = UnitSerializer(unit)
+        
         unit_serializer = UnitSerializer(instance=unit, data=request.data)
         
         if unit_serializer.is_valid():
             
-            log_data = {
-                'client': client_id,
-                'made_by': request.user.id,
-                'unit': unit.id,
-                'action': 'CREATE',
-                'date_made': current_time,
-                'new_data': unit_serializer.data                
-            }
-            
-            log_serializer = LogSerializer(data=log_data)
-            
-            if log_serializer.is_valid():
-                log_serializer.save()
-                
+            register_log(made_by=request.user.id, 
+                action=2, 
+                client_id=client_id, 
+                date_made=current_time, 
+                unit_id=unit_serializer.data['id'], 
+                previous_data=previous_data,
+                new_data=unit_serializer.data)           
+
             unit_serializer.save()
             unit.last_edition_made_by = request.user.id
             unit.last_time_edited = current_time
@@ -627,7 +663,7 @@ class UnitsAPI(APIView):
     def delete(self, request, client_id):
         
         try:
-            unit = Unit.objects.get(id= request.GET['unit_id'])
+            unit:Unit = Unit.objects.get(id= request.GET['unit_id'])
         except ValueError:
             return Response({'error': f'ValueError: unit_id must be int'}, 
                             status=status.HTTP_400_BAD_REQUEST)
@@ -640,164 +676,245 @@ class UnitsAPI(APIView):
                     'error': 'Unit.DoesNotExist: the unit with provided id does not exist'
                 }, status=status.HTTP_404_NOT_FOUND)
         
-        log_data = {
-            'client': client_id,
-            'made_by': request.user.id,
-            'deleted_unit': unit.id,
-            'action': 'DELETE',
-            'date_made': timezone.now(),
-        }
+        register_log(made_by=request.user.id, 
+                action=3, 
+                client_id=client_id, 
+                date_made=timezone.now(), 
+                unit_id=unit.id)  
         
-        log_serializer = LogSerializer(data=log_data)
+        unit.delete()
         
-        if log_serializer.is_valid():
-            log_serializer.save()
-            unit.delete()
-            
-            return Response(
-                {
-                    'message': 'The unit has been eliminated successfully'
-                })
-        else:
-            return Response({'error': log_serializer.errors})
+        return Response(
+            {
+                'message': 'The unit has been eliminated successfully'
+            })
+    
         
 
 class TenantViewSet(APIView):
 
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
+    
  
+    @swagger_auto_schema(
+    responses={200: TenantRelatedFieldsSerializer()})
+    def get(self, request, client_id):
+        
+        """TenantViewSet GET
+        
+        client_id (int)(required): returns the tenants associeted with that client, set all to return 
+        all tenants a user has access to 
+        
+        tenant (int)(optional): returns the data associeted to that tenant id
 
-    def get(self, request, tenant_id, property_id):
+        Returns:
+            _type_: _description_
+        """
         
-        # to get all tenants send tenant_id == 0
+        if client_id == 'all':
+            clients_with_access = request.user.clients_access.keys()
+            tenants = Tenants.objects.filter(unit__property__client__in=clients_with_access)
         
-        data_to_return = list()
-        
-        if tenant_id == 0:
-            
-            if property_id == 0:
+        else:
+            try: 
+                client_id = int(client_id)
+                tenant_id = request.GET['tenant_id']
+            except ValueError:
+                    return Response({
+                        'error': 'ValueError: the value of client_id is not valid it must be int or set to "all"'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            except KeyError:
+                 return Response({
+                        'error': 'KeyError: tenant_id was not supplied, set to "all" to get all tenants'
+                    }, status=status.HTTP_400_BAD_REQUEST)
                 
-                tenants = Tenants.objects.filter(
-                        unit__property_manager__id = request.user.id)
-                
-                for t in tenants:
-                    
-                    serializer = TenantRelatedFieldsSerializer(t)
-                    tenant_property = Property.objects.get(id=t.unit.property.id)
-                    unit_number = Unit.objects.get(id=t.unit.id).unit_number
-                    
-                    data = serializer.data
-                    data['property_name'] = tenant_property.name
-                    data['property_id'] = tenant_property.id
-                    data['unit_number'] = unit_number
-                    
-                    data_to_return.append(data)
-
-            # get all tenants in a unit 
+            if tenant_id == 'all':
+                tenants = Tenants.objects.filter(unit__property__client=client_id)
             else:
-                serializer = TenantRelatedFieldsSerializer(
-                    Tenants.objects.filter(
-                        unit__property_manager__id = request.user.id, 
-                        unit__property__id = property_id), 
-                    many=True)
+                try:
+                    tenant_id = int(tenant_id)
+                except ValueError:
+                    return Response({
+                            'error': 'ValueError: the value of tenant_id is not valid it must be int or set to "all" to get all tenants'
+                        }, status=status.HTTP_400_BAD_REQUEST)
                 
-                data = dict()
+                tenants = Tenants.objects.filter(id=tenant_id)
                 
-                data['tenants'] = serializer.data
-                
-                try :
-                    data['property_name'] = Property.objects.get(id=property_id).name
-                except Property.DoesNotExist:
-                    return Response(
-                        {
-                            'error': 'Property.DoesNotExist: The id does not exist'
-                        }, status=status.HTTP_404_NOT_FOUND)
-                
-                data_to_return = data
-           
-            return Response(data_to_return, status=status.HTTP_200_OK)
-
-  
-        serializer = TenantSerializer(Tenants.objects.filter(id=tenant_id, unit__property_manager__id = request.user.id), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+                if not len(tenants):
+                    return Response({'error': 'Tenant.DoesNotExist: tenant with that id does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
+        tenants_serializer = TenantRelatedFieldsSerializer(tenants, many=True)
+        return Response(tenants_serializer.data)
     
     
-    def post(self, request):
-
-        try: 
-            request.data['landlord'] = request.user.id
-            serializer =  TenantSerializer(data=request.data)
-           
-            if serializer.is_valid():
-                serializer.save()
-                
-                unit = Unit.objects.get(id=int(request.data['unit']))
-                
-                if unit.main_tenant_name == 'No tenant':
-                    unit.main_tenant_name = request.data['name']
-                    unit.save()
-                    
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(
-                    {
-                    'error': True, 
-                     'message': 'serializer is not valid', 
-                     'serializer_error': serializer.errors
-                    }, 
-                    status=status.HTTP_400_BAD_REQUEST)
+    @swagger_auto_schema(
+    responses={200: TenantRelatedFieldsSerializer()})
+    def post(self, request, client_id):
         
-      
-        except CustomUser.DoesNotExist:
-            return Response({'error': True, 'usuario ': ''}, status=status.HTTP_401_UNAUTHORIZED)
+        """TenantViewSet POST
+        
+        client_id (int)(required): the client the tenant will be associeted with
+        
+        unit (int)(required): the unit the tenant will be associeted with
 
+        Returns:
+            _type_: _description_
+        """
 
-    def put(self, request, tenant_id, property_id):
+        current_time = timezone.now()
+        
+        request.data['datetime_created'] = current_time
+        request.data['created_by'] = request.user.id
 
-        try:
-            tenant = Tenants.objects.get(id=tenant_id)
-
-            request.data['landlord'] = request.user.id
-            serializer = TenantSerializer(tenant, data=request.data)
+        tenant_serializer = TenantSerializer(data=request.data)
+        
+        if tenant_serializer.is_valid():
+            tenant_serializer.save()
             
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            else:
-                return Response(
-                    {
-                        'error': True, 
-                        'message': 'serializer is not valid', 
-                        'serializer_error': serializer.errors
-                    },
-                    status=status.HTTP_400_BAD_REQUEST)
-
-        except Tenants.DoesNotExist:
-            return Response(
-                {'error': True, 
-                 'message': 'the unit does not exist'
-                 }, 
-                status=status.HTTP_404_NOT_FOUND)
-
-
-    def delete(self, request, tenant_id, property_id):
-
-        try:
-            tenant = Tenants.objects.get(id=tenant_id)
-            tenant.delete()
+            unit:Unit = Unit.objects.get(id=int(request.data['unit']))
+            
+            if unit.main_tenant_name == 'No tenant':
+                unit.main_tenant_name = request.data['name']
+                unit.save()
+                
+            register_log(
+                made_by=request.user.id,
+                action=1,
+                client_id=client_id,
+                date_made=current_time,
+                new_data=tenant_serializer.data
+            )
+                
+            return Response(tenant_serializer.data, status=status.HTTP_201_CREATED)
+        else:
             return Response(
                 {
-                    "message": "the tenant has been eliminated successfully"
-                }, 
-                status=status.HTTP_200_OK)
+                    'error': tenant_serializer.errors, 
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    @swagger_auto_schema(
+    responses={200: TenantRelatedFieldsSerializer()})
+    def put(self, request, client_id):
+        
+        """TenantViewSet PUT
+        
+        client_id (int)(required): the client the tenant will be associeted with
+        
+        tenant_id (int)(required): the tenant that will be modified
+
+        Returns:
+            _type_: _description_
+        """
+        
+        key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.GET)
+        
+        if not key_valid:
+            return Response(response[0]['message'], status=response[0]['status'])
+        else:
+            tenant = response
+
+        current_time = timezone.now()
+        
+        request.data['last_time_edited'] = current_time
+        request.data['last_edition_made_by'] = request.user.id
+        
+        previous_data = TenantSerializer(tenant)
+        tenant_serializer = TenantSerializer(tenant, data=request.data)
+        
+        if tenant_serializer.is_valid():
+            tenant_serializer.save()
+            
+            register_log(made_by=request.user.id,
+                        action=2,
+                        client_id=client_id,
+                        date_made=current_time,
+                        previous_data=previous_data,
+                        new_data=tenant_serializer.data)
+            
+            return Response(tenant_serializer.data)
+        else:
+            return Response(
+                {
+                    'error': tenant_serializer.errors, 
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, client_id):
+        
+        """TenantViewSet DELETE
+        
+        client_id (int)(required): the client the tenant will be associeted with
+        
+        tenant_id (int)(required): the tenant that will be deleted
+
+        Returns:
+            _type_: _description_
+        """
+
+        key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.GET)
+        
+        if not key_valid:
+            return Response(response[0]['message'], status=response[0]['status'])
+        else:
+            tenant = response
+            
+
+        register_log(
+            made_by=request.user.id,
+            action=3,
+            client_id=client_id,
+            date_made=timezone.now(),
+        )
+            
+        tenant.delete()
+        return Response(
+            {
+                "message": "the tenant has been eliminated successfully"
+            })
+        
+        
+    # -----------------------------------------------------------
+    # OTHER FUNCTIONS -------------------------------------------
+        
+    def validate_key(slef, key_name:str, get_dict:dict) -> bool:
+        
+        try:
+            tenant = Tenants.objects.get(id=int(get_dict[key_name]))
+        
+        except KeyError:
+            response = { 
+                       'message':{
+                            'error': f'KeyError: {key_name} must be provided as int'
+                            },
+                        'status':status.HTTP_400_BAD_REQUEST
+                       },
+            
+            return False, response
+        
+        except ValueError:
+            response = { 
+                       'message':{
+                            'error': f'ValueError: {key_name} must be int',
+                            },
+                        'status':status.HTTP_400_BAD_REQUEST
+                       },
+            
+            return False, response
         
         except Tenants.DoesNotExist:
-            return Response(
-                {'error': True, 
-                 'message': 'the tenant does not exist'
-                }, 
-                status=status.HTTP_404_NOT_FOUND)  
+            
+            response = { 
+                       'message':{
+                            'error': 'Tenants.DoesNotExist: the tenant with provided id does not exist',
+                            },
+                        'status':status.HTTP_404_NOT_FOUND
+                       },
+            
+            return False, response
+
+        return True, tenant
 
 
 class TeamApi(APIView):

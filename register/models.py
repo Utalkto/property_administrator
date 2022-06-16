@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager,
 )
+from django.forms import ValidationError
 
 from django.utils import timezone
 
@@ -140,6 +141,24 @@ class CustomUserManager(BaseUserManager):
         return user
 
 
+def outer_json_is_object(value):
+    if not isinstance(value, dict):
+        raise ValidationError(_('Outer JSON item should be an object'), code='invalid_json_object')
+
+
+class IntKeyJSONField(models.JSONField):
+
+    def __init__(self, *args, **kwargs):
+        validators = kwargs.setdefault('validators', [])
+        validators.append(outer_json_is_object)
+        super().__init__(*args, **kwargs)
+    
+    def from_db_value(self, value, expression, connection):
+        value = super().from_db_value(value, expression, connection)
+        if value is not None:
+            return { int(k): v for k, v in value.items() }
+
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     # foreignkeys 
@@ -174,7 +193,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     has_access = models.BooleanField(default=False)
     
-    
     # USER PERMISSIONS 
     
     can_delete_data = models.BooleanField(default=True)
@@ -182,7 +200,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     can_add_data = models.BooleanField(default=True)
     
     modules_access = models.CharField(default='1,2,3', max_length=120)    
-    clients_access = models.JSONField(default=dict)
+    clients_access = IntKeyJSONField(default=dict)
     
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]

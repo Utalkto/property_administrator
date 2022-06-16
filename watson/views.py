@@ -4,13 +4,13 @@ from rest_framework.response import Response
 from app_modules.send_email import SendEmail
 from properties.models import Property, Tenants, Unit
 from properties.serializers import PropertySerializer, TenantSerializer, UnitRelatedFieldsSerializer
-from .serializers import OrderSerializer
+from .serializers import CalendarAvailabilitySerializer, OrderSerializer
 from rest_framework import status
 
 from rest_framework import status
 from app_modules.send_email import SendEmail
 
-from .models import Order, Subjects, UserEmail, MessageToWatson
+from .models import CalendarAvailability, Order, Subjects, UserEmail, MessageToWatson
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 import datetime
@@ -121,7 +121,7 @@ class WatsonApi(APIView):
 
             return Response(
                 {
-                    'order_code': code,
+                    'order_code': None,
                 })
 
         else:
@@ -338,3 +338,14 @@ def property_api(request):
     d = {**property_serializer.data, **unit_serializer}
 
     return Response(d)
+
+
+@api_view(['POST'])
+def open_dental(request):
+    
+    date = request.data['date']
+    available_slots = CalendarAvailability.objects.filter(date=date, email_of_attendee__isnull=True)
+    serializer = CalendarAvailabilitySerializer(available_slots, many=True)
+    
+    return Response(serializer.data)
+    

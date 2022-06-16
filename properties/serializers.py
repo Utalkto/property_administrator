@@ -44,6 +44,13 @@ class PropertyRelatedFieldsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UnitPropertyRelatedSerializer(serializers.ModelSerializer):
+    property = PropertySerializer()
+    
+    class Meta:
+        model = Unit
+        fields = '__all__'
+
 class TenantTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TenantType
@@ -57,6 +64,7 @@ class TenantSerializer(serializers.ModelSerializer):
 
 
 class TenantRelatedFieldsSerializer(serializers.ModelSerializer):
+    unit = UnitPropertyRelatedSerializer()
     tenant_type = TenantTypeSerializer()
     class Meta:
         model = Tenants
