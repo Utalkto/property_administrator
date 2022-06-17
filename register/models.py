@@ -193,6 +193,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     has_access = models.BooleanField(default=False)
     
+    
     # USER PERMISSIONS 
     
     can_delete_data = models.BooleanField(default=True)
@@ -201,6 +202,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     modules_access = models.CharField(default='1,2,3', max_length=120)    
     clients_access = IntKeyJSONField(default=dict)
+
     
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]

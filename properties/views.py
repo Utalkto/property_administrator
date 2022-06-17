@@ -269,6 +269,7 @@ class PropertyAPI(APIView):
     
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
+    
     @swagger_auto_schema(
     responses={200: PropertyRelatedFieldsSerializer()})
     def get(self, request,  client_id):
@@ -703,7 +704,7 @@ class TenantViewSet(APIView):
         
         """TenantViewSet GET
         
-        client_id (int)(required): returns the tenants associeted with that client, set all to return 
+        client_id (str)(required): returns the tenants associeted with that client, set all to return 
         all tenants a user has access to 
         
         tenant (int)(optional): returns the data associeted to that tenant id
@@ -720,6 +721,11 @@ class TenantViewSet(APIView):
             try: 
                 client_id = int(client_id)
                 tenant_id = request.GET['tenant_id']
+                
+                if client_id not in request.user.clients_access.keys():
+                    return Response({'error': 'Access is not valid'}, status=status.HTTP_401_UNAUTHORIZED)
+                    
+                
             except ValueError:
                     return Response({
                         'error': 'ValueError: the value of client_id is not valid it must be int or set to "all"'
@@ -739,7 +745,7 @@ class TenantViewSet(APIView):
                             'error': 'ValueError: the value of tenant_id is not valid it must be int or set to "all" to get all tenants'
                         }, status=status.HTTP_400_BAD_REQUEST)
                 
-                tenants = Tenants.objects.filter(id=tenant_id)
+                tenants = Tenants.objects.filter(client_id=client_id, id=tenant_id)
                 
                 if not len(tenants):
                     return Response({'error': 'Tenant.DoesNotExist: tenant with that id does not exist'}, status=status.HTTP_404_NOT_FOUND)
