@@ -1,13 +1,17 @@
 from rest_framework import serializers
 
 from .models import Log
+from register.serializers import OrganizationClient, UserSerializer
 
 class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
         fields = '__all__'
         
+        
 class LogRelatedDataSerializer(serializers.ModelSerializer):
+    client = OrganizationClient()
+    made_by = UserSerializer()
     class Meta:
         model = Log
         fields = '__all__'

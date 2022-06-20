@@ -481,7 +481,7 @@ class UnitsAPI(APIView):
         response = dict()
         view_all = request.GET.get('view_all')
         unit_id = request.GET.get('unit_id')
-        
+        units_serializer:UnitRelatedFieldsSerializer = None
             
         if request.GET.get('rent_info'):
             
@@ -500,7 +500,7 @@ class UnitsAPI(APIView):
                 
                 # validate the client id to see if it can be accessed to the user
                 
-                if str(client_id) in request.user.clients_access.keys():
+                if int(client_id) in request.user.clients_access.keys():
                     for_rent = Unit.objects.filter(property__client=client_id, rented=False)
                     rented = Unit.objects.filter(property__client=client_id, rented=True)
                 else:
@@ -548,6 +548,12 @@ class UnitsAPI(APIView):
                     units = Unit.objects.filter(client=client_id)
                     
                 units_serializer = UnitRelatedFieldsSerializer(units, many=True)
+                
+                print('------------------------')
+                print('------------------------')
+                print('here')
+                print('------------------------')
+                print('------------------------')
             
             else:
                 unit_id = int(unit_id)
@@ -562,7 +568,9 @@ class UnitsAPI(APIView):
                         }, 
                         status=status.HTTP_404_NOT_FOUND)
         
-        response['units'] = units_serializer.data
+        
+        if units_serializer:
+            response['units'] = units_serializer.data
         
         return Response(response)
         

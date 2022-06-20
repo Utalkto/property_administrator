@@ -1,5 +1,4 @@
 # python
-
 import re
 
 # django
@@ -48,12 +47,12 @@ class CommentsAPI(APIView):
             except ValueError:
                 return Response({
                     'error': 'ValueError: the value provided in the variable comment_id is not valid, it must be int'
-                })
+                }, status=status.HTTP_400_BAD_REQUEST)
             
             if not len(comments):
                 return Response({
                     'error': 'Comment.DoesNotExist: the comment with provided id does not exist'
-                })
+                }, status=status.HTTP_404_NOT_FOUND)
         else:
             comments = Comment.objects.filter(client=client_id)
         
@@ -86,7 +85,7 @@ class CommentsAPI(APIView):
         else:
             return Response({
                 'error': serializer.errors
-            })
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         return Response(serializer.data)
         
