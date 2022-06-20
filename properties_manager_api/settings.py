@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'book_keeping',    
     'comments',
     'logs',
+    'to_do_list',
     # third party apps
     
     'rest_framework',

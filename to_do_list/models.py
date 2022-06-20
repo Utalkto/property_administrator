@@ -9,6 +9,13 @@ class ToDoList(models.Model):
     # --------------------------------------------------------
     # Fields 
     
+    name = models.CharField(max_length=120, default='')
+    
+
+class Task(models.Model):
+    
+    to_do_list = models.ForeignKey(ToDoList, on_delete=models.CASCADE)
+    
     completed = models.BooleanField(default=False)
-    text = models.TextField()
+    task = models.TextField()
     

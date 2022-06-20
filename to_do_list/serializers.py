@@ -4,16 +4,16 @@ from rest_framework import serializers
 #models
 from register.serializers import UserSerializer
 
-from .models import ToDoList
+from .models import Task
 
-class ToDoListSerializer(serializers.ModelSerializer):
+class TaskSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ToDoList
+        model = Task
         fields = '__all__'
         
 
-class ToDoLitRelatedFieldsSerializer(serializers.ModelSerializer):
-    owner = UserSerializer()
+class TaskRelatedFieldsSerializer(serializers.ModelSerializer):
+    to_do_listowner = UserSerializer()
     class Meta:
-        model = ToDoList
+        model = Task
         fields = '__all__'

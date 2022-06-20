@@ -44,6 +44,7 @@ urlpatterns = [
    path('api/v1/', include('book_keeping.urls')),
    path('api/v1/', include('comments.urls')),
    path('api/v1/', include('logs.urls')),
+   path('api/v1/', include('to_do_list.urls')),
    
    # tickets module with django 
    path('tickets/', include('tickets.urls')),
@@ -61,7 +62,7 @@ urlpatterns = [
    
    
    # auth
-   
+
    re_path(r'^authenticate/', CustomObtainAuthToken.as_view()),
      
    # drf urls

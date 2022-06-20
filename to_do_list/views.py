@@ -6,8 +6,10 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from to_do_list.models import ToDoList
-from to_do_list.serializers import ToDoListSerializer
+from to_do_list.models import Task
+from to_do_list.serializers import TaskSerializer
+
+from drf_yasg.utils import swagger_auto_schema
 
 
 class ToDoListAPI(APIView):
@@ -15,8 +17,9 @@ class ToDoListAPI(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
     
-    
-    def get(self, request):
+    @swagger_auto_schema(
+    responses={200: TaskSerializer()})
+    def get(self, request, list_id):
         """Regresa las tareas indicadas
 
         Query parameters:
@@ -24,31 +27,30 @@ class ToDoListAPI(APIView):
             completadas, si se marca como all, regresa todas las tareas
         """
         
-        
         tasks_completed = request.GET.get('tasks_completed')
         
         if tasks_completed is None:
-            tasks = ToDoList.objects.filter(onwer=request.user.id, completed=False)
+            tasks = Task.objects.filter(to_do_list__onwer=request.user.id, completed=False)
         else:
             if tasks_completed.upper() == 'TRUE':
-                tasks = ToDoList.objects.filter(onwer=request.user.id, completed=False)
+                tasks = Task.objects.filter(to_do_list__onwer=request.user.id, completed=False)
             
             elif tasks_completed == 'all':
-                tasks = ToDoList.objects.filter(onwer=request.user.id)
+                tasks = Task.objects.filter(to_do_list__onwer=request.user.id)
             
             else:
                 return Response({'error': 'te dije que solo, all, True or False'})
         
         
-        tasks_serializer = ToDoListSerializer(tasks)
+        tasks_serializer = TaskSerializer(tasks, many=True)
         
         return Response(tasks_serializer.data)
             
     
-    def post(self, request):
+    def post(self, request, list_id):
         
-        request.data['owner'] = request.user.id
-        todo_serializer = ToDoListSerializer(data=request.data)
+        request.data['to_do_list'] = list_id
+        todo_serializer = TaskSerializer(data=request.data)
 
         if todo_serializer.is_valid():
             todo_serializer.save()
@@ -57,15 +59,17 @@ class ToDoListAPI(APIView):
             return Response(todo_serializer.errors)
         
     
-    def put(self, request):
+    def put(self, request, list_id):
         
         try:
-            todo_list = ToDoList(id=(request.data['to_do_list_id'])).id
+            task:Task = Task.objects.get(id=(request.data['to_do_list']))
         except:
-            return Response({'error': 'to_do_list_id: debe ser int'})
+            return Response({'error': 'to_do_list: debe ser int'})
         
-        request.data['owner'] = request.user.id
-        todo_serializer = ToDoListSerializer(instance=todo_list, data=request.data)
+        request.data['task'] = task.task
+        
+        
+        todo_serializer = TaskSerializer(instance=task, data=request.data)
 
         if todo_serializer.is_valid():
             todo_serializer.save()
