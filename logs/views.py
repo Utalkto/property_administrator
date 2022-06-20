@@ -59,7 +59,7 @@ class LogAPI(APIView):
             return Response({'error': 'KeyError: client_id y logs debe ser dada'})
         
         
-        # this part should be just for the admin of an organization
+        # to get all the logs within an organization, the user must be an admin of that organization
         if client_id == 'all':
             
             if request.user.role.id != UserRoles.objects.get(name='Admin').id:
