@@ -43,6 +43,7 @@ urlpatterns = [
    path('api/v1/', include('payments.urls')),
    path('api/v1/', include('book_keeping.urls')),
    path('api/v1/', include('comments.urls')),
+   path('api/v1/', include('logs.urls')),
    
    # tickets module with django 
    path('tickets/', include('tickets.urls')),

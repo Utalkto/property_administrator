@@ -7,8 +7,6 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from django.db.models import Q
-
 from drf_yasg.utils import swagger_auto_schema
 
 from register.models import Organization
@@ -17,7 +15,9 @@ from register.models import Organization
 from .models import Log
 from logs.serializers import LogRelatedDataSerializer, LogSerializer
 # modules created for the app
-from app_modules.send_email import SendEmail
+from app_modules.permission import user_has_access
+
+from register.models import UserRoles
 
 
 class LogAPI(APIView):
@@ -32,7 +32,7 @@ class LogAPI(APIView):
         """Devuelve los ultimos logs de un cliente de una organizacion
         
         path parameters:
-            organization_id: bueno papá, si no sabes que va aquí ya me dirás tú, un beso
+            organization_id: bueno, papá, si no sabes que va aquí ya me dirás tú, un beso
         
         query paramerts:
             
@@ -43,6 +43,9 @@ class LogAPI(APIView):
             asociados al cliente dado
         """
 
+        # checking if user has access to the organization given
+        if not user_has_access(request.user, organization_id=organization_id):
+            return Response({'error': 'Access is not valid'})
 
         try:
             Organization.objects.get(id=organization_id)
@@ -56,14 +59,18 @@ class LogAPI(APIView):
             return Response({'error': 'KeyError: client_id y logs debe ser dada'})
         
         
+        # this part should be just for the admin of an organization
         if client_id == 'all':
+            
+            if request.user.role.id != UserRoles.objects.get(name='Admin').id:
+                return Response({'error': 'Access is not valid'})
+            
             if number_of_logs == 'all':
-                
                 logs = Log.objects.filter(client__organization=organization_id)
                 
             else:
                 try: number_of_logs = int(number_of_logs)
-                except: 
+                except:
                     return Response({
                         'error': 'ValueError: logs debe ser int o debe ser puesta como all para devolver todos los logs'
                         }, status=status.HTTP_400_BAD_REQUEST)
@@ -78,9 +85,12 @@ class LogAPI(APIView):
                     }, status=status.HTTP_400_BAD_REQUEST)
                 
                 
+            if not user_has_access(user=request.user, client_id=client_id):
+                return Response({'error': 'Access is not valid'})
+                
             if number_of_logs == 'all':
                 logs = Log.objects.filter(client=client_id)
-                
+
             else:
                 try: number_of_logs = int(number_of_logs)
                 except: 
