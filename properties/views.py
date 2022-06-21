@@ -1,5 +1,5 @@
 # python 
-import datetime 
+import datetime
 
 # twilio 
 from twilio.rest import Client
@@ -26,7 +26,8 @@ from .serializers import (PropertyRelatedFieldsSerializer, CountrySerializer, Pr
                                     PropertyTypeSerializer, TeamSerializer, TenantRelatedFieldsSerializer,
                                     TenantSerializer, UnitSerializer, UnitRelatedFieldsSerializer)
 
-from register.models import CustomUser
+from register.models import CustomUser, Organization
+from register.serializers import UserSerializer
 
 from logs.extra_modules import register_log
 
@@ -34,6 +35,7 @@ from candidates.models import Candidate
 
 # modules created for the app
 from app_modules.send_email import SendEmail
+from app_modules.permission import user_has_access
 
 
 # other fucntions
@@ -51,7 +53,6 @@ def put_candidate_as_tenant(candidate):
 
 # API --------------------------------------------
 # ------------------------------------------------
-
 
 @api_view(['GET'])
 @authentication_classes([authentication.TokenAuthentication])
@@ -394,7 +395,7 @@ class UnitsAPI(APIView):
         
         rent_info (bool)(Optional) here: indicates if number of units rented and not rented is needed
         
-        leases_to_exp (bool)(Optional): indicates if the number of units wich leases are going to exp 
+        leases_to_exp (bool)(Optional): indicates if the number of units which leases are going to exp 
         
         unit_id (int)(Optional): indicates the id of the unit that is needed, if set to "all" 
         returns all the units a client owns
@@ -873,32 +874,45 @@ class TeamApi(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,) 
     
-    def get(self, request, team_id):
+    def get(self, request, organization_id):
         
-        if team_id == 'all':
-            team = Team.objects.filter(landlord=request.user.id)
-        else:
-            try:
-                team = Team.objects.filter(id=int(team_id), lanlord=request.user.id)
-            except Team.DoesNotExist:
-                return Response(
-                        {
-                            'error': True,
-                            'message': 'team object with that id does not exist'
-                        }, status=status.HTTP_404_NOT_FOUND
-                    )
-            except:
-                return Response(
-                        {
-                            'error': True,
-                            'message': 'id provided is not valid'
-                        }, status=status.HTTP_400_BAD_REQUEST
-                    )
+        """Retorna los usuarios que posee una organization
+        
+        query parameters:
+            client_id (int): el id del cliente que de los que se quiere obtener, dejarlo en blanco para obtener todas
+
+        Returns:
+            _type_: _description_
+        """
+        
+        if not user_has_access(user=request.user, organization_id=organization_id):
+            return Response({'error': 'Access is not valid'})
+        
+        
+        if request.GET.get('client_id') is None:
             
-        serializer = TeamSerializer(team, many=True)
-        return Response(serializer.data)
+            try: organization = Organization.objects.get(id=organization_id)
+            except Organization.DoesNotExist:
+                return Response({'error': 'Organization.DoesNotExist'})
+            
+            team = organization.customuser_set.all()
+            users_serializer = UserSerializer(team, many=True)
+
+        else:
+            try: 
+                client_id = int(request.GET.get('client_id'))
+            
+                team = CustomUser.objects.filter(organization=organization_id, clients_access__1=client_id)
+                users_serializer = UserSerializer(team, many=True)
+            
+            except ValueError:
+                return Response({'error': 'ValueError: client_id debe ser int'})
+            
         
-        
+        return Response(users_serializer.data)
+
+
+
     def post(self, request):
         
         request.data['landlord'] = request.user.id

@@ -101,12 +101,12 @@ class MonthlyPaymentsApi(APIView):
         
         """MonthlyPaymentsApi GET
 
-        parameters:
-            client_id <int> (required) = The id of the client the sets of units are going to be created
-            
-            from_date <int><query_parameter> (optional) = From the date it will take the registers, month and year included 
-            
-            to_date <int><query_parameter> (optional) = From the date it will take the registers, month and year not included 
+            parameters:
+                client_id <int> (required) = The id of the client the sets of units are going to be returned
+                
+                from_date <int><query_parameter> (optional) = From the date it will take the registers, month and year included 
+                
+                to_date <int><query_parameter> (optional) = From the date it will take the registers, month and year not included 
         
         Returns:
             _type_: _description_
@@ -140,10 +140,20 @@ class MonthlyPaymentsApi(APIView):
                     Q(month__gte=from_date.strftime('%m')) | Q(year__gte=from_date.strftime('%Y')))
                   
             else:     
-                payments = UnitMonthlyPayments.objects.filter(unit__client_id=client_id).filter(
+                payments = UnitMonthlyPayments.objects.filter(unit=int(request.GET['unit_id'])).filter(
                     Q(month__gte=int(from_date.strftime('%m'))) | Q(year__gte=int(from_date.strftime('%Y')))).filter(
                     Q(month__lt=int(to_date.strftime('%m'))) | Q(year__lt=int(to_date.strftime('%Y'))))
-
+        else:
+            if to_date == 'all':
+            
+                payments = UnitMonthlyPayments.objects.filter(unit__property__client=client_id).filter(
+                    Q(month__gte=from_date.strftime('%m')) | Q(year__gte=from_date.strftime('%Y')))
+                  
+            else:     
+                payments = UnitMonthlyPayments.objects.filter(unit__property__client=client_id).filter(
+                    Q(month__gte=int(from_date.strftime('%m'))) | Q(year__gte=int(from_date.strftime('%Y')))).filter(
+                    Q(month__lt=int(to_date.strftime('%m'))) | Q(year__lt=int(to_date.strftime('%Y'))))
+            
 
         # if request.GET.get('incompleted_payments') is not None:
         completed_payments = payments.filter(debt=0).count()

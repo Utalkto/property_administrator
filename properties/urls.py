@@ -14,6 +14,5 @@ urlpatterns = [
     path('set-unit-as-rented/<int:candidate_id>', set_unit_rented),
     path('info-to-create-property', data_to_create_property),
     
-    path('team', TeamApi.as_view()),
-    path('team/<str:team_id>', TeamApi.as_view()),
+    path('team/<int:organization_id>', TeamApi.as_view()),
 ]
