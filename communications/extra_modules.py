@@ -76,10 +76,10 @@ def read_emails():
 
 # we need to check each oraganizatio email to be able to get all them and send them to the correct place
         
-def save(self, **kwargs):        
-    f = Fernet(self.key)
-    self.email_password = f.encrypt(self.email_password)
-    super().save(**kwargs)
+# def save(self, **kwargs):        
+#     f = Fernet(self.key)
+#     self.email_password = f.encrypt(self.email_password)
+#     super().save(**kwargs)
     
     
 
@@ -87,9 +87,8 @@ def get_password(organzation:Organization):
     
     f = Fernet(organzation.key)
     email_paswword = f.decrypt(organzation.email_password).decode('utf-8')
-    
-    
     return email_paswword
+
 
 def check_organization_emails():
     
@@ -97,15 +96,17 @@ def check_organization_emails():
     
     for org in organizations:
         email_password = get_password(org)
+        
+        get_emails(organizations.email_username, email_password)
     
     # decoding the password email for that client 
     
 
 
 
-def get_emails():
+def get_emails(email:str, password:str):
     # get emails that have been received since a certain time
-    with MailBox(SMTP_SERVER).login(FROM_EMAIL, FROM_PWD, 'INBOX') as mailbox:
+    with MailBox(SMTP_SERVER).login(email, password, 'INBOX') as mailbox:
         for msg in mailbox.fetch(A(date_gte=datetime.date(2022, 6, 21))):
             
             t = msg.date.time()

@@ -5,7 +5,7 @@ from register.models import CustomUser
 class ToDoList(models.Model):
     # ForeignKey 
     
-    onwer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     # --------------------------------------------------------
     # Fields 
     

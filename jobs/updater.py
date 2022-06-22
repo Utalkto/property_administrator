@@ -5,6 +5,8 @@ scheduler = BackgroundScheduler()
 
 def start():
     
-	scheduler.add_job(get_emails, 'interval', seconds=20)	
+	# scheduler.add_job(get_emails, 'interval', seconds=20)	
 	# scheduler.start()
+ 
+ 	pass
 
