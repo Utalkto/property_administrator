@@ -77,9 +77,6 @@ class ToDoListAPI(APIView):
         except:
             return Response({'error': 'task_id: debe ser int'})
         
-        request.data['task'] = task.task
-        
-        
         todo_serializer = TaskSerializer(instance=task, data=request.data)
 
         if todo_serializer.is_valid():

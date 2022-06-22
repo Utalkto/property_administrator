@@ -121,5 +121,8 @@ def get_emails(email:str, password:str):
             
         
     
+def save_email_in_database():
+    
+    pass
     
     
