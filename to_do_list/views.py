@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from to_do_list.models import Task
+from to_do_list.models import Task, ToDoList
 from to_do_list.serializers import TaskSerializer
 
 from drf_yasg.utils import swagger_auto_schema
@@ -22,12 +22,23 @@ class ToDoListAPI(APIView):
     def get(self, request, list_id):
         """Regresa las tareas indicadas
 
-        Query parameters:
-            tasks_completed (bool): por defecto es False, de ponerlo a True regresa solo las tareas marcadas como 
-            completadas, si se marca como all, regresa todas las tareas
+            Query parameters:
+                tasks_completed (bool): por defecto es False, de ponerlo a True regresa solo las tareas marcadas como 
+                completadas, si se marca como all, regresa todas las tareas
         """
         
         tasks_completed = request.GET.get('tasks_completed')
+        
+        try: ToDoList.objects.get(owner=request.user.id)
+        except:
+            
+            t = ToDoList(
+                owner = request.user.id,
+                name = 'ToDoList'
+            )
+            
+            t.save()
+            
         
         if tasks_completed is None:
             tasks = Task.objects.filter(to_do_list__onwer=request.user.id, completed=False)
@@ -50,6 +61,7 @@ class ToDoListAPI(APIView):
     def post(self, request, list_id):
         
         request.data['to_do_list'] = list_id
+ 
         todo_serializer = TaskSerializer(data=request.data)
 
         if todo_serializer.is_valid():
@@ -62,9 +74,9 @@ class ToDoListAPI(APIView):
     def put(self, request, list_id):
         
         try:
-            task:Task = Task.objects.get(id=(request.data['to_do_list']))
+            task:Task = Task.objects.get(id=(request.data['task_id']))
         except:
-            return Response({'error': 'to_do_list: debe ser int'})
+            return Response({'error': 'task_id: debe ser int'})
         
         request.data['task'] = task.task
         
@@ -76,3 +88,13 @@ class ToDoListAPI(APIView):
             return Response(todo_serializer.data)
         else:
             return Response(todo_serializer.errors)
+        
+    
+    def delete(self, request, list_id):
+        try:
+            task:Task = Task.objects.get(id=(request.data['task_id']))
+        except:
+            return Response({'error': 'task_id: debe ser int'})
+        
+        task.delete()
+        

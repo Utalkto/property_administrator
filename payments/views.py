@@ -233,13 +233,13 @@ class MonthlyPaymentsApi(APIView):
                 current_year_in_db += 1
             
             year_to_put = current_year_in_db
-            for unit in units:                    
-                if UnitMonthlyPayments.objects.get(unit=unit.id, month=month_to_put, year=year_to_put) is None:
+            for unit in units:        
+                if not UnitMonthlyPayments.objects.filter(unit=unit.id, month=month_to_put, year=year_to_put):
                     new_monthly_payment = UnitMonthlyPayments(
                         unit=unit,
                         month=month_to_put,
                         year=year_to_put,
-                        amount_to_pay=unit.rent,
+                        debt=unit.rent,
                         paid_on_time=True,
                     )
                     

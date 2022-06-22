@@ -1,6 +1,10 @@
 # python
+
+
+
 # django 
 from django.db import models
+from django.contrib.auth.hashers import make_password, check_password
 
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -77,12 +81,27 @@ class Organization(models.Model):
     date_created = models.DateTimeField()
     due_date = models.DateTimeField()
     
+    email_username = models.CharField(max_length=256, null=True, default=None)
+    email_password = models.BinaryField(null=True, default=None)
+    
+    key = models.BinaryField(null=True, default=None)
+    
     name = models.CharField(max_length=120)
     
     payment_status = models.BooleanField()
     
     def __str__(self) -> str:
         return f'{self.id} - {self.name}'
+    
+    
+    # def save(self, **kwargs):
+    #     some_salt = 'jksaof23w0923df32' 
+    #     self.password_test = make_password(self.password_test, some_salt)
+        
+    #     if not self.id and self.services == 'Multiple' and not self.routing:
+    #         raise ValidationError("You must have to provide routing for multiple services deployment.")
+    #     super().save(**kwargs)
+
 
 
 class OrganizationClient(models.Model):
@@ -143,7 +162,7 @@ class CustomUserManager(BaseUserManager):
 
 def outer_json_is_object(value):
     if not isinstance(value, dict):
-        raise ValidationError(_('Outer JSON item should be an object'), code='invalid_json_object')
+        raise ValidationError(('Outer JSON item should be an object'), code='invalid_json_object')
 
 
 class IntKeyJSONField(models.JSONField):

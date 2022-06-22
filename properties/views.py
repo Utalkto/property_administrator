@@ -662,7 +662,7 @@ class TenantViewSet(APIView):
         
         if client_id == 'all':
             clients_with_access = request.user.clients_access.keys()
-            tenants = Tenants.objects.filter(unit__property__client__in=clients_with_access)
+            tenants = Tenants.objects.filter(unit__property__client__in=clients_with_access, deleted=False)
         
         else:
             try: 
@@ -683,7 +683,7 @@ class TenantViewSet(APIView):
                     }, status=status.HTTP_400_BAD_REQUEST)
                 
             if tenant_id == 'all':
-                tenants = Tenants.objects.filter(unit__property__client=client_id)
+                tenants = Tenants.objects.filter(unit__property__client=client_id, deleted=False)
             else:
                 try:
                     tenant_id = int(tenant_id)
@@ -692,7 +692,7 @@ class TenantViewSet(APIView):
                             'error': 'ValueError: the value of tenant_id is not valid it must be int or set to "all" to get all tenants'
                         }, status=status.HTTP_400_BAD_REQUEST)
                 
-                tenants = Tenants.objects.filter(client_id=client_id, id=tenant_id)
+                tenants = Tenants.objects.filter(id=tenant_id, deleted=False)
                 
                 if not len(tenants):
                     return Response({'error': 'Tenant.DoesNotExist: tenant with that id does not exist'}, status=status.HTTP_404_NOT_FOUND)
@@ -811,7 +811,7 @@ class TenantViewSet(APIView):
         if not key_valid:
             return Response(response[0]['message'], status=response[0]['status'])
         else:
-            tenant = response
+            tenant:Tenants = response
             
 
         register_log(
@@ -821,7 +821,8 @@ class TenantViewSet(APIView):
             date_made=timezone.now(),
         )
             
-        tenant.delete()
+        tenant.deleted = True
+        tenant.save()
         return Response(
             {
                 "message": "the tenant has been eliminated successfully"
@@ -902,8 +903,15 @@ class TeamApi(APIView):
             try: 
                 client_id = int(request.GET.get('client_id'))
             
-                team = CustomUser.objects.filter(organization=organization_id, clients_access__1=client_id)
-                users_serializer = UserSerializer(team, many=True)
+                team = CustomUser.objects.filter(organization=organization_id)
+                part_of_team = list()
+                
+                for user in team:
+                    
+                    if client_id in user.clients_access.keys():
+                        part_of_team.append(user)
+                
+                users_serializer = UserSerializer(part_of_team, many=True)
             
             except ValueError:
                 return Response({'error': 'ValueError: client_id debe ser int'})
@@ -912,6 +920,7 @@ class TeamApi(APIView):
         return Response(users_serializer.data)
 
 
+# ALL THESE PARTS MUST BE DEPRECATED
 
     def post(self, request):
         

@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'djoser',
     'drf_yasg',
+    "django_apscheduler",
+    
     
 ]
 

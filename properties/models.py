@@ -239,6 +239,8 @@ class Tenants(models.Model):
                                              default=None, related_name='tenant_last_edited_by')
 
     
+    deleted = models.BooleanField(default=False)
+    
     def __str__(self) -> str:
         return f'{self.id} - {self.name}'
     
