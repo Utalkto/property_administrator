@@ -69,7 +69,8 @@ INSTALLED_APPS = [
 CORS_ALLOWED_ORIGINS = [
     "http://154.12.240.122",
     "http://localhost:3000",
-    "http://app.kumbio.com"
+    "http://app.kumbio.com",
+    "https://kumbio-beta.netlify.app",
 ]
 
 
