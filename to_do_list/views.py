@@ -43,12 +43,11 @@ class ToDoListAPI(APIView):
         if tasks_completed is None:
             tasks = Task.objects.filter(to_do_list__owner=request.user.id, completed=False)
         else:
-            if tasks_completed.upper() == 'TRUE':
-                tasks = Task.objects.filter(to_do_list__owner=request.user.id, completed=False)
-            
-            elif tasks_completed == 'all':
+            if tasks_completed == 'all':
                 tasks = Task.objects.filter(to_do_list__owner=request.user.id)
-            
+                
+            elif tasks_completed:
+                tasks = Task.objects.filter(to_do_list__owner=request.user.id, completed=True)
             else:
                 return Response({'error': 'te dije que solo, all, True or False'})
         
