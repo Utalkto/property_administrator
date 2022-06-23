@@ -1,36 +1,39 @@
-import defusedxml
 from django.db import models
 
 # models for the foreing key 
-from properties.models import Team, Tenants
-from register.models import CustomUser
+from properties.models import Tenants
+from register.models import CustomUser, OrganizationClient
 from tickets.models import Suppliers
 
 
-class MessageSent(models.Model):
+class Conversation(models.Model):
+    client = models.ForeignKey(OrganizationClient, null=False, on_delete=models.CASCADE)
+    
+
+class Message(models.Model):
     
     # foreign keys 
     
+    # conversation = models.ForeignKey(Conversation, null=False, on_delete=models.CASCADE, default=1)
+    
     tenant = models.ForeignKey(Tenants, null=True, blank=False, on_delete=models.CASCADE, default=None)
     supplier = models.ForeignKey(Suppliers, null=True, blank=False, on_delete=models.CASCADE, default=None)
-    team = models.ForeignKey(Team, null=True, blank=False, on_delete=models.CASCADE, default=None)
     
-    user = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
+    sent_by_user = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.CASCADE, default=None)
 
-    #  ------------------------------------
+    #  ---------------------------------------------------------------------------
     #  fields
-    
     
     date_time_sent = models.DateTimeField()
     
     message = models.TextField(default='')
     
-    receiver = models.CharField(default='tenant', max_length=80)
-    
     subject = models.CharField(max_length=120, null=True)
-    sent_by = models.CharField(default='user', max_length=80)
     
     via = models.CharField(max_length=50, default='')  
+    
+    unkonwn_email = models.EmailField(null=True, default=None)
+    unkonwn_phone = models.CharField(max_length=120, null=True, default=None)
     
     def __str__(self) -> str:
         return f'{self.id} - {self.via}'

@@ -45,6 +45,10 @@ class CommunicationsAPI(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,)
     
+    
+    def get(self, request):
+        pass
+    
 
     def post(self, request):
 
@@ -237,7 +241,7 @@ def messages_details(request, contact_id, user_type, token):
 
     
     
-    messages = contact.messagesent_set.all().order_by('-date_time_sent')
+    messages = contact.message_set.all().order_by('-date_time_sent')
     messages_sent = messages.count()
     
     return render(

@@ -94,3 +94,4 @@ class ToDoListAPI(APIView):
         
         task.delete()
         
+        return Response({'message': 'success'})
