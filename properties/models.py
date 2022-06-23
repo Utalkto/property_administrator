@@ -190,6 +190,19 @@ class Unit(models.Model):
     last_time_edited = models.DateTimeField(null=True, default=None)
     last_edition_made_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT, 
                                              default=None, related_name='unit_last_edited_by')
+    
+    accessibility_features = models.BooleanField(default=False)
+    ad_title = models.CharField(max_length=120, default='')
+    description = models.TextField(default='')
+    
+    smoking_permitted = models.BooleanField(default=False)
+    
+    is_school_near = models.BooleanField(default=False)
+    is_hospital_near = models.BooleanField(default=False)
+    is_mall_near = models.BooleanField(default=False)
+    is_store_near = models.BooleanField(default=False)
+    is_bus_stop_near = models.BooleanField(default=False)
+    
 
     def __str__(self) -> str:
         return f'{self.id} - {self.property.name} - {self.property.id}' 

@@ -17,9 +17,12 @@ from rest_framework.authtoken.models import Token
 # twilio 
 from twilio.rest import Client
 
+from communications.models import Conversation, Message
+
 # serializers
 
-from .serializers import MessageSerializer
+from .serializers import ConversationSerializer, MessageSerializer
+from .models import Message
 from django.utils import timezone
 
 # property modules
@@ -46,9 +49,55 @@ class CommunicationsAPI(APIView):
     authentication_classes = (TokenAuthentication,)
     
     
-    def get(self, request):
-        pass
-    
+    def get(self, request, client_id:int):
+        
+        """Obtener la conversacion que un cliente tiene con un tenant o un supplier
+        
+            query parameters:
+                conversation_id (int): el id de la conversacion que se quiere obtener, por defecto esta en all
+                con lo que devuelve todas las conversaciones
+                
+                send_from_message (int): la cantidad de mensajes que se van a cargar iniciando por
+                por defecto 0
+                
+                send_up_to_message (int): la cantidad de mensajes que se van a cargar hasta, si se ingresa send_from
+                tambien se debe ingresar este campo
+                
+                send_from_message and send_up_to_message, hacen un rango de mensajes, es decir, que si 
+                send_from_message = 0 and send_up_to_message 20, se van a enviar los primeros 20 mesajes
+                en esa conversacion
+        """
+        
+        conversation_id = request.GET.get('conversation_id')
+        send_from_message = request.GET.get('send_from_message')
+        send_up_to_message = request.GET.get('send_up_to_message')
+        
+        
+        if conversation_id == None:
+            conversation = Conversation.objects.filter(client=client_id)         
+            return ConversationSerializer(conversation)
+            
+        else:
+            
+            try: conversation_id = int(conversation_id)
+            except: return Response({'error': 'ValueError: conversation_id debe ser entero'})
+            
+            if send_from_message is None or send_up_to_message is None:
+                send_from_message = 0
+                send_up_to_message = 20
+            else:
+                try:
+                    send_from_message = int(send_from_message)
+                    send_up_to_message = int(send_up_to_message)
+                except:
+                    return Response({'error': 'ValueError: send_from_message and send_up_to_message must be integers'})
+            
+            # here is to return all the messages within a conversation
+            
+            messages = Message.objects.filter(conversation=conversation_id)[send_from_message:send_up_to_message]
+             
+            return MessageSerializer(messages).data
+            
 
     def post(self, request):
 
@@ -56,6 +105,8 @@ class CommunicationsAPI(APIView):
         
         message = request.data['message']
         subject = request.data['subject']
+        
+        conversation:Conversation = Conversation.objects.get(id=request.data['conversation'])
 
         # d = request.data['datetime']
         
@@ -173,6 +224,10 @@ class CommunicationsAPI(APIView):
                 )
                 
         
+            conversation.last_message = message
+            conversation.last_message_sent_by_user = message
+            conversation.save()
+            
             return Response(
                     {
                         'message': 'message sent successfully',

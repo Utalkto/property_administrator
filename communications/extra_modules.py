@@ -1,11 +1,10 @@
 # Python 3.8.0
-
-import imaplib
-import email
-import traceback 
 from imap_tools import MailBox, A
-import datetime
 from cryptography.fernet import Fernet
+from communications.models import Conversation
+
+import datetime
+
 # django
 from properties.models import Tenants
 from register.models import Organization
@@ -13,7 +12,7 @@ from register.models import Organization
 from django.db.models import Q
 
 from tickets.models import Suppliers
-from .serializers import MessageSerializer
+from .serializers import MessageSerializer, ConversationSerializer, ConversationRelatedFieldsSerializer
 
 
 FROM_PWD = "OrinocoV2022.." 
@@ -29,66 +28,30 @@ SMTP_SERVER = "imap.hostinger.com"
 
 SMTP_PORT = 993
 
-# deprecated ??? 
-def read_emails():
-    try:
 
-        mail = imaplib.IMAP4_SSL(SMTP_SERVER)
-
-        mail.login(FROM_EMAIL,FROM_PWD)
-        mail.select('inbox')
-
-        # data = mail.search(None, '(FROM "notify@payments.interac.ca")')
-
-        data = mail.search(None, '(FROM "andresruse18@gmail.com")')
-        mail_ids = data[1]
-
-        id_list = mail_ids[0].split()
-        
-        # iterating throught each email_id
-        n = 0
-        for i in id_list:
-            n+=1
-            data = mail.fetch(str(int(i)), '(RFC822)')
-
-            for response_part in data:
-                arr = response_part[0]
-
-                if isinstance(arr, tuple):
-
-                    msg = email.message_from_string(str(arr[1],'utf-8'))
-                    email_subject = str(msg['subject'])
-                    
-                    email_message = str(msg.get_payload()[0])
+def create_new_conversation(client_id:int, tenant_id:int=None, supplier_id:int=None) -> Conversation:
     
-                    print('-----------------------------------')
-                    print('-----------------------------------')
-                    
-                    print('subject:', email_subject)
-                    print('message:', email_message)
-                    print('times:', n)
-                    
-                    print('-----------------------------------')
-                    print('-----------------------------------')
-            break
-                            
-    except Exception as e:
-
-        traceback.print_exc() 
-
-        print(str(e))
-
-
-# we need to check each oraganizatio email to be able to get all them and send them to the correct place
-        
-# def save(self, **kwargs):        
-#     f = Fernet(self.key)
-#     self.email_password = f.encrypt(self.email_password)
-#     super().save(**kwargs)
+    data_for_serializer = {
+        'tenant': tenant_id,
+        'supplier_id': supplier_id,
+        'client': client_id,
+    }
+    
+    serializer = ConversationSerializer(data=data_for_serializer)
+    
+    if serializer.is_valid():
+        serializer.save()
+    
+    else:
+        print('---------------------------------')
+        print(serializer.errors)
+        print('---------------------------------')
     
     
+    return Conversation.objects.get(id=serializer.data['id'])
+    
 
-def get_password(organization:Organization):
+def get_password(organization:Organization) -> str:
 
     f = Fernet(organization.key.tobytes())
 
@@ -109,20 +72,45 @@ def save_email_in_database(sent_from:str, subject:str, message:str, datetime_rec
     }
     
     try: 
-        tenant = Tenants.objects.get(Q(email=sent_from) | Q(email2=sent_from))
+        tenant:Tenants = Tenants.objects.get(Q(email=sent_from) | Q(email2=sent_from))
         data_for_serializer['tenant'] = tenant.id
         data_for_serializer['client'] = tenant.client.id
+        try:
+            conversation:Conversation = Conversation.objects.get(tenant_id=tenant.id)
+            
+        except:
+            print('creating a new conversatoin in the db for tenant')
+            conversation = create_new_conversation(tenant_id=tenant.id, client_id=tenant.client.id)
+            print(conversation)
         
     except:
         try: 
-            supplier = Suppliers.objects.get(email=sent_from)
+            supplier:Suppliers = Suppliers.objects.get(email=sent_from)
             data_for_serializer['supplier'] = supplier.id
             data_for_serializer['client'] = supplier.client.id
             
+            try:
+                conversation:Conversation = Conversation.objects.get(supplier=supplier.id)
+
+            except:
+                print('creating a new conversatoin in the db for supplier')
+                conversation = create_new_conversation(supplier_id=supplier.id, client_id=supplier.client.id)
+            
         except:
             data_for_serializer['unknown_email'] = sent_from
-            
-            
+            conversation = None
+    
+    if conversation:
+        data_for_serializer['conversation'] = conversation.id
+        conversation.last_message = message
+        conversation.last_message_sent_by_user = False
+    else:
+        data_for_serializer['conversation'] = None
+    
+    
+    conversation.save()
+    
+    
     serializer = MessageSerializer(data=data_for_serializer)
     
     

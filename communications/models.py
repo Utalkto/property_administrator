@@ -9,17 +9,30 @@ from tickets.models import Suppliers
 class Conversation(models.Model):
     client = models.ForeignKey(OrganizationClient, null=False, on_delete=models.CASCADE)
     
+    tenant = models.ForeignKey(Tenants, null=True, on_delete=models.CASCADE)
+    supplier = models.ForeignKey(Suppliers, null=True, on_delete=models.CASCADE)
+    
+    last_message = models.TextField(default='')
+    last_message_sent_by_user = models.BooleanField(default=False)
+    
+    def save(self, **kwargs):
+        
+        if self.supplier == 33:
+            self.supplier = None
+        
+        if self.last_message == 'None':
+            self.last_message = ''
+        
+        super().save(**kwargs)
+    
 
 class Message(models.Model):
     
     # foreign keys 
     
-    # conversation = models.ForeignKey(Conversation, null=False, on_delete=models.CASCADE, default=1)
-    
-    tenant = models.ForeignKey(Tenants, null=True, blank=False, on_delete=models.CASCADE, default=None)
-    supplier = models.ForeignKey(Suppliers, null=True, blank=False, on_delete=models.CASCADE, default=None)
-    
+    conversation = models.ForeignKey(Conversation, null=True, on_delete=models.CASCADE, default=None)
     sent_by_user = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.CASCADE, default=None)
+    
 
     #  ---------------------------------------------------------------------------
     #  fields
@@ -29,6 +42,8 @@ class Message(models.Model):
     message = models.TextField(default='')
     
     subject = models.CharField(max_length=120, null=True)
+    
+    received = models.BooleanField(default=False)
     
     via = models.CharField(max_length=50, default='')  
     
