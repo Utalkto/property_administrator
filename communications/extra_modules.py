@@ -60,7 +60,8 @@ def get_password(organization:Organization) -> str:
     return email_paswword
 
 
-def save_email_in_database(sent_from:str, subject:str, message:str, datetime_received:datetime):
+def save_message_in_database(sent_from:str, subject:str, message:str, datetime_received:datetime, 
+                             sent_from_email:bool=True) -> dict:
     
     # we need to check if the email that was sent to the organization is from a contact that is in the db
     
@@ -68,24 +69,36 @@ def save_email_in_database(sent_from:str, subject:str, message:str, datetime_rec
         'date_time_sent' : datetime_received,
         'subject': subject,
         'message': message,
-        'via': 'EMAIL',
     }
     
+    if sent_from_email:
+        data_for_serializer['via'] = 'EMAIL'
+    else:
+        data_for_serializer['via'] = 'SMS'
+
     try: 
-        tenant:Tenants = Tenants.objects.get(Q(email=sent_from) | Q(email2=sent_from))
+        if sent_from_email:
+            tenant:Tenants = Tenants.objects.get(Q(email=sent_from) | Q(email2=sent_from))
+        else:
+            tenant:Tenants = Tenants.objects.get(Q(phone=sent_from) | Q(phone2=sent_from))
+            
         data_for_serializer['tenant'] = tenant.id
         data_for_serializer['client'] = tenant.client.id
         try:
             conversation:Conversation = Conversation.objects.get(tenant_id=tenant.id)
             
         except:
-            print('creating a new conversatoin in the db for tenant')
+            print('creating a new conversation in the db for tenant')
             conversation = create_new_conversation(tenant_id=tenant.id, client_id=tenant.client.id)
             print(conversation)
         
     except:
         try: 
-            supplier:Suppliers = Suppliers.objects.get(email=sent_from)
+            if sent_from_email:
+                supplier:Suppliers = Suppliers.objects.get(email=sent_from)
+            else:
+                supplier:Suppliers = Suppliers.objects.get(phone=sent_from)
+                
             data_for_serializer['supplier'] = supplier.id
             data_for_serializer['client'] = supplier.client.id
             
@@ -104,34 +117,38 @@ def save_email_in_database(sent_from:str, subject:str, message:str, datetime_rec
         data_for_serializer['conversation'] = conversation.id
         conversation.last_message = message
         conversation.last_message_sent_by_user = False
+        conversation.save()
+        
     else:
         data_for_serializer['conversation'] = None
-    
-    
-    conversation.save()
-    
+       
     
     serializer = MessageSerializer(data=data_for_serializer)
     
-    
     if serializer.is_valid():
         serializer.save()
+    else:
+        print(serializer.errors)
+        
+    return dict(serializer.data)
     
 
 def get_emails(email:str, password:str):
     # get emails that have been received since a certain time
+    
+    now = datetime.datetime.now()
+    
     with MailBox(SMTP_SERVER).login(email, password, 'INBOX') as mailbox:
-        for msg in mailbox.fetch(A(date_gte=datetime.date(2022, 6, 23))):
+        for msg in mailbox.fetch(A(date_gte=datetime.date(now.year, now.month, now.day))):
             
             t = msg.date.time()
-            now = datetime.datetime.now()
             forty_seconds_before = now - datetime.timedelta(seconds=60)       
             
             if t > forty_seconds_before.time():
                 
                 print(msg.subject)
                 
-                save_email_in_database(
+                save_message_in_database(
                     sent_from=msg.from_,
                     subject=msg.subject, 
                     message=msg.text, 

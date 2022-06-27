@@ -1,6 +1,5 @@
 # python
 import datetime
-
 # django 
 
 from django.shortcuts import render
@@ -9,19 +8,23 @@ from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 
+from django.utils import timezone
+
 # twilio 
 from twilio.rest import Client
+from twilio import twiml
 
 from communications.models import Conversation, Message
 
 # serializers
 
-from .serializers import ConversationSerializer, MessageSerializer
+from .serializers import ConversationRelatedFieldsSerializer, ConversationSerializer, MessageSerializer
 from .models import Message
 from django.utils import timezone
 
@@ -34,6 +37,9 @@ from tickets.models import Suppliers
 from app_modules.send_email import SendEmail
 from app_modules.decorators import check_login
 from app_modules.main import convert_to_bool
+
+from .extra_modules import save_message_in_database
+from app_modules.permission import user_has_access
 
 # API -----------------------------------------------
 
@@ -68,14 +74,16 @@ class CommunicationsAPI(APIView):
                 en esa conversacion
         """
         
+        if not user_has_access(request.user, client_id=client_id):
+            return Response({'error': 'Access is not valid'}, status=status.HTTP_401_UNAUTHORIZED)
+        
         conversation_id = request.GET.get('conversation_id')
         send_from_message = request.GET.get('send_from_message')
         send_up_to_message = request.GET.get('send_up_to_message')
         
-        
         if conversation_id == None:
-            conversation = Conversation.objects.filter(client=client_id)         
-            return ConversationSerializer(conversation)
+            conversation = Conversation.objects.filter(client=client_id)
+            serializer = ConversationRelatedFieldsSerializer(conversation, many=True)   
             
         else:
             
@@ -95,11 +103,13 @@ class CommunicationsAPI(APIView):
             # here is to return all the messages within a conversation
             
             messages = Message.objects.filter(conversation=conversation_id)[send_from_message:send_up_to_message]
-             
-            return MessageSerializer(messages).data
+            serializer = MessageSerializer(messages, many=True)
+        
+        
+        return Response(serializer.data)
             
 
-    def post(self, request):
+    def post(self, request, client_id:int):
 
         # if email then the message will be sent by email
         
@@ -243,6 +253,40 @@ class CommunicationsAPI(APIView):
                     }, status=status.HTTP_400_BAD_REQUEST)
           
         
+@api_view(['POST'])
+def twilio_in_bound(request):
+    data = dict(request.data.iterlists())
+    
+    now = timezone.now()
+    
+    message_serializer = save_message_in_database(
+            sent_from=data['from'],
+            subject=None, 
+            message=data['body'], 
+            datetime_received=now,
+            sent_from_email=False)
+    
+    return Response(message_serializer)
+
+    
+    
+
+# twilio parameters
+
+# <QueryDict: {'ToCountry': ['US'], 
+#              'ToState': ['SC'], 'SmsMessageSid': ['SM318448395913161173cac32e365927ac'], 
+#              'NumMedia': ['0'], 'ToCity': ['GREENVILLE'], 'FromZip': [''], 
+#              'SmsSid': ['SM318448395913161173cac32e365927ac'], 'FromState': ['Alberta'], 
+#              'SmsStatus': ['received'], 'FromCity': ['Calgary'], 'Body': ['Second sms'], 
+#              'FromCountry': ['CA'], 'To': ['+18642522485'], 
+#              'MessagingServiceSid': ['MGdb65d9bf4569d21aaaaaa12ac6b8316e'], 
+#              'ToZip': ['29601'], 'NumSegments': ['1'], 'ReferralNumMedia': ['0'], 'MessageSid': ['SM318448395913161173cac32e365927ac'], 
+#              'AccountSid': ['AC07f9df720f406836bf36885a0795dd66'], 'From': ['+15873162968'], 'ApiVersion': ['2010-04-01']}>
+
+
+
+# deprecated
+
 # ----------------------------------------------------
 
 @check_login
@@ -310,9 +354,3 @@ def messages_details(request, contact_id, user_type, token):
            'messages_sent': messages_sent,
            'token' : token,
         })
-
-
-
-
-
-    

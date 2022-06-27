@@ -43,8 +43,6 @@ class Message(models.Model):
     
     subject = models.CharField(max_length=120, null=True)
     
-    received = models.BooleanField(default=False)
-    
     via = models.CharField(max_length=50, default='')  
     
     unkonwn_email = models.EmailField(null=True, default=None)
