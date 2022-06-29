@@ -41,14 +41,14 @@ urlpatterns = [
    # -------------------------------------------------
     
    # API urls 
-   path('api/v1/', include('register.urls')),
-   path('api/v1/', include('properties.urls')),
-   path('api/v1/', include('candidates.urls')),
-   path('api/v1/', include('payments.urls')),
-   path('api/v1/', include('book_keeping.urls')),
-   path('api/v1/', include('comments.urls')),
-   path('api/v1/', include('logs.urls')),
-   path('api/v1/', include('to_do_list.urls')),
+   path('register/api/v1/', include('register.urls')),
+   path('properties/api/v1/', include('properties.urls')),
+   path('candidates/api/v1/', include('candidates.urls')),
+   path('payments/api/v1/', include('payments.urls')),
+   path('book-keeping/api/v1/', include('book_keeping.urls')),
+   path('comments/api/v1/', include('comments.urls')),
+   path('logs/api/v1/', include('logs.urls')),
+   path('to-do-list/api/v1/', include('to_do_list.urls')),
    
    # tickets module with django 
    path('tickets/', include('tickets.urls')),
