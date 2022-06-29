@@ -1,6 +1,6 @@
 from django.urls import  path
 
-from .views import CommunicationsAPI, communication_feed, messages_details, twilio_in_bound
+from .views import ConversationsAPI, communication_feed, messages_details, twilio_in_bound, get_latest_messages
 
 urlpatterns = [
     
@@ -10,6 +10,7 @@ urlpatterns = [
     
     # API PART -------------------------------------
     
-    path('messages/<int:client_id>', CommunicationsAPI.as_view()),
+    path('conversations/<int:client_id>', ConversationsAPI.as_view()),
+    path('latest-messages/<int:client_id>', get_latest_messages),
 
 ]

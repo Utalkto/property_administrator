@@ -128,3 +128,17 @@ $ docker-compose logs -f app (hago un follow del log de app)
 $ docker-compose exec app bash (entro al shell del contenedor app)
 $ docker-compose ps (veo los contenedores generados por docker compose)
 $ docker-compose down (borro todo lo generado por docker compose)
+
+
+# twilio parameters
+
+# <QueryDict: {'ToCountry': ['US'], 
+#              'ToState': ['SC'], 'SmsMessageSid': ['SM318448395913161173cac32e365927ac'], 
+#              'NumMedia': ['0'], 'ToCity': ['GREENVILLE'], 'FromZip': [''], 
+#              'SmsSid': ['SM318448395913161173cac32e365927ac'], 'FromState': ['Alberta'], 
+#              'SmsStatus': ['received'], 'FromCity': ['Calgary'], 'Body': ['Second sms'], 
+#              'FromCountry': ['CA'], 'To': ['+18642522485'], 
+#              'MessagingServiceSid': ['MGdb65d9bf4569d21aaaaaa12ac6b8316e'], 
+#              'ToZip': ['29601'], 'NumSegments': ['1'], 'ReferralNumMedia': ['0'], 'MessageSid': ['SM318448395913161173cac32e365927ac'], 
+#              'AccountSid': ['AC07f9df720f406836bf36885a0795dd66'], 'From': ['+15873162968'], 'ApiVersion': ['2010-04-01']}>
+

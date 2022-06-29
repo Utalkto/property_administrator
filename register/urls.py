@@ -5,7 +5,7 @@ urlpatterns = [
     
     path('get-role/', get_role),
     path('create-user/', CreateUserView.as_view()),
-    path('check_if_invited/', check_if_invited),
+    path('check_if_invited/<str:link>', check_if_invited),
     path('recover-password/', RecoverPasswordAPI.as_view()),
 
 ]

@@ -5,7 +5,10 @@ import datetime
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from rest_framework import status
+# rest_framework
+
+from rest_framework import status, authentication, permissions
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -41,9 +44,35 @@ from app_modules.main import convert_to_bool
 from .extra_modules import save_message_in_database
 from app_modules.permission import user_has_access
 
+
+def filter_messages_by_via(filter_by:str) -> list:
+    
+    VIAS = ['EMAIL', 'SMS', 'CALL']
+    list_to_filter = list()
+    
+    
+    if filter_by is not None:
+        
+        filter_by = filter_by.split(',')
+       
+        for filter_str in filter_by:
+            if filter_str not in VIAS:
+                return Response({'error': 'ValueError: filter_by debe ser EMAIL, SMS, por defecto ya is set to "all"'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        
+        list_to_filter.append(filter_str)
+    
+    elif filter_by is None:
+        list_to_filter = VIAS.copy()
+        
+    return list_to_filter
+
+
+
 # API -----------------------------------------------
 
-class CommunicationsAPI(APIView):
+
+class ConversationsAPI(APIView):
     
     """
     
@@ -72,6 +101,12 @@ class CommunicationsAPI(APIView):
                 send_from_message and send_up_to_message, hacen un rango de mensajes, es decir, que si 
                 send_from_message = 0 and send_up_to_message 20, se van a enviar los primeros 20 mesajes
                 en esa conversacion
+                
+                filter_by (list) (Optional): para filtrar por el tipo de mesaje, por defect is set to "ALL", puedes pasar "EMAIL" and "SMS"
+                los string deben ser serparados por coma.
+                example:
+
+                filter_by = SMS,EMAIL (sin espacios entre los string a filtrar)
         """
         
         if not user_has_access(request.user, client_id=client_id):
@@ -80,6 +115,9 @@ class CommunicationsAPI(APIView):
         conversation_id = request.GET.get('conversation_id')
         send_from_message = request.GET.get('send_from_message')
         send_up_to_message = request.GET.get('send_up_to_message')
+        filter_by:str = request.GET.get('filter_by')
+    
+        list_to_filter:list = filter_messages_by_via(filter_by=filter_by)
         
         if conversation_id == None:
             conversation = Conversation.objects.filter(client=client_id)
@@ -102,7 +140,7 @@ class CommunicationsAPI(APIView):
             
             # here is to return all the messages within a conversation
             
-            messages = Message.objects.filter(conversation=conversation_id)[send_from_message:send_up_to_message]
+            messages = Message.objects.filter(conversation=conversation_id, vias__in=list_to_filter).order_by('-id')[send_from_message:send_up_to_message]
             serializer = MessageSerializer(messages, many=True)
         
         
@@ -110,6 +148,13 @@ class CommunicationsAPI(APIView):
             
 
     def post(self, request, client_id:int):
+        
+        """Enviar un nuevo mensaje
+        
+            body parameters:
+                conversation (int)(required): el id de la conversacion que se quiere postear
+        
+        """
 
         # if email then the message will be sent by email
         
@@ -251,7 +296,74 @@ class CommunicationsAPI(APIView):
                         'message': 'serializer is not valid',
                         'message_error' : serializer.errors
                     }, status=status.HTTP_400_BAD_REQUEST)
-          
+
+
+
+@api_view(['GET'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def get_latest_messages(request, client_id:int):
+    """Obtener los mesajes mas recientes, enviados o recibidos
+    
+    query parameters:
+    
+        send_from_message (int): la cantidad de mensajes que se van a cargar iniciando por
+        por defecto 0
+                
+        send_up_to_message (int): la cantidad de mensajes que se van a cargar hasta, si se ingresa send_from
+        tambien se debe ingresar este campo
+        
+        received (booleanField) (Optional): indica si se quiere obtener los mensajes enviados o recibidos, por defect is set 
+        to True, es decir devuelve los mensajes recibidos
+        
+        filter_by (list) (Optional): para filtrar por el tipo de mesaje, por defect is set to "ALL", puedes pasar "EMAIL" and "SMS"
+        los string deben ser serparados por coma.
+        example:
+
+        filter_by = SMS,EMAIL (sin espacios entre los string a filtrar)
+    
+    Args:
+        request (_type_): _description_
+        client_id (int): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    
+    received:bool = request.GET.get('received')
+    send_from_message:int = request.GET.get('send_from_message')
+    send_up_to_message:int = request.GET.get('send_up_to_message')
+    filter_by:str = request.GET.get('filter_by')
+    
+    list_to_filter:list = filter_messages_by_via(filter_by=filter_by)
+
+    if received is None:
+        received = True
+    else:
+        try: received = convert_to_bool(received)
+        except: return Response({'error': 'ValueError: received debe ser booleanField'})
+    
+    if send_from_message is None or send_up_to_message is None:
+        send_from_message = 0
+        send_up_to_message = 20
+    else:
+        try:
+            send_from_message = int(send_from_message)
+            send_up_to_message = int(send_up_to_message)
+        except:
+            return Response({'error': 'ValueError: send_from_message and send_up_to_message deben ser enteros'})
+    
+
+    messages = Message.objects.filter(sent_by_user__isnull=received, 
+                                      conversation__client=client_id, 
+                                      via__in=list_to_filter) \
+    .order_by('-id')[send_from_message:send_up_to_message]
+  
+        
+    serializer = MessageSerializer(messages, many=True)  
+    return Response(serializer.data)
+
+      
         
 @api_view(['POST'])
 def twilio_in_bound(request):
@@ -268,22 +380,10 @@ def twilio_in_bound(request):
     
     return Response(message_serializer)
 
-    
-    
-
-# twilio parameters
-
-# <QueryDict: {'ToCountry': ['US'], 
-#              'ToState': ['SC'], 'SmsMessageSid': ['SM318448395913161173cac32e365927ac'], 
-#              'NumMedia': ['0'], 'ToCity': ['GREENVILLE'], 'FromZip': [''], 
-#              'SmsSid': ['SM318448395913161173cac32e365927ac'], 'FromState': ['Alberta'], 
-#              'SmsStatus': ['received'], 'FromCity': ['Calgary'], 'Body': ['Second sms'], 
-#              'FromCountry': ['CA'], 'To': ['+18642522485'], 
-#              'MessagingServiceSid': ['MGdb65d9bf4569d21aaaaaa12ac6b8316e'], 
-#              'ToZip': ['29601'], 'NumSegments': ['1'], 'ReferralNumMedia': ['0'], 'MessageSid': ['SM318448395913161173cac32e365927ac'], 
-#              'AccountSid': ['AC07f9df720f406836bf36885a0795dd66'], 'From': ['+15873162968'], 'ApiVersion': ['2010-04-01']}>
 
 
+
+# ----------------------------------------------------
 
 # deprecated
 

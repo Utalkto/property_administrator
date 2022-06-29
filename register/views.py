@@ -135,7 +135,7 @@ class RecoverPasswordAPI(APIView):
         
         
         user_serializer = UserSerializer(user)
-        return Response(user_serializer.data) 
+        return Response({'user_id': user_serializer.data['id']}) 
                 
     
     def post(self, request):
@@ -159,10 +159,9 @@ class RecoverPasswordAPI(APIView):
         user.link_to_recover_password = secrets.token_urlsafe(26)
         user.time_recover_link_creation = timezone.now() 
         
-        
         html = f'<h1> This is your link to restore your password </h1> \
         <p>This link will be valid for only 4 hours </p> \
-        <a href=http://localhost:8000/api/v1/recover-password/{user.link_to_recover_password}> Restore my password'
+        <a href=http://localhost:3000//recover-password/{user.link_to_recover_password}> Restore my password'
         
         # send email here
         try:
@@ -189,7 +188,7 @@ class RecoverPasswordAPI(APIView):
         Args:
             request (_type_): _description_
         """
-        # Bb7jG1jH0U77QcjMc-pmT47x45wlIv1CV94
+        
         user:CustomUser = CustomUser.objects.get(id=int(request.data['user_id']))
         
         try:
