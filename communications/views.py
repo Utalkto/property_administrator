@@ -382,12 +382,28 @@ def twilio_in_bound(request):
 
 
 
+# communications for inter messaging
+
+class ChatAPI(APIView):
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+    
+    
+    def get(self, request):
+        pass
+    
+    
+    
+
+
+
 
 # ----------------------------------------------------
 
-# deprecated
+# deprecated from here 
 
 # ----------------------------------------------------
+
 
 @check_login
 def communication_feed(request, token):
