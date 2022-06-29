@@ -1,16 +1,9 @@
-from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model # If used custom user model
 
-User = get_user_model()
-
+UserModel = get_user_model()
 
 from .models import Country, CustomUser, KumbioPlan, Organization, OrganizationClient
-
-class UserCreateSerializer(UserCreateSerializer):
-    class Meta(UserCreateSerializer.Meta):
-        model = User
-        fields = ("id", "email", "username", "first_name", "last_name", "password")
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -64,4 +57,25 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         exclude = ('password',)
-        
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only=True)
+
+    def create(self, validated_data):
+
+        user = UserModel.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            email=validated_data['email'],
+            
+            # this organization can be None? No, the organizations will be created by us
+            organization=validated_data['organization'],
+        )
+
+        return user
+
+    class Meta:
+        model = UserModel
+        fields = ( "id", "email", "username", "password", "organization")

@@ -1,11 +1,12 @@
 from django.urls import  path
-from register import  views
+from register.views import RecoverPasswordAPI, get_role, CreateUserView, check_if_invited
 
 urlpatterns = [
     
-    # path('<str:token>',views.DashboardViewSet.as_view()),
-    path('get-role/',views.get_role),
-    # path('example/',views.example_view),
+    path('get-role/', get_role),
+    path('create-user/', CreateUserView.as_view()),
+    path('check_if_invited/', check_if_invited),
+    path('recover-password/', RecoverPasswordAPI.as_view()),
 
 ]
 

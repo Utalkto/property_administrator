@@ -212,6 +212,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     has_access = models.BooleanField(default=False)
     
+    link_to_recover_password = models.CharField(max_length=35, null=True, default=None)
+    time_recover_link_creation = models.DateTimeField(null=True, default=None)
+    
     
     # USER PERMISSIONS 
     

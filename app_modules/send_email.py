@@ -6,6 +6,9 @@ import smtplib, ssl
 
 import os
 
+os.environ['EMAIL_1'] = 'hello@utalkto.com'
+os.environ['EMAIL_PASSWORD_1'] = 'Hello$2022'
+
 class SendEmail:
     def __init__(self, send_to:str, subject:str, html:str, attach_file=None, 
                  from_email='EMAIL_1', password='EMAIL_PASSWORD_1') -> str:
@@ -67,6 +70,7 @@ class SendEmail:
             # if it fails again then we raise and exception and the site where the class is being called must 
             # handle the error
             except:
+                print('error sending email')
                 raise Exception('Cannot send email')     
 
 

@@ -33,8 +33,12 @@ urlpatterns = [
    path('admin/', admin.site.urls),
     
    # authentication urls
-   path('api/v1/', include('djoser.urls')),
-   path('api/v1/', include('djoser.urls.authtoken')),
+   
+   # DEPRECATED
+   # path('api/v1/', include('djoser.urls')),
+   # path('api/v1/', include('djoser.urls.authtoken')),
+   
+   # -------------------------------------------------
     
    # API urls 
    path('api/v1/', include('register.urls')),
