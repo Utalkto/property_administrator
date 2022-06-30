@@ -20,7 +20,7 @@ def register_log(made_by:int, action:int, client_id:int, date_made:timezone, pre
         3: 'DELETE'
     }
     
-    assert client_id in ACTION_LOG.keys(), 'client_id parameter must be 1:CREATE, 2:EDIT or 3:DELETE'
+    assert action in ACTION_LOG.keys(), 'action parameter must be 1:CREATE, 2:EDIT or 3:DELETE'
 
     log_data = {
                 'client': client_id,

@@ -2,15 +2,12 @@
 
 from django.utils import timezone
 
-
 # rest_framework
-
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
 
 # swagger ui
 from drf_yasg.utils import swagger_auto_schema
@@ -20,8 +17,8 @@ from drf_yasg import openapi
 from .models import Chat, ChatMessage
 
 # serializers
-from .serializer import ChatQuerySerializer, ChatSerializer, ChatRelatedFieldsSerializer, ChatMessageSerializer
-
+from .serializer import (ChatMessageQuerySerializer, ChatQuerySerializer, ChatSerializer, 
+                         ChatRelatedFieldsSerializer, ChatMessageSerializer)
 
 
 class ChatAPI(APIView):
@@ -29,17 +26,31 @@ class ChatAPI(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,)
     
-    @swagger_auto_schema
-    def get(self, request):
-        """Para obtener los mesajes enviados de manera interna
+    @swagger_auto_schema(
+        query_serializer=ChatQuerySerializer()
+    )
+    def get(self, request, client_id:int):
+        """Para obtener los mensajes enviados de manera interna
         Args:
             request (_type_): _description_
             chat_id (int): _description_
         """
         
-        pass
-
+        qp = ChatQuerySerializer(data=request.query_params)
+        qp.is_valid(raise_exception=True)
+        
+        if qp.data['all'] == True:
+            chats = Chat.objects.filter(client_id=client_id).order_by('-last_message_sent_date')
+            
+        else:
+            chats = Chat.objects.filter(id=qp.data['id'])
+        
+        
+        serializer = ChatRelatedFieldsSerializer(chats, many=True)
+        
+        return Response(serializer.data)
     
+
     @swagger_auto_schema(
     request_body=ChatSerializer())
     def post(self, request):
@@ -135,7 +146,7 @@ class ChatMessageAPI(APIView):
     
     @swagger_auto_schema(
         responses={200: ChatRelatedFieldsSerializer()},
-        query_serializer=ChatQuerySerializer())
+        query_serializer=ChatMessageQuerySerializer())
     def get(self, request, chat_id:int):
         
         """Para obtener los mensajes que pertenecen a un chat
@@ -147,7 +158,7 @@ class ChatMessageAPI(APIView):
             return Response(chat, status=stat)
 
         # validando los query parameters
-        qp = ChatQuerySerializer(data=request.query_params)
+        qp = ChatMessageQuerySerializer(data=request.query_params)
         qp.is_valid(raise_exception=True)
         
         
@@ -157,7 +168,6 @@ class ChatMessageAPI(APIView):
 
 
         return Response(serializer.data)
-    
     
     
     @swagger_auto_schema(
@@ -171,32 +181,40 @@ class ChatMessageAPI(APIView):
     required=['message']),
     # --------------------------------
     responses={201: ChatMessageSerializer()},
-    operation_description="this is the description testing over here")
-    
-    def post(self, request, conversation_id:int):
+    # description
+    operation_description="Enviar mensajes a un chat")
+    def post(self, request, chat_id:int):
         
-        conversation, stat = self.validate_chat(conversation_id)
+        chat, stat = self.validate_chat(chat_id)
         
         if stat != status.HTTP_100_CONTINUE:
-            return Response(conversation, status=stat)
+            return Response(chat, status=stat)
         
         
-        request.data['conversation_id'] = conversation.id
+        request.data['chat'] = chat.id
         request.data['date_time_sent'] = timezone.now()
+        request.data['sent_by'] = request.user.id
         serializer = ChatMessageSerializer(data=request.data)
         
         if serializer.is_valid():
             serializer.save()
+            chat.last_message_sent_date = timezone.now()
+            chat.last_message = request.data['message']
+            chat.save()
             return Response(serializer.data)
         
         else:
             return Response(serializer.errors)
     
     
-    def validate_chat(self, conversation_id:int):
+    def validate_chat(self, chat_id_id:int):
         
         try:
-            conversation:Chat = Chat.objects.get(id=conversation_id)
-            return conversation, status.HTTP_100_CONTINUE
+            chat:Chat = Chat.objects.get(id=chat_id_id)
+            return chat, status.HTTP_100_CONTINUE
         except Chat.DoesNotExist:
-            return {'error':'Conversation.DoesNotExist: no hay chat con este id'}, status.HTTP_404_NOT_FOUND
+            return {'error':'Chat.DoesNotExist: no hay chat con este id'}, status.HTTP_404_NOT_FOUND
+
+
+
+# Token 43302189e044f29f641d6305804b2b865287f098

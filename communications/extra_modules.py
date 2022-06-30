@@ -7,12 +7,14 @@ import datetime
 
 # django
 from properties.models import Tenants
-from register.models import Organization
+from register.models import CustomUser, Organization
 
 from django.db.models import Q
 
 from tickets.models import Suppliers
 from .serializers import MessageSerializer, ConversationSerializer, ConversationRelatedFieldsSerializer
+
+from notifications.extra_modules import create_notification
 
 
 FROM_PWD = "OrinocoV2022.." 
@@ -81,12 +83,26 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
             tenant:Tenants = Tenants.objects.get(Q(email=sent_from) | Q(email2=sent_from))
         else:
             tenant:Tenants = Tenants.objects.get(Q(phone=sent_from) | Q(phone2=sent_from))
-            
+        
+        client = tenant.client
+        
         data_for_serializer['tenant'] = tenant.id
-        data_for_serializer['client'] = tenant.client.id
+        data_for_serializer['client'] = client.id
+        
+                
+        users = CustomUser.objects.filter(organization=client.organization.id)
+        users_with_access = list()
+        
+        
+        for user in users:
+            if client.id in user.clients_access.keys():
+                users_with_access.append(user)
+    
+        
+        create_notification(users=users_with_access, client=client, notification_type=4, tenant=tenant)
+        
         try:
             conversation:Conversation = Conversation.objects.get(tenant_id=tenant.id)
-            
         except:
             print('creating a new conversation in the db for tenant')
             conversation = create_new_conversation(tenant_id=tenant.id, client_id=tenant.client.id)

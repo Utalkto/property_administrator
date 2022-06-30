@@ -24,15 +24,21 @@ class ChatMessageSerializer(serializers.ModelSerializer):
         model = ChatMessage
         fields = '__all__'
         
-        
-class ChatQuerySerializer(serializers.Serializer):
+
+# QUERY serializers
+
+class ChatMessageQuerySerializer(serializers.Serializer):
     
     from_message = fields.IntegerField(min_value=0, default=0)
     up_to_message = fields.IntegerField(min_value=1, default=20)
     
+
+class ChatQuerySerializer(serializers.Serializer):
     
+    id = fields.IntegerField(min_value=0, default=0)
+    all = fields.BooleanField(default=True)
         
     
-    
+
     
     
