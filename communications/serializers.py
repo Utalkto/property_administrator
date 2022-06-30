@@ -1,11 +1,10 @@
 from properties.serializers import TenantRelatedFieldsSerializer
 from tickets.serializers import SupplierGetSerializer
 
-from .models import Chat, Conversation, Message
+from .models import Conversation, Message
 from rest_framework import serializers
 
 
-from register.serializers import UserSerializer
 
 class ConversationRelatedFieldsSerializer(serializers.ModelSerializer):
     
@@ -29,17 +28,3 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = '__all__'
         
-    
-class ChatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Chat
-        fields = '__all__'
-        
-        
-class ChatRelatedFieldsSerializer(serializers.ModelSerializer):
-    user_one = UserSerializer()
-    user_two = UserSerializer()
-    
-    class Meta:
-        model = Chat
-        fields = '__all__'

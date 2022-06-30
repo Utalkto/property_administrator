@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'comments',
     'logs',
     'to_do_list',
+    'inter_chat',
     # third party apps
     
     'rest_framework',

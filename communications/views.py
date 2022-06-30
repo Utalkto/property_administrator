@@ -1,5 +1,4 @@
 # python
-import datetime
 # django 
 
 from django.shortcuts import render
@@ -21,14 +20,13 @@ from django.utils import timezone
 
 # twilio 
 from twilio.rest import Client
-from twilio import twiml
 
 from communications.models import Conversation, Message
 
 # serializers
 
 from .serializers import ConversationRelatedFieldsSerializer, ConversationSerializer, MessageSerializer
-from .models import Chat, Message
+from .models import Message
 from django.utils import timezone
 
 # property modules
@@ -381,110 +379,6 @@ def twilio_in_bound(request):
             sent_from_email=False)
     
     return Response(message_serializer)
-
-
-# communications for inter messaging
-
-class ChatAPI(APIView):
-    
-    permission_classes = (IsAuthenticated,) 
-    authentication_classes = (TokenAuthentication,)
-    
-    @swagger_auto_schema(
-    responses={200: True})
-    def get(self, request):
-        """Para obtener los mesajes enviados de manera interna
-        Args:
-            request (_type_): _description_
-            chat_id (int): _description_
-        """
-        
-        pass
-
-    
-    
-    @swagger_auto_schema(
-    responses={200: True})
-    def post(self, request):
-        """Para cear un nuevo chat entre dos usuarios
-
-        Args:
-            request (_type_): _description_
-            chat_id (int): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        
-        
-        
-        pass
-
-
-class WritingInConversationAPI(APIView):
-    
-    def get(self, request, conversation_id:int):
-        
-        """Para checkear si la otra persona de la conversaction esta escribiendo
-
-        Returns:
-            _type_: _description_
-        """
-        
-        conversation, stat = self.validate_conversation(conversation_id=conversation_id)
-        
-        if stat != status.HTTP_100_CONTINUE:
-            return (conversation, stat)
-
-        
-        if conversation.current_writing != request.user and conversation.current_writing is not None:            
-            return Response({'writing': True})
-        else:
-            return Response({'writing': False})
-        
-        
-    
-    def put(self, request, conversation_id:int):
-        """Para hacer que alguien se muestre que esta escribiendo en la conversacion, 
-        o mostrar como nula esa escritura
-        
-        body_parameters:
-            writing (BooleanField): se utiliza para indicar si la psersona esta escribiendo o no
-        
-
-        Args:
-            request (_type_): _description_
-            conversation_id (int): el id para la conversacion cuyo estado se quiere cambiar 
-
-        Returns:
-            _type_: _description_
-        """
-        
-        writing = request.data['writing']
-        
-        conversation, stat = self.validate_conversation(conversation_id=conversation_id)
-        
-        if stat != status.HTTP_100_CONTINUE:
-            return (conversation, stat)
-        
-        if writing:
-            conversation.current_writing = request.user
-        else:
-            conversation.current_writing = None
-            
-        conversation.save()
-        
-        return Response({'message': 'success'})
-        
-    
-    # crear una funcion para validar la conversacion 
-    def validate_conversation(self, conversation_id:int):
-        
-        try:
-            conversation:Chat = Chat.objects.get(id=conversation_id)
-            return conversation, status.HTTP_100_CONTINUE
-        except Chat.DoesNotExist:
-            return {'error':'Conversation.DoesNotExist: no hay conversacion con este id'}, status.HTTP_404_NOT_FOUND
 
 
 # ----------------------------------------------------

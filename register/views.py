@@ -141,8 +141,9 @@ class RecoverPasswordAPI(APIView):
     def post(self, request):
         
         """Para pedir la peticion de reestablecer la password,
-        
-            email (EmailField): el email de la persona que quiere reestablecer la password
+
+            body_parameters:
+                email (EmailField): el email de la persona que quiere reestablecer la password
         
         """
         

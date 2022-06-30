@@ -51,36 +51,3 @@ class Message(models.Model):
     def __str__(self) -> str:
         return f'{self.id} - {self.via}'
     
-    
-class Chat(models.Model):
-    
-    """Modelo utilizado para las conversaciones internas de la aplicacion
-    """
-    
-    user_one = models.ForeignKey(CustomUser, null=False, on_delete=models.CASCADE, related_name='user_one')
-    user_two = models.ForeignKey(CustomUser, null=False, on_delete=models.CASCADE, related_name='user_two')
-    
-    last_message = models.TextField()
-    last_message_sent_by = models.IntegerField() # 0 for user_one and 1 for user_two
-    
-    current_writing = models.ForeignKey(CustomUser, null=True, default=None, on_delete=models.CASCADE, related_name='current_writing')
-    
-
-
-class ChatMessage(models.Model):
-    
-    conversation = models.ForeignKey(Chat, null=False, on_delete=models.CASCADE)
-    sent_by = models.ForeignKey(CustomUser, null=False, on_delete=models.CASCADE, related_name='sent_by')
-    
-    
-    date_time_sent = models.DateTimeField()
-    
-    file = models.FileField(null=True, default=None)
-    
-    image = models.ImageField(upload_to='chat-images', null=True, default=None)
-    
-    message = models.TextField(null=True, default=None)
-    
-    
-    
-    
