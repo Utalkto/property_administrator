@@ -74,7 +74,9 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
     }
     
     client:OrganizationClient = None
-    
+    tenant:Tenants = None
+    supplier:Suppliers = None
+        
     if sent_from_email:
         data_for_serializer['via'] = 'EMAIL'
     else:
@@ -155,7 +157,14 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
             users = CustomUser.objects.filter(organization=organization.id)
             users_with_access = users
             
-        create_notification(users=users_with_access, client=client, notification_type=4, tenant=tenant)
+        if tenant:
+            create_notification(users=users_with_access, client=client, notification_type=4, tenant=tenant)
+        elif supplier:
+            create_notification(users=users_with_access, client=client, notification_type=4, supplier=supplier)
+        else:
+            create_notification(users=users_with_access, client=client, notification_type=4)
+            
+            
         # ---------------------------------------------------------------
         
         serializer.save()
@@ -177,10 +186,6 @@ def get_emails(email:str, password:str, organization:Organization):
             forty_seconds_before = now - datetime.timedelta(seconds=60)       
             
             if t > forty_seconds_before.time():
-                
-                print(msg)
-                print(msg.subject)
-                
                 save_message_in_database(
                     sent_from=msg.from_,
                     subject=msg.subject, 
