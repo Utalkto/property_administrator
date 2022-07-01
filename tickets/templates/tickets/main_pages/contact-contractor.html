@@ -1,0 +1,214 @@
+{% extends 'tickets/templates/base.html' %} 
+{% block main_content %}
+
+<div class="content-body">
+  {% csrf_token %}
+
+
+<input type="hidden" value="{{ticket.id}}" id="ticket-id">
+
+<div class="col-lg-12" id="modal-div" hidden>
+    <div class="card">
+        <div class="card-body">
+            <div class="bootstrap-modal">
+                <div class="modal fade" id="modal-contact-supplier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modal-contact-supplier-label">Contact supplier</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-modal"><span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                               
+                              {% csrf_token %}
+
+                              <div class="form-group">
+                                  <label for="recipient-name" class="col-form-label">Subject:</label>
+                                  <input type="text" class="form-control" id="message-subject">
+                              </div>
+                              <div class="form-group">
+                                  <label for="message-text" class="col-form-label">Message:</label>
+                                  <textarea class="form-control" id="message-text"></textarea>
+                              </div>
+  
+                              <input type="hidden" id="person-id" name="supplier_id">
+
+                              <div class="modal-footer">
+                                <button 
+                                type="button" 
+                                class="btn btn-secondary" 
+                                data-dismiss="modal"
+                                id="close-modal-2"
+                                >
+                                Close
+                              </button>
+                                
+                                <button
+                                  id="send-sms-btn"
+                                  type="button"
+                                  class="btn btn-primary sweet-success"
+                                  onclick="sendMessage(persoId=null, sendToTenant=false, sendByEmail=false, comFeed=false, supplierFeed=true)"
+                                >
+                                  Send SMS
+                                </button>
+
+                                <button
+                                  id="send-email-btn"
+                                  type="button"
+                                  class="btn btn-primary sweet-success"
+                                  onclick="sendMessage(personId=null, sendToTenant=false, sendByEmail=true, comFeed=false, supplierFeed=true)"
+                                >
+                                  Send email
+                                </button>
+
+                              </div>
+                  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+  <div class="container-fluid mt-3">
+    <!-- Main table -->
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="active-member">
+              <div class="table-responsive">
+                <table class="table table-xs mb-0">
+                  <thead>
+                    <h3>Recommended contractors</h3>
+                    <tr>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Email</th>
+                      <th>City</th>
+                      <th>Times Hired</th>
+                      <th>Last Time Hired</th>
+                      <th>Rating</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for contractor in recommended_contractors %} 
+                    
+                    <tr>
+                    
+                      <td>{{contractor.name}}</td>
+                      <td>{{contractor.work_area.work_area}}</td>
+                      <td>{{contractor.email}}</td>
+                      <td>{{contractor.city}}</td>
+                      <td>{{contractor.times_hired}}</td>
+                      <td>{{contractor.last_time_hired}}</td>
+                      <td>{{contractor.rating}}</td>
+                      <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" 
+                        onclick="setSupplierInModalTabId('{{contractor.id}}'); makeModalVisible();" 
+                        data-target="#modal-contact-supplier" data-whatever="@mdo">Contact</button>
+                      </td>
+                    </tr>
+                   {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid mt-3">
+    <!-- Main table -->
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="active-member">
+              <div class="table-responsive">
+                <table class="table table-xs mb-0">
+                  <thead>
+                    <h3>Other contractors</h3>
+                    <tr>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Email</th>
+                      <th>City</th>
+                      <th>Times Hired</th>
+                      <th>Last Time Hired</th>
+                      <th>Rating</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for contractor in other_contractors %} 
+                    
+                    <tr>
+                    
+                      <td>{{contractor.name}}</td>
+                      <td>{{contractor.work_area.work_area}}</td>
+                      <td>{{contractor.email}}</td>
+                      <td>{{contractor.city}}</td>
+                      <td>{{contractor.times_hired}}</td>
+                      <td>{{contractor.last_time_hired}}</td>
+                      <td>{{contractor.rating}}</td>
+                      <td>
+                        <button type="button" class="btn btn-primary contact-supplier" data-toggle="modal" 
+                        onclick="setSupplierInModalTabId('{{contractor.id}}'); makeModalVisible();" 
+                        data-target="#modal-contact-supplier" data-whatever="@mdo">Contact</button>
+                      </td>
+                    </tr>
+                   {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% load static %}
+
+{% block local_js %}
+
+<script src="{% static 'js/create-ticket/selectSupplier.js' %}"></script>
+<script src="{% static 'js/general/main.js' %}"></script>
+
+<script>
+
+  function makeModalVisible() {
+
+    console.log('here')
+
+    $('#modal-div').removeAttr('hidden');
+  }
+
+      
+  $("#close-modal").click(() => {
+    $('#modal-div').attr('hidden', 'true');
+  });
+  
+  $("#close-modal-2").click(() => {
+    $('#modal-div').attr('hidden', 'true');
+  });
+  
+  
+  </script>
+
+
+{% endblock %}

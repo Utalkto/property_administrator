@@ -1,0 +1,79 @@
+{% extends 'tickets/templates/base.html' %}
+{% load static %}
+
+{% block title %} 
+Create Ticket
+{% endblock %}
+
+
+{% block main_content %}
+
+
+<!--**********************************
+    Content body start
+***********************************-->
+<div class="content-body">
+
+    <div class="row page-titles mx-0">
+        <div class="col p-md-0">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+            </ol>
+        </div>
+    </div>
+    <!-- row -->
+
+    <div class="container-fluid">
+        <!-- End Row -->
+        <div class="row">
+            <h2 class="d-inline" id="stage-name">Select the property</h2>
+
+            <div class="col-12" id="cards-section">
+
+                <div class="row" id="cards-section-inner">
+                    
+                    {% for property in properties %}
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card">
+                            <img class="img-fluid" src="{{property.img.url}}" alt="">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ property.name }}</h5>
+                                <p class="card-text"> <strong>Address :</strong> {{property.address}} </p>
+                            </div>
+                            <div class="card-footer">
+                                <p class="card-text d-inline"><small class="text-muted">Units number</small></p>
+                                <button onclick="getNextInfo(_nextStage=1, option_id='{{property.id}}')"
+                                class="card-link float-right" style="cursor: pointer; border:none; background: none;" >
+                                    <small>Select</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+ 
+    </div>
+    <!-- #/ container -->
+</div>
+<!--**********************************
+    Content body end
+***********************************-->
+
+{% endblock %}
+        
+
+<!--**********************************
+    Scripts
+***********************************-->
+
+{% block local_js %}
+
+<script src="{% static 'js/create-ticket/createTicket.js' %}"></script>
+
+{% endblock %}
+

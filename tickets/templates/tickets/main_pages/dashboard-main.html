@@ -1,0 +1,169 @@
+{% extends 'tickets/templates/base.html' %}
+
+{% block main_content %}
+
+<div class="content-body">
+
+    {% csrf_token %}
+
+    <div class="container-fluid mt-3">
+
+        <!-- Cards -->
+
+        <div class="row">
+            <div class="col-lg-3 col-sm-6">
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Open Tickets </h4><hr>
+                       <div class="d-inline-block">
+                            <h5 class="text-white">Tickets:  {{quantity_tickets_open}}</h5>
+                            <!-- <p class="text-white mb-0">Jan - March 2019</p> -->
+                        </div></center> 
+                      
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Maintenance tickets</h4><hr>
+                     <div class="d-inline-block">
+                           <h5 class="text-white">Maintenance: {{maintenance_tickets}}</h5> 
+                        </div></center> 
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Vacancy tickets</h4><hr>
+                        
+                        <div class="d-inline-block">
+                            <h5 class="text-white">Vacancy: {{payment_tickets}}</h5>
+                        </div></center>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">General tickets</h4><hr>
+                        <div class="d-inline-block">
+                            <h5 class="text-white"> General Inf: {{general_info_tickets}}</h5>
+                        </div></center>
+                        
+                    </div>
+                </div>
+            </div>
+        </div> <br><br>
+        <!--text-white-->
+        
+        <!-- Main table -->
+
+        {% for ticket in tickets_open %}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="active-member">
+                            <div class="table-responsive">
+                                <h3>{{ticket.string}}</h3>
+                                <table class="table table-xs mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Property</th>
+                                            <th>Tenant</th>
+                                            <!-- <th>Priority</th> -->
+                                            <th>Date Opened</th>
+                                            <th>Status</th>
+                                            <th>Opened by</th>
+                                            <th>Ticket type</th>
+                                            <th>TCD</th>
+                                            <th></th>
+                                        </tr>  
+                                    </thead>
+                                    <tbody>
+                                            
+
+                                        {% for ticket_info in ticket.tickets %}
+
+                                        {% with ticket_statuses|index:ticket_info.ticket_status.id as next_to_do %}
+                                        <tr>
+                                            <td>{{ticket_info.id}}</td>
+                                            <td>{{ticket_info.created_by.unit.property.name}}</td>
+                                            <td>
+                                                {{ticket_info.created_by.name}}
+                                            </td>
+                                            <td>{{ticket_info.date_opened}}</td>
+                                            <td>
+                                                {{next_to_do.string_part}}
+                                            </td>
+                                            <td>
+                                                {{ticket_info.owner.get_full_name}}
+                                            </td>
+                                            <td>
+                                                {{ticket_info.ticket_type.string_part}}
+                                            </td>
+                                            <td>
+                                                {{ticket_info.stimated_time_for_solution_date}}
+                                            </td>
+                                            <td>
+                                                <a href="/tickets/ticket-info/{{token}}/{{ticket_info.id}}" class="badge badge-primary badge-sm m-t-5">
+                                                    View more
+                                                </a>
+                                                
+                                            </td>
+                                        </tr>
+                                        {% endwith %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>                        
+            </div>
+        </div>
+
+        {% endfor %}
+        
+
+
+        <!-- other stuff that could be useful -->
+
+    </div>
+    <!-- #/ container -->
+</div>
+
+{% endblock %}
+
+{% block local_js %}
+{% load static %}
+
+<!-- Chartjs -->
+<script src="{% static 'plugins/chart.js/Chart.bundle.min.js' %}"></script>
+<!-- Circle progress -->
+<script src="{% static 'plugins/circle-progress/circle-progress.min.js' %}"></script>
+<!-- Datamap -->
+<script src="{% static 'plugins/d3v3/index.js' %}"></script>
+<script src="{% static 'plugins/topojson/topojson.min.js' %}"></script>
+<script src="{% static 'plugins/datamaps/datamaps.world.min.js' %}"></script>
+<!-- Morrisjs -->
+<script src="{% static 'plugins/raphael/raphael.min.js' %}"></script>
+<script src="{% static 'plugins/morris/morris.min.js' %}"></script>
+<!-- Pignose Calender -->
+<script src="{% static 'plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'plugins/pg-calendar/js/pignose.calendar.min.js' %}"></script>
+<!-- ChartistJS -->
+<script src="{% static 'plugins/chartist/js/chartist.min.js' %}"></script>
+<script src="{% static 'plugins/chartist-plugin-tooltips/js/chartist-plugin-tooltip.min.js' %}"></script>
+
+
+
+<script src="{% static 'js/dashboard/dashboard-1.js' %}"></script>
+
+{% endblock %}

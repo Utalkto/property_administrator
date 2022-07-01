@@ -1,0 +1,549 @@
+{% extends 'tickets/templates/base.html' %} {% block main_content %}
+
+{% load static %}
+
+
+<div class="content-body">
+  <!-- row -->
+
+  <!-- Modals -->
+
+  <input type="hidden" id="ticket-id" value="{{ticket.id}}">
+
+  {% with person_id=ticket.created_by.id send_to_tenant=True title="New message" %}
+
+  {% include 'communications/templates/send-message.html' %}
+
+  {% endwith %}
+
+
+  {% if ticket.ticket_status.id == 4 %}
+
+  <div class="col-lg-12" >
+    <div class="card" id="modal-div-2" hidden>
+      <div class="card-body">
+        <div class="bootstrap-modal">
+          <div
+            class="modal fade"
+            id="modal-set-problem-as-solved"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">
+                    Add extra data
+                  </h5>
+                  <button
+                    id="close-modal-3"
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="/tickets/solve-problem/{{token}}/{{ticket.id}}" method="post">
+                <div class="modal-body">
+                  {% csrf_token %}
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Solution date:</label
+                    >
+                    <input
+                      placeholder="yyyy-mm-dd"
+                      type="date"
+                      class="form-control"
+                      id="date-problem-solved"
+                      name="solution_date"
+                      required
+                    ></input>
+                  </div>
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Contractor solution:</label
+                    >
+                    <textarea class="form-control" id="contractor-solution" name="contractor_solution" required></textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                    id="close-modal-4"
+                  >
+                    Close
+                  </button>
+
+                  <button
+                    id="send"
+                    type="submit"
+                    class="btn btn-primary"
+                  >
+                    Confirm
+                  </button>  
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+
+  {% elif ticket.ticket_status.id == 5 %}
+
+  <div class="col-lg-12" >
+    <div class="card" id="modal-div-2" hidden>
+      <div class="card-body">
+        <div class="bootstrap-modal">
+          <div
+            class="modal fade"
+            id="modal-set-payment-as-completed"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">
+                    Add extra data
+                  </h5>
+                  <button
+                    id="close-modal-3"
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="/tickets/register-payment/{{token}}/{{ticket.id}}" method="post">
+                <div class="modal-body">
+                  {% csrf_token %}
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Payment date:</label
+                    >
+                    <input
+                      placeholder="yyyy-mm-dd"
+                      type="date"
+                      class="form-control"
+                      id="payment-date"
+                      name="payment_date"
+                      required
+                    ></input>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Amount:</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="amount"
+                      name="amount"
+                      required
+                    ></input>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Reference code:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="amount"
+                      name="reference_code"
+                      maxlength="100"
+                      required
+                    ></input>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="contractor-solution" class="col-form-label"
+                      >Notes:</label
+                    >
+                    <textarea
+                    class="w-100 p-20 l-border-1"
+                    id="note-payment-input"
+                    name="notes"
+                    cols="30"
+                    rows="5"
+                    placeholder="Write notes about the payment here"
+                  ></textarea>
+                  </div>
+
+
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                    id="close-modal-4"
+                  >
+                    Close
+                  </button>
+
+                  <button
+                    id="send"
+                    type="submit"
+                    class="btn btn-primary"
+                  >
+                    Confirm
+                  </button>  
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  {% endif %}
+
+
+  <!-- Information table -->
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="email-left-box">
+              <h2 class="btn btn-primary btn-block" style="cursor: text;">
+                {{ticket.priority.string_part}}
+              </h2>
+              <div class="mail-list mt-4">
+                {% for ticket_status in ticket_statuses %}
+                <p
+      
+                  class="list-group-item border-0 p-r-0"
+                >
+                  <b>{{ticket_status.string_part}}</b>
+                  <!-- <span class="badge badge-primary badge-sm float-right m-t-5">198</span> -->
+
+                  {% if ticket.ticket_status.id >= ticket_status.id %}
+
+                  <span class="badge badge-primary badge-sm float-right m-t-5">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+
+                  {% endif %}
+
+                  {% if ticket_status.string_part == "Close Ticket" and ticket.date_closed is not None %}
+
+                  <span class="badge badge-primary badge-sm float-right m-t-5">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+                  {% endif %}
+
+                  {% if ticket_status.string_part == "Follow up" and ticket.date_closed is not None %}
+
+                  <span class="badge badge-primary badge-sm float-right m-t-5">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+                  {% endif %}
+
+
+
+                </p>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="email-right-box">
+              <div class="toolbar" role="toolbar">
+                <div class="btn-group m-b-20">
+                  <!-- <button type="button" class="btn btn-light">
+                    <i class="fa fa-archive"></i>
+                  </button>
+                  <button type="button" class="btn btn-light">
+                    <i class="fa fa-exclamation-circle"></i>
+                  </button> -->
+                  <button
+                    type="button"
+                    class="btn btn-light"
+                    id="button-delete"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="read-content">
+                <div class="media pt-5">
+                  <!-- <img class="mr-3 rounded-circle" src="images/avatar/1.jpg" /> -->
+                  <div class="media-body">
+                    <h3 class="m-b-3">{{ticket.created_by.name}}</h3>
+
+                    <p class="m-b-2">
+                      <strong>Date created:</strong> {{ticket.date_opened}}
+                    </p>
+                    <p class="m-b-2">
+                      <strong>Ticket type:</strong>
+                      {{ticket.ticket_type.string_part}}
+                    </p>
+
+                    {% if ticket.problem.string_part %}
+
+                    <p class="m-b-2">
+                      <strong> Problem:</strong>  {{ticket.problem.maintanence_issue_sub_type.maintanence_issue_type.string_part}} - {{ticket.problem.maintanence_issue_sub_type.string_part}} - {{ticket.problem.string_part}}
+                    </p>
+
+                    {% elif ticket.sub_issue_type.string_part %}
+
+                    <p class="m-b-2">
+                      <strong> Problem:</strong>  {{ticket.sub_issue_type.maintanence_issue_type.string_part}} - {{ticket.sub_issue_type.string_part}} 
+                    </p>
+
+
+                    {% elif ticket.issue_type.string_part %}
+
+                    <p class="m-b-2">
+                      <strong> Problem:</strong>  {{ticket.issue_type.string_part}}
+                    </p>
+
+
+                    {% else %}
+
+                    <p class="m-b-2">
+                      <strong>Problem:</strong> No identified yet
+                    </p>
+
+                    {% endif %} {% if ticket.contractor.name %}
+
+                    <p class="m-b-2">
+                      <strong> Contractor:</strong> {{ticket.contractor.name}}
+                    </p>
+
+                    {% else %}
+
+                    <p class="m-b-2">
+                      <strong>Contractor:</strong> No selected yet
+                    </p>
+
+                    {% endif %}
+
+                    {% if current_appoinment %}
+
+                    <p class="m-b-2">
+                      <strong> appoinment:</strong> {{current_appoinment.date}}
+                    </p>
+
+                    {% else %}
+
+                    <p class="m-b-2">
+                      <strong>appoinment:</strong> No selected yet
+                    </p>
+
+                    {% endif %}
+
+                  </div>
+                </div>
+                <hr />
+                <div class="media mb-4 mt-1">
+                  <div class="media-body">
+                    <span class="float-right"></span>
+                    <h4 class="m-0 text-primary">
+                      {% if ticket.date_closed is not None %}
+                      This ticket is closed
+                      {% else %}
+                      {{ next_to_do.string_part }}
+                      {% endif %}
+                    </h4>
+                  </div>
+                </div>
+                {% if ticket.date_closed is  None %}
+                <h5 class="m-b-15">
+                  Hi, {{request.user.get_full_name}}, here is what you need to do next:
+                </h5>
+                <p>{{next_to_do.info}}</p>
+
+                {% if ticket.ticket_status.id == 3 %}
+
+                <h5>
+                  <strong>
+                  If the ticket cost is higher than {{ticket.max_for_approval}}$ then you must get the approval
+                  from a landlord to continue. 
+                  </strong>
+                </h5>
+
+                <hr>
+
+                {% endif %}
+
+                <h4>Action to do</h4>
+
+                {% for key, value in ticket.action_to_do.action_to_do.items %}
+
+                <p><strong>{{key}}</strong> : {{value}}</p>
+
+                {% endfor %} 
+
+                      
+                {% if ticket.ticket_status.id == 4 %}
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-primary"
+                  id="mark-problem-as-completed"
+                  data-target="#modal-set-problem-as-solved"
+                  data-toggle="modal"
+                > Mark problem as solved</button>
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-danger"
+                  id="problem-not-solved"
+                > Problem is not solved </button>
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-danger"
+                  id="supplier-did-not-attend"
+                > Supplier did not attend </button>
+
+                {% elif ticket.ticket_status.id == 5 %}
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-primary"
+                  id="set-payment-as-completed"
+                  data-target="#modal-set-payment-as-completed"
+                  data-toggle="modal"
+                > Mark payment as completed </button>
+
+
+                {% elif ticket.ticket_status.id == 6 %}
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-primary"
+                  id="close-ticket"
+                > Close ticket </button>
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-danger"
+                  id="problem-not-solved"
+                > Problem is not solved </button>
+
+                {% else %}
+
+                <a
+                class="badge badge-primary badge-sm m-t-5"
+                href="{{next_to_do.action_link}}{{token}}/{{ticket.ticket_type.id}}/{{ticket.id}}"
+                >
+                  {{next_to_do.string_part}}
+                </a>
+
+                {% if next_to_do.second_action_link is not None %}
+
+                <a
+                class="badge badge-primary badge-sm m-t-5"
+                href="{{next_to_do.second_action_link}}{{token}}/{{ticket.ticket_type.id}}/{{ticket.id}}"
+                >
+                  {{next_to_do.name_second_action_link}}
+                </a>
+                {% endif %}
+
+                {% endif %}
+
+                <hr />
+
+                <button
+                  type="button"
+                  class="btn mb-1 btn-primary"
+                  data-target="#modal-send-message"
+                  data-toggle="modal"
+                  id="send-message-to-tenant"
+                >
+                  Send message to tenant
+                  <span class="btn-icon-right">
+                    <i class="fa-solid fa-envelope"></i>
+                  </span>
+                </button>
+
+                <hr />
+
+                <div id="comments-section">
+                  <h4 class="p-t-15">Write a comment</h4>
+                  <hr />
+
+                  <div class="form-group p-t-15">
+                    <textarea
+                      class="w-100 p-20 l-border-1"
+                      name=""
+                      id="comment-input"
+                      cols="30"
+                      rows="5"
+                      placeholder="Write your comment here"
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <button
+                    class="btn btn-primaryw-md m-b-30"
+                    type="button"
+                    onclick="makeComment(ticketId='{{ticket.id}}')"
+                  >
+                    Submmit
+                  </button>
+                </div>
+
+                {% endif %}
+
+                <hr />
+
+                {% if comments %}
+
+                <h4 id="ticket-comments-title">Ticket Comments</h4>
+
+                {% endif %}
+
+                <div id="comments-made">
+                  {% for comment in comments %}
+                  <hr />
+
+                  <p><strong>Created at : {{comment.date}}</strong></p>
+                  <p>
+                    <strong>Made by : {{comment.made_by.get_full_name}}</strong>
+                  </p>
+
+                  <p>{{comment.comment}}</p>
+
+                  <hr />
+
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block local_js %}
+
+<script src="{% static 'js/general/main.js' %}"></script>
+<script src="{% static 'js/create-ticket/ticketInfo.js' %}"></script>
+<script src="{% static 'js/sweetalert.min.js' %}"></script>
+
+{% endblock %}

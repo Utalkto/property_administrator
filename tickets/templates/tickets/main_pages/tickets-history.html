@@ -1,0 +1,154 @@
+{% extends 'tickets/templates/base.html' %}
+
+{% block main_content %}
+
+<div class="content-body">
+
+    {% csrf_token %}
+
+    <div class="container-fluid mt-3">
+
+        <!-- Cards -->
+
+        <div class="row">
+            <div class="col-lg-3 col-sm-6">
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Total Tickets </h4><hr>
+                       <div class="d-inline-block">
+                            <h5 class="text-white">Tickets: {{total_count}}</h5>
+                            <!-- <p class="text-white mb-0">Jan - March 2019</p> -->
+                        </div></center> 
+                      
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Maintenance tickets</h4><hr>
+                     <div class="d-inline-block">
+                           <h5 class="text-white">Maintenance: {{maintenance_tickets}}</h5> 
+                        </div></center> 
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">Vacancy tickets</h4><hr>
+                        
+                        <div class="d-inline-block">
+                            <h5 class="text-white">Vacancy: 0</h5>
+                        </div></center>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="targetas">
+                    <div class=""><center>
+                        <h4 class="">General tickets</h4><hr>
+                        <div class="d-inline-block">
+                            <h5 class="text-white"> General Inf: 0</h5>
+                        </div></center>
+                        
+                    </div>
+                </div>
+            </div>
+        </div> <br><br>
+        <!--text-white-->
+        
+        <!-- Main table -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="active-member">
+                            <div class="table-responsive">
+                                <h3></h3>
+                                <table class="table table-xs mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Property</th>
+                                            <th>Unit number</th>
+                                            <th>Tenant</th>
+                                            <th>Priority</th>
+                                            <th>Date Opened</th>
+                                            <th>Date Closed</th>
+                                            <th>Contractor</th>
+                                            <th>Status</th>
+                                            <th>Ticket type</th>
+                                            <th>Opened by</th>
+                                            <th>TCD</th>
+                                            <th></th>
+                                        </tr>  
+                                    </thead>
+                                    <tbody>
+                                            
+
+                                        {% for ticket_info in total_tickets %}
+
+                                        {% with ticket_statuses|index:ticket_info.ticket_status.id as next_to_do %}
+                                        <tr>
+                                            <td>{{ticket_info.id}}</td>
+                                            <td>{{ticket_info.created_by.unit.property.name}}</td>
+                                            <td>{{ticket_info.unit.unit_number}}</td>
+                                            <td>
+                                                {{ticket_info.created_by.name}}
+                                            </td>
+                                            <td>{{ticket_info.priority.string_part}}</td>
+                                            <td>{{ticket_info.date_opened}}</td>
+                                            <td>{{ticket_info.date_closed}}</td>
+                                            <td>{{ticket_info.contractor}}</td>
+
+                                            {% if ticket_info.date_closed is None %}
+                                            <td>
+                                                {{next_to_do.string_part}}
+                                            </td>
+                                            {% else %}
+                                            
+                                            <td>
+                                                Closed
+                                            </td>
+
+                                            {% endif %}
+                                            <td>
+                                                {{ticket_info.owner.get_full_name}}
+                                            </td>
+                                            <td>
+                                                {{ticket_info.ticket_type.string_part}}
+                                            </td>
+                                            <td>
+                                                {{ticket_info.stimated_time_for_solution_date}}
+                                            </td>
+                                            <td>
+                                                <a href="/tickets/ticket-info/{{token}}/{{ticket_info.id}}" class="badge badge-primary badge-sm m-t-5">
+                                                    View more
+                                                </a>
+                                                
+                                            </td>
+                                        </tr>
+                                        {% endwith %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>                        
+            </div>
+        </div>
+    </div>
+    <!-- #/ container -->
+</div>
+
+{% endblock %}
+
+{% block local_js %}
+{% load static %}
+
+{% endblock %}
