@@ -9,7 +9,7 @@ class NotificationType(models.Model):
 
 class Notification(models.Model):
 
-    client = models.ForeignKey(OrganizationClient, null=False, blank=False, on_delete=models.CASCADE)
+    client = models.ForeignKey(OrganizationClient, null=True, blank=True, on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     notification_type = models.ForeignKey(NotificationType, null=False, blank=False, on_delete=models.CASCADE)
 

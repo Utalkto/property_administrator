@@ -8,17 +8,18 @@ from register.models import CustomUser, Organization, OrganizationClient
 from app_modules.send_email import SendEmail
 from properties.models import Property, Tenants, Unit
 from tickets.models import Suppliers
+from .models import NotificationType
 
 # notifications can be send to more than one user at a time
 
-NOTIFICATION_TEXTS = {
-    'NEW_MESSAGE': {
+NOTIFICATION_TYPES = {
+    1: {
         'subject': 'Your got a new message', 
         'html': '<p>You got a new mesage from {message_sender}</p>', 
-        'text': 'Your got a new message from {message_sender}'
+        'text': 'You got a new message from {message_sender}'
     },
     
-    'NEW_SMS': {
+    4: {
         'subject': 'Your got a new email', 
         'html': '<p>You got a new mesage from {message_sender}</p>', 
         'text': 'Your got a new email from {contact_type} {contact_name}'
@@ -27,46 +28,38 @@ NOTIFICATION_TEXTS = {
 }
 
 
-def create_notification(users:list, client:OrganizationClient, notification_type:int, message_sender:CustomUser=None,
-                        tenant:Tenants=None, supplier:Suppliers=None,
+def create_notification(users:list, notification_type:int, message_sender:CustomUser=None,
+                        tenant:Tenants=None, supplier:Suppliers=None, client:OrganizationClient=None,
                         send_to_email:bool=False, send_to_landlords:bool=False, 
                         send_to_organization_admins:bool=False) -> bool:
     
     """Create a new notification
 
     notification_type must be one of these
-        1: NEW_MESSAGE,
-        2: NEW_TICKET_OPENED,
-        3: NEW_SMS,
-        4: NEW_EMAIL,
+        1: NEW MESSAGE,
+        2: NEW TICKET OPENED,
+        3: NEW SMS,
+        4: NEW EMAIL,
     
     
     Args:
         users (list): a list of users that are going to received the notification
         type (int): _description_
     """
-
-    NOTIFICATION_TYPE = {
-        1: 'NEW_MESSAGE',
-        2: 'NEW_TICKET_OPENED',
-        3: 'NEW_SMS',
-        4: 'NEW_EMAIL',
-    }
     
-    assert notification_type in NOTIFICATION_TYPE.keys(), 'notification_type parameter must be \
+    assert notification_type in NOTIFICATION_TYPES.keys(), 'notification_type parameter must be \
     1:NEW_MESSAGE, 2:NEW_TICKET_OPENED, 3:NEW_SMS, 4:NEW_EMAIL'
-    
-    try:
-        user[0]
-    except IndexError:
-        raise 'when passing send_to_landlords then at least a user must be included'
-    
 
+
+    try:
+        users[0]
+    except IndexError:
+        raise 'at lest one user must be included'
     
     
     if notification_type == 1:
-        notification_text:str = NOTIFICATION_TEXTS[notification_type]['text']\
-        .replace('{mesage_sender}', message_sender.get_full_name())
+        notification_text:str = NOTIFICATION_TYPES[notification_type]['text']\
+        .replace('{message_sender}', message_sender.get_full_name())
     elif notification_type == 3: 
         
         if tenant:
@@ -77,20 +70,22 @@ def create_notification(users:list, client:OrganizationClient, notification_type
             contact_name = supplier.name
         
     
-        notification_text:str = NOTIFICATION_TEXTS[notification_type]['text']\
+        notification_text:str = NOTIFICATION_TYPES[notification_type]['text']\
         .replace('{contact_type}', contact_type).replace('{contact_name}', contact_name)
     
     
     data_for_serializer = {
-        'client_id': client.id,
-        'notification_type': NOTIFICATION_TYPE[notification_type],
+        'notification_type': notification_type,
         'created_date': timezone.now(),
         'notification': notification_text, 
         'send_to_email': send_to_email,
         }
     
-    html_part = NOTIFICATION_TEXTS[notification_type]['html'].replace('{mesage_sender}', message_sender.get_full_name())
-    email_subject = NOTIFICATION_TEXTS[notification_type]['subject']
+    if client:
+        data_for_serializer['client'] = client.id
+    
+    html_part = NOTIFICATION_TYPES[notification_type]['html'].replace('{mesage_sender}', message_sender.get_full_name())
+    email_subject = NOTIFICATION_TYPES[notification_type]['subject']
     
     
     for user in users:

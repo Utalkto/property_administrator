@@ -41,13 +41,13 @@ def register_log(made_by:int, action:int, client_id:int, date_made:timezone, pre
         is_deleted_data = 'deleted_'
         
     if tenant_id:
-        log_data[f'{is_deleted_data}tenant']
+        log_data[f'{is_deleted_data}tenant'] = tenant_id
         
     elif unit_id:
-        log_data[f'{is_deleted_data}unit']
+        log_data[f'{is_deleted_data}unit'] = unit_id
     
     elif property_id:
-        log_data[f'{is_deleted_data}property']
+        log_data[f'{is_deleted_data}property'] = property_id
             
     log_serializer = LogSerializer(data=log_data)
 
@@ -56,7 +56,7 @@ def register_log(made_by:int, action:int, client_id:int, date_made:timezone, pre
 
     else:
         print('------------------------')
-        print('------------- log serializer error -----------')
+        print('- log serializer error -')
         print(log_serializer)
         print('------------------------')
         print('------------------------')

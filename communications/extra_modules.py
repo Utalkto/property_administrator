@@ -89,17 +89,19 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
         data_for_serializer['tenant'] = tenant.id
         data_for_serializer['client'] = client.id
         
-                
+        # create notification
         users = CustomUser.objects.filter(organization=client.organization.id)
         users_with_access = list()
-        
         
         for user in users:
             if client.id in user.clients_access.keys():
                 users_with_access.append(user)
     
-        
+        print(users)
+        print('creating notifications')
+        print('------------------------')
         create_notification(users=users_with_access, client=client, notification_type=4, tenant=tenant)
+        # ---------------------------------------------------------------
         
         try:
             conversation:Conversation = Conversation.objects.get(tenant_id=tenant.id)

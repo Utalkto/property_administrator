@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'logs',
     'to_do_list',
     'inter_chat',
+    'notifications',
     # third party apps
     
     'rest_framework',

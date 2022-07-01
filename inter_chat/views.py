@@ -20,6 +20,8 @@ from .models import Chat, ChatMessage
 from .serializer import (ChatMessageQuerySerializer, ChatQuerySerializer, ChatSerializer, 
                          ChatRelatedFieldsSerializer, ChatMessageSerializer)
 
+from notifications.extra_modules import create_notification
+
 
 class ChatAPI(APIView):
     
@@ -190,7 +192,6 @@ class ChatMessageAPI(APIView):
         if stat != status.HTTP_100_CONTINUE:
             return Response(chat, status=stat)
         
-        
         request.data['chat'] = chat.id
         request.data['date_time_sent'] = timezone.now()
         request.data['sent_by'] = request.user.id
@@ -200,6 +201,19 @@ class ChatMessageAPI(APIView):
             serializer.save()
             chat.last_message_sent_date = timezone.now()
             chat.last_message = request.data['message']
+            
+            message_sender = request.user
+            
+            if request.user == chat.user_one:
+                users = [chat.user_two]
+            else:
+                users = [chat.user_one]
+                
+            print(users)
+            print('creating notifications')
+            print('------------------------')
+            create_notification(users=users, notification_type=1, message_sender=message_sender)
+
             chat.save()
             return Response(serializer.data)
         
