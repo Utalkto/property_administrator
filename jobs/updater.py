@@ -6,7 +6,7 @@ scheduler = BackgroundScheduler()
 def start():
     
 	scheduler.add_job(check_organization_emails, 'interval', seconds=60)	
-	# scheduler.start()
+	scheduler.start()
  
 
 

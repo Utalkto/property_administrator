@@ -103,7 +103,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
             SendEmail(
                 send_to='support@utalkto.com',
                 subject='new user',
-                html='<p>There is an user trying to get into kumbio app but its account is not active</p>'
+                html='<p>There is an user trying to get into kumbio app but their account is not active</p>'
                 )
         
         
