@@ -90,6 +90,8 @@ class Organization(models.Model):
     
     payment_status = models.BooleanField()
     
+    plan_expired_on = models.DateTimeField(default=seven_day_hence) 
+    
     def __str__(self) -> str:
         return f'{self.id} - {self.name}'
     
@@ -203,9 +205,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     phone = models.CharField(max_length=120, default='')
     
-    plan_status = models.BooleanField(default=True)
-    
-    plan_expired_on = models.DateTimeField(default=seven_day_hence) 
     registration_date = models.DateTimeField(default=timezone.now)
     
     username = models.CharField(max_length=255, unique=True)
@@ -215,7 +214,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     link_to_recover_password = models.CharField(max_length=35, null=True, default=None)
     time_recover_link_creation = models.DateTimeField(null=True, default=None)
     
-    # email_is_active = models.BooleanField(default=False)
+    email_is_actived = models.BooleanField(default=False)
+    link_to_activate_email = models.CharField(max_length=35, null=True, default=None)
     
     # USER PERMISSIONS 
     
@@ -226,7 +226,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     modules_access = models.CharField(default='1,2,3', max_length=120)    
     clients_access = IntKeyJSONField(default=dict)
 
-    
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 

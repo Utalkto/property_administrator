@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model # If used custom user model
 
+import secrets
+
+from app_modules.send_email import SendEmail
+
 UserModel = get_user_model()
 
 from .models import Country, CustomUser, KumbioPlan, Organization, OrganizationClient
@@ -65,7 +69,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        user = UserModel.objects.create_user(
+        user:CustomUser = UserModel.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
             email=validated_data['email'],
@@ -73,9 +77,23 @@ class UserCreateSerializer(serializers.ModelSerializer):
             # this organization can be None? No, the organizations will be created by us
             organization=validated_data['organization'],
         )
+        
 
+        user.link_to_activate_email = secrets.token_urlsafe(26)
+        user.save()
+        
+        # sending email to the new user
+        try:
+            SendEmail(
+                send_to=user.email,
+                subject="confirm your email",
+                html=f'<h1>Link to confirm your email</h1> \
+                <a href=http://localhost:3000/confirm-email/{user.link_to_activate_email}>confirm your email</a>'
+            )
+        except:
+            print("there was an error sending the email")
+        
         return user
-
     class Meta:
         model = UserModel
         fields = ( "id", "email", "username", "password", "organization")

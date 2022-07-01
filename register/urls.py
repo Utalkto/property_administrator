@@ -1,5 +1,5 @@
 from django.urls import  path
-from register.views import RecoverPasswordAPI, get_role, CreateUserView, check_if_invited
+from register.views import RecoverPasswordAPI, get_role, CreateUserView, check_if_invited, confirm_user_email
 
 urlpatterns = [
     
@@ -7,6 +7,7 @@ urlpatterns = [
     path('create-user/', CreateUserView.as_view()),
     path('check_if_invited/<str:link>', check_if_invited),
     path('recover-password/', RecoverPasswordAPI.as_view()),
+    path('confirm-user-email/', confirm_user_email)
 
 ]
 

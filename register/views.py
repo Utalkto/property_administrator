@@ -22,6 +22,9 @@ from rest_framework.generics import CreateAPIView
 from django.contrib.auth import get_user_model # If used custom user model
 from django.contrib.auth.password_validation import CommonPasswordValidator
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 
 # app modules 
 from app_modules.send_email import SendEmail
@@ -53,6 +56,41 @@ def check_if_invited(request, link):
     return Response({'invited_by': serializer.data})
 
 
+@api_view(['PUT'])
+@swagger_auto_schema(
+    request_body=openapi.Schema(
+    type=openapi.TYPE_OBJECT, 
+    properties={
+        'message': openapi.Schema(type=openapi.TYPE_STRING),
+        'file': openapi.Schema(type=openapi.TYPE_FILE),
+        'image': openapi.Schema(type=openapi.TYPE_FILE)
+    }))
+def confirm_user_email(request):
+    
+    try:
+        link = request.data['link']
+    except:
+        return Response({'error': 'link debe ser ingresado'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    try: 
+        user:CustomUser = CustomUser.objects.get(link_to_activate_email=link)
+    except CustomUser.DoesNotExist:
+        return Response({'error':'CustomUser.DoesNotExist: no hay link asociado a este usuario'})
+    
+    
+    user.link_to_activate_email = None
+    user.email_is_actived = True
+    
+    user.save()
+    
+    
+    return Response({'message': 'success'})
+    
+# --------------------------------------------------------------
+# classes 
+# --------------------------------------------------------------
+
 
 class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -69,7 +107,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
                 )
         
         
-        if token.user.organization.payment_status:
+        if token.user.organization.payment_status and token.user.email_is_actived:
             return Response(
                 {
                     'token': token.key, 
@@ -83,18 +121,29 @@ class CustomObtainAuthToken(ObtainAuthToken):
                 return Response({
                     'message': 'Your account is inactive since your plan has experied, please renew your plan to access again'
                 }, status=status.HTTP_402_PAYMENT_REQUIRED)
-                
             else:
-                return Response(
+                
+                if not token.user.email_is_actived:
+                    
+                    return Response(
                     {
-                        'message': 'Access denied',
+                        'message': 'You have to confirm your email to continue',
                         
                     }, status=status.HTTP_401_UNAUTHORIZED
-                )
+                    )
+                    
+                else:
+                
+                    return Response(
+                        {
+                            'message': 'Access denied',
+                            
+                        }, status=status.HTTP_401_UNAUTHORIZED
+                    )
     
 
 class CreateUserView(CreateAPIView):
-
+    
     model = get_user_model()
     permission_classes = [
         permissions.AllowAny # Or anon users can't register

@@ -208,10 +208,7 @@ class ChatMessageAPI(APIView):
                 users = [chat.user_two]
             else:
                 users = [chat.user_one]
-                
-            print(users)
-            print('creating notifications')
-            print('------------------------')
+
             create_notification(users=users, notification_type=1, message_sender=message_sender)
 
             chat.save()
