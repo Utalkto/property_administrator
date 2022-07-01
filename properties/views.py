@@ -211,8 +211,14 @@ class PropertyAPI(APIView):
     authentication_classes = (TokenAuthentication,) 
     
     @swagger_auto_schema(
+    query_serializer= PropertyAPIQuerySelializer(),
     responses={200: PropertyRelatedFieldsSerializer()})
     def get(self, request,  client_id):
+        """Obtener(listar) propiedad(es)
+
+        Descripcion : 
+
+        """
         """ 
         Summary: Get a property a user has or an organization owns 
         
