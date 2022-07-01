@@ -37,7 +37,8 @@ from candidates.models import Candidate
 from app_modules.send_email import SendEmail
 from app_modules.permission import user_has_access
 
-
+from .queryserializer import PropertyAPIQuerySerializer, TenantAPIQuerySerializer, UnitAPIQueryserializer
+from drf_yasg import openapi
 # other fucntions
 def put_candidate_as_tenant(candidate):
     for adult in candidate.adults_information:
@@ -142,6 +143,7 @@ def vacantUnit(request, unit_id):
     return Response({"unit": 'status changed successfully', 'emails_sent_to': emails_sent_to})
 
 
+
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
@@ -211,7 +213,7 @@ class PropertyAPI(APIView):
     authentication_classes = (TokenAuthentication,) 
     
     @swagger_auto_schema(
-    query_serializer= PropertyAPIQuerySelializer(),
+    query_serializer= PropertyAPIQuerySerializer(),
     responses={200: PropertyRelatedFieldsSerializer()})
     def get(self, request,  client_id):
         """Obtener(listar) propiedad(es)
@@ -262,8 +264,14 @@ class PropertyAPI(APIView):
     
 
     @swagger_auto_schema(
+    request_body=PropertySerializer(),
     responses={200: PropertySerializer()})
     def post(self, request, client_id):
+        """Crea Propiedad
+
+        Documentacio : 
+        """
+
         """ Summary: PropertyAPI POST
         
         paremeters:
@@ -303,6 +311,29 @@ class PropertyAPI(APIView):
     
     
     @swagger_auto_schema(
+    request_body=openapi.Schema(
+    type=openapi.TYPE_OBJECT, 
+    properties={
+        "property_id": openapi.Schema(type=openapi.TYPE_INTEGER),
+        "address": openapi.Schema(type=openapi.TYPE_STRING),
+        #"coordinates":openapi.Schema(type=openapi.TYPE_OBJECT),
+        "maps_url": openapi.Schema(type=openapi.TYPE_STRING),
+        "name": openapi.Schema(type=openapi.TYPE_STRING),
+        "number_of_units": openapi.Schema(type=openapi.TYPE_INTEGER),
+        "price_paid": openapi.Schema(type=openapi.TYPE_INTEGER),
+        #"photos": openapi.Schema(type=openapi.TYPE_OBJECT),
+        "year_built": openapi.Schema(type=openapi.TYPE_INTEGER),
+        "year_bought": openapi.Schema(type=openapi.TYPE_INTEGER),
+        #"datetime_created": "2022-07-01T20:29:18.524Z",
+        #"last_time_edited": "2022-07-01T20:29:18.524Z",
+        "client": openapi.Schema(type=openapi.TYPE_INTEGER),
+        "city": openapi.Schema(type=openapi.TYPE_INTEGER),
+        "property_type": openapi.Schema(type=openapi.TYPE_INTEGER),
+        #"create_by": openapi.Schema(type=openapi.TYPE_INTEGER),
+        #"last_edition_made_by": openapi.Schema(type=openapi.TYPE_INTEGER),
+
+    }),
+
     responses={200: PropertySerializer()})
     def put(self, request, client_id):
         
@@ -353,8 +384,11 @@ class PropertyAPI(APIView):
                     'error': property_serializer.errors
                 }, 
                 status=status.HTTP_400_BAD_REQUEST)
-
-    
+  
+  
+    @swagger_auto_schema(
+    query_serializer= PropertyAPIQuerySerializer(),
+    responses={200: PropertySerializer()})  
     def delete(self, request, client_id):
         try:
             _property:Property = Property.objects.get(id=int(request.GET['property_id']))
@@ -396,6 +430,11 @@ class UnitsAPI(APIView):
     @swagger_auto_schema(
     responses={200: UnitRelatedFieldsSerializer()})
     def get(self, request, client_id):
+        """Obtener(listar) Unidad(es)
+
+        Descripcion : 
+
+        """
         
         """ UnitsAPI GET
         
@@ -522,8 +561,15 @@ class UnitsAPI(APIView):
         
     
     @swagger_auto_schema(
+    request_body=UnitSerializer(),
     responses={200: UnitSerializer()})
     def post(self, request, client_id):
+        """Crear Unidad
+
+        Descripcion : 
+
+        
+        """
         
         request.data['client_id'] = client_id
         
@@ -558,6 +604,11 @@ class UnitsAPI(APIView):
     @swagger_auto_schema(
     responses={200: UnitSerializer()})
     def put(self, request, client_id):
+        """Actualizar Unidad
+
+        Descricion : 
+
+        """
         
         """UnitsAPI PUT
         
@@ -614,8 +665,15 @@ class UnitsAPI(APIView):
                     'error': unit_serializer.errors, 
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-
+    @swagger_auto_schema(
+    query_serializer=UnitAPIQueryserializer(),
+    responses={200: "correct"})
     def delete(self, request, client_id):
+        """Elininar Propiedad
+
+        Descricion : 
+        
+        """
         
         try:
             unit:Unit = Unit.objects.get(id= request.GET['unit_id'])
@@ -652,8 +710,13 @@ class TenantViewSet(APIView):
     
  
     @swagger_auto_schema(
+    query_serializer= TenantAPIQuerySerializer(),
     responses={200: TenantRelatedFieldsSerializer()})
     def get(self, request, client_id):
+        """Obtener(listar) cliente(s)
+
+        Deccripcion : 
+        """
         
         """TenantViewSet GET
         
@@ -708,6 +771,7 @@ class TenantViewSet(APIView):
     
     
     @swagger_auto_schema(
+    request_body=TenantSerializer(),
     responses={200: TenantRelatedFieldsSerializer()})
     def post(self, request, client_id):
         
@@ -800,6 +864,9 @@ class TenantViewSet(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
 
+    @swagger_auto_schema(
+    query_serializer= TenantAPIQuerySerializer(),
+    responses={200: TenantRelatedFieldsSerializer()})    
     def delete(self, request, client_id):
         
         """TenantViewSet DELETE
