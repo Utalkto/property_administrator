@@ -7,7 +7,7 @@ import datetime
 
 # django
 from properties.models import Tenants
-from register.models import CustomUser, Organization
+from register.models import CustomUser, Organization, OrganizationClient
 
 from django.db.models import Q
 
@@ -62,8 +62,8 @@ def get_password(organization:Organization) -> str:
     return email_paswword
 
 
-def save_message_in_database(sent_from:str, subject:str, message:str, datetime_received:datetime, 
-                             sent_from_email:bool=True) -> dict:
+def save_message_in_database(sent_from:str, subject:str, message:str, datetime_received:datetime,
+                            organization:Organization=None, sent_from_email:bool=True) -> dict:
     
     # we need to check if the email that was sent to the organization is from a contact that is in the db
     
@@ -73,6 +73,10 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
         'message': message,
     }
     
+    client:OrganizationClient = None
+    tenant:Tenants = None
+    supplier:Suppliers = None
+        
     if sent_from_email:
         data_for_serializer['via'] = 'EMAIL'
     else:
@@ -85,23 +89,10 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
             tenant:Tenants = Tenants.objects.get(Q(phone=sent_from) | Q(phone2=sent_from))
         
         client = tenant.client
+        organization = client.organization
         
         data_for_serializer['tenant'] = tenant.id
         data_for_serializer['client'] = client.id
-        
-        # create notification
-        users = CustomUser.objects.filter(organization=client.organization.id)
-        users_with_access = list()
-        
-        for user in users:
-            if client.id in user.clients_access.keys():
-                users_with_access.append(user)
-    
-        print(users)
-        print('creating notifications')
-        print('------------------------')
-        create_notification(users=users_with_access, client=client, notification_type=4, tenant=tenant)
-        # ---------------------------------------------------------------
         
         try:
             conversation:Conversation = Conversation.objects.get(tenant_id=tenant.id)
@@ -110,7 +101,7 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
             conversation = create_new_conversation(tenant_id=tenant.id, client_id=tenant.client.id)
             print(conversation)
         
-    except:
+    except Tenants.DoesNotExist:
         try: 
             if sent_from_email:
                 supplier:Suppliers = Suppliers.objects.get(email=sent_from)
@@ -120,6 +111,9 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
             data_for_serializer['supplier'] = supplier.id
             data_for_serializer['client'] = supplier.client.id
             
+            
+            organization = supplier.organization
+            
             try:
                 conversation:Conversation = Conversation.objects.get(supplier=supplier.id)
 
@@ -128,7 +122,11 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
                 conversation = create_new_conversation(supplier_id=supplier.id, client_id=supplier.client.id)
             
         except:
-            data_for_serializer['unknown_email'] = sent_from
+            if sent_from_email:
+                data_for_serializer['unkonwn_email'] = sent_from
+            else:
+                data_for_serializer['unkonwn_phone'] = sent_from
+            
             conversation = None
     
     if conversation:
@@ -144,6 +142,31 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
     serializer = MessageSerializer(data=data_for_serializer)
     
     if serializer.is_valid():
+        
+        # create notification
+        users_with_access = list()
+        
+        if client:
+            users = CustomUser.objects.filter(organization=client.organization.id)
+            
+            for user in users:
+                if client.id in user.clients_access.keys():
+                    users_with_access.append(user)
+            
+        elif organization:
+            users = CustomUser.objects.filter(organization=organization.id)
+            users_with_access = users
+            
+        if tenant:
+            create_notification(users=users_with_access, client=client, notification_type=4, tenant=tenant)
+        elif supplier:
+            create_notification(users=users_with_access, client=client, notification_type=4, supplier=supplier)
+        else:
+            create_notification(users=users_with_access, client=client, notification_type=4)
+            
+            
+        # ---------------------------------------------------------------
+        
         serializer.save()
     else:
         print(serializer.errors)
@@ -151,7 +174,7 @@ def save_message_in_database(sent_from:str, subject:str, message:str, datetime_r
     return dict(serializer.data)
     
 
-def get_emails(email:str, password:str):
+def get_emails(email:str, password:str, organization:Organization):
     # get emails that have been received since a certain time
     
     now = datetime.datetime.now()
@@ -163,14 +186,12 @@ def get_emails(email:str, password:str):
             forty_seconds_before = now - datetime.timedelta(seconds=60)       
             
             if t > forty_seconds_before.time():
-                
-                print(msg.subject)
-                
                 save_message_in_database(
                     sent_from=msg.from_,
                     subject=msg.subject, 
                     message=msg.text, 
-                    datetime_received=msg.date)
+                    datetime_received=msg.date,
+                    organization=organization)
                 
 
 def check_organization_emails():
@@ -183,7 +204,7 @@ def check_organization_emails():
         email_password = get_password(org)
         
         # the emails get save in this function 
-        get_emails(org.email_username, email_password)
+        get_emails(org.email_username, email_password, org)
     
     
     

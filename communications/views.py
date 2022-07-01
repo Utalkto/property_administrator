@@ -22,6 +22,7 @@ from django.utils import timezone
 from twilio.rest import Client
 
 from communications.models import Conversation, Message
+from register.models import Organization
 
 # serializers
 
@@ -371,12 +372,18 @@ def twilio_in_bound(request):
     
     now = timezone.now()
     
+    # TODO: check which is the parameter that send the twilio number that received the message
+    
+    organization:Organization = Organization.objects.get(twilio_number=data['to'])
+    
+    
     message_serializer = save_message_in_database(
             sent_from=data['from'],
             subject=None, 
             message=data['body'], 
             datetime_received=now,
-            sent_from_email=False)
+            sent_from_email=False,
+            organization=organization)
     
     return Response(message_serializer)
 

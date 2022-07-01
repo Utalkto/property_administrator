@@ -84,6 +84,8 @@ class Organization(models.Model):
     email_username = models.CharField(max_length=256, null=True, default=None)
     email_password = models.BinaryField(null=True, default=None)
     
+    twilio_number = models.CharField(max_length=120, null=True, default=None)
+    
     key = models.BinaryField(null=True, default=None)
     
     name = models.CharField(max_length=120)

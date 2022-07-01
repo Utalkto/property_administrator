@@ -15,13 +15,19 @@ from .models import NotificationType
 NOTIFICATION_TYPES = {
     1: {
         'subject': 'Your got a new message', 
-        'html': '<p>You got a new mesage from {message_sender}</p>', 
+        'html': '<p>You got a new sms from {message_sender}</p>', 
         'text': 'You got a new message from {message_sender}'
+    },
+    
+    2: {
+        'subject': 'Your got a new sms', 
+        'html': '<p>You got a new sms from {message_sender}</p>', 
+        'text': 'You got a new sms from {message_sender}'
     },
     
     4: {
         'subject': 'Your got a new email', 
-        'html': '<p>You got a new mesage from {message_sender}</p>', 
+        'html': '<p>You got a new email from {contact_type} {contact_name}</p>', 
         'text': 'Your got a new email from {contact_type} {contact_name}'
     },
     
@@ -49,7 +55,7 @@ def create_notification(users:list, notification_type:int, message_sender:Custom
     
     assert notification_type in NOTIFICATION_TYPES.keys(), 'notification_type parameter must be \
     1:NEW_MESSAGE, 2:NEW_TICKET_OPENED, 3:NEW_SMS, 4:NEW_EMAIL'
-
+    
 
     try:
         users[0]
@@ -60,19 +66,24 @@ def create_notification(users:list, notification_type:int, message_sender:Custom
     if notification_type == 1:
         notification_text:str = NOTIFICATION_TYPES[notification_type]['text']\
         .replace('{message_sender}', message_sender.get_full_name())
-    elif notification_type == 3: 
+    elif notification_type == 4: 
         
         if tenant:
             contact_type = 'tenant'
             contact_name = tenant.name
         elif supplier:
-            contact_type = 'tenant'
+            contact_type = 'supplier'
             contact_name = supplier.name
-        
+        else:
+            contact_type = 'unknown'
+            contact_name = ''
     
         notification_text:str = NOTIFICATION_TYPES[notification_type]['text']\
         .replace('{contact_type}', contact_type).replace('{contact_name}', contact_name)
-    
+        
+        html_part = NOTIFICATION_TYPES[notification_type]['html']\
+        .replace('{contact_type}', contact_type).replace('{contact_name}', contact_name)
+        
     
     data_for_serializer = {
         'notification_type': notification_type,
@@ -84,7 +95,6 @@ def create_notification(users:list, notification_type:int, message_sender:Custom
     if client:
         data_for_serializer['client'] = client.id
     
-    html_part = NOTIFICATION_TYPES[notification_type]['html'].replace('{mesage_sender}', message_sender.get_full_name())
     email_subject = NOTIFICATION_TYPES[notification_type]['subject']
     
     

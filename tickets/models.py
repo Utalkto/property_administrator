@@ -1,7 +1,7 @@
 from django.db import models
 from properties.models import Tenants, Unit, PropertyCities
 
-from register.models import CustomUser
+from register.models import CustomUser, Organization
 
 # ID OF EACH TABLE (EXCEPT FOR TICKET) WILL BE THE VALUE IN THE OPTIONS DISPLAYED IN FRONT 
 
@@ -18,6 +18,7 @@ class SupplierWorkArea(models.Model):
 class Suppliers(models.Model):
     # foreign keys
     
+    organization = models.ForeignKey(Organization, null=False, blank=False, on_delete=models.CASCADE, default=1)
     city = models.ForeignKey(PropertyCities, null=False, blank=False, on_delete=models.CASCADE)
     landlord = models.ForeignKey(CustomUser, null=True, default=1, on_delete=models.CASCADE)
     # role = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
