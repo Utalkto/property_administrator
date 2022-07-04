@@ -1,0 +1,26 @@
+id;date_deposit_received;email;email2;emergency_contact;emergency_contact_name;payments_delay;payments_on_time;name;phone;phone2;preferred_communications;secondary_communications;standing_qualification;tenant_type_id;unit_id;client_id;datetime_created;last_edition_made_by_id;last_time_edited;deleted;created_by_id
+15;9000-01-01;shandikosik@gmail.com;none;none;none;0;0;Shandi Kosik;+5873775534;none;SMS;Call;0;1;10;1;2022-06-15 18:00:19.995711+00;;;f;1
+16;9000-01-01;tj.pearson92@gmail.com;none;none;none;0;0;Tyler Pearson;+4035968986;none;SMS;Call;0;2;10;1;2022-06-15 18:00:19.995711+00;;;f;1
+19;2020-05-14;jewel969@icloud.com;none;none;none;0;0;Janine Stickel;+4039219308;none;SMS;Call;0;1;13;1;2022-06-15 18:00:19.995711+00;;;f;1
+27;2019-07-02;ashhabc@hotmal.com;none;none;none;0;0;Ashhab Chishty;+4039753655;none;Email;Email;0;1;19;1;2022-06-15 18:00:19.995711+00;;;f;1
+28;2019-07-02;none;none;none;none;0;0;Stephanie Mclead;+5879680999;none;SMS;Call;0;2;19;1;2022-06-15 18:00:19.995711+00;;;f;1
+69;2020-10-26;none;none;none;none;0;0;Austin Canning;+8257066889;none;SMS;Call;0;1;91;1;2022-06-15 18:00:19.995711+00;;;f;1
+73;2018-09-01;none;none;none;none;0;0;Aiezie Oca;none;none;SMS;Call;0;2;93;1;2022-06-15 18:00:19.995711+00;;;f;1
+71;2021-09-24;craighoybak@hotmail.com;none;none;none;0;0;Craig Hoybak;+4033182677;none;SMS;Call;0;1;92;1;2022-06-15 18:00:19.995711+00;;;f;1
+10;2016-04-01;Koringflores@yahoo.ca;none;none;none;0;0;Corinna Flores-Becher;+4035977387;none;SMS;Call;0;1;7;1;2022-06-15 18:00:19.995711+00;;;f;1
+57;2020-02-09;mel_4teen@yahoo.com;none;+5874338495;Frederick Camacho;0;0;MeLrose Camacho;+5874339173;none;SMS;Call;0;1;81;1;2022-06-15 18:00:19.995711+00;;;f;1
+14;2022-02-05;kcourchene00@gmail.com;none;+4038777617;Dallas Thibodeau;0;0;Jennifer Courchene;+4035972160;none;SMS;Call;0;1;9;1;2022-06-15 18:00:19.995711+00;;;f;1
+17;2021-04-09;alex.f118@outlook.com;none;+4033926396;Danny Fletch;0;0;Alex Fletch;+5873770082;none;SMS;Call;0;1;11;1;2022-06-15 18:00:19.995711+00;;;f;1
+18;2021-03-25;ethan.scott436@gmail.com;none;+4033922858;Trevor Scott;0;0;Ethan Scott;+4033071004;none;SMS;Call;0;1;12;1;2022-06-15 18:00:19.995711+00;;;f;1
+20;2021-06-15;jayleeperry1990@gmail.com;none;+4039219308;Janine Stickel;0;0;Jaylee Lindsay;+5874321791;none;SMS;Call;0;1;14;1;2022-06-15 18:00:19.995711+00;;;f;1
+29;2021-02-01;sales@white-ice.com;none;none;none;0;0;Jasmine Hiebert;+4032363055;+4035856944;Email;SMS;0;1;20;1;2022-06-15 18:00:19.995711+00;;;f;1
+68;2020-10-10;none;none;none;none;0;0;Leona Crawford;+4033546173;none;SMS;Call;0;1;90;1;2022-06-15 18:00:19.995711+00;;;f;1
+66;2014-03-07;mcglynnjames77@gmail.com;none;none;none;0;0;James Mcglynn;+4033706936;none;SMS;Call;0;1;78;1;2022-06-15 18:00:19.995711+00;;;f;1
+70;2020-10-26;yolomeow7@gmail.com;none;none;none;0;0;Larry Burlingame;+4033049919;none;SMS;Call;0;2;91;1;2022-06-15 18:00:19.995711+00;;;f;1
+72;2018-09-01;diancanayon@rocketmail.com;none;none;none;0;0;Dian Oca;+4038721229;'';SMS;Call;0;1;93;1;2022-06-15 18:00:19.995711+00;;;f;1
+49;2022-05-15;tina@highpowersolutions.ca;'';+4034707205;Chetena Saini;0;0;Tina Saini;+5874727500;'';SMS;Call;0;1;72;1;2022-06-15 18:00:19.995711+00;;;f;1
+50;2022-05-15;johnsonbrandon1@hotmail.com;'';+4037644117;Leanne;0;0;Brandon Johnson;+5875748200;'';SMS;Call;0;2;72;1;2022-06-15 18:00:19.995711+00;;;f;1
+58;2020-02-09;fred_v_camacho@yahoo.com;none;+5874339173;MeLrose Camacho;0;0;Frederick Camacho;+5874338495;none;SMS;Call;0;2;81;1;2022-06-15 18:00:19.995711+00;;;f;1
+77;2022-06-02;jsoto@ualberta.ca;'';'';Juan;0;0;Tenant 1;12345678;'';SMS;Email;0;1;100;1;2022-06-15 18:00:19.995711+00;;;f;1
+79;2022-07-01;ycabaniel@utalkto.com;none;none;none;1;1;PRUEBAYR;04121419422;none;SMS;Call;0;2;101;1;2022-07-01 18:18:28+00;1;2022-07-01 18:19:31+00;t;1
+78;2022-07-01;email@gmail.com;email2@gmail.com;041290901297;Yriana;1;1;Yrimar Cabaniel;04121419422;None;sms;call;1;1;101;1;2022-07-01 17:56:00.755844+00;1;2022-07-01 17:52:09.476+00;t;1

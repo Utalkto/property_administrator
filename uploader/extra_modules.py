@@ -11,30 +11,50 @@ from rest_framework.serializers import ModelSerializer
 
 # models 
 
-from properties.models import Property, Unit
+from properties.models import Property, Tenants, Unit
 from register.models import CustomUser, Organization, OrganizationClient
 
 # serializers 
 
-from properties.serializers import PropertySerializer, UnitSerializer
+from properties.serializers import PropertySerializer, TenantSerializer, UnitSerializer
+
+from tickets.models import Suppliers
+from tickets.serializers import SupplierPostSerializer
 
 FILE_TYPES = ['csv', 'xlsx']
 
 
-GENERAL_FIELDS_TO_EXCLUDE = ['last_time_edited', 'last_edition_made_by', 'datetime_created', 'created_by']
+GENERAL_FIELDS_TO_EXCLUDE = ['id', 'log', 'last_time_edited', 'last_edition_made_by', 'datetime_created', 'created_by']
+
 
 TABLES = {
+    
     'property': {
         'model': Property,
         'serializer': PropertySerializer,
-        'fields_to_exclude': GENERAL_FIELDS_TO_EXCLUDE + ['client', 'unit', 'log','id', 'img'],
+        'fields_to_exclude': GENERAL_FIELDS_TO_EXCLUDE + ['client', 'unit', 'log','id', 'img', 'photos'],
     },
     
     'unit': {
         'model': Unit,
         'serializer': UnitSerializer,
-        'fields_to_exclude': GENERAL_FIELDS_TO_EXCLUDE
+        'fields_to_exclude': GENERAL_FIELDS_TO_EXCLUDE + ['availability', 'tenants', 'candidate', 'unitpayments', 
+                                                          'unitmonthlypayments', 'ticket', 'expenses', 'paymentrent'],
+    },
+    
+    'tenant': {
+        'model': Tenants,
+        'serializer': TenantSerializer,
+        'fields_to_exclude': GENERAL_FIELDS_TO_EXCLUDE + ['conversation', 'ticket', 'paymentrent', 'client', 
+                                                          'unitpayments', 'deleted']
+    },
+    
+    'supplier': {
+        'model': Suppliers,
+        'serializer': SupplierPostSerializer,
+        'fields_to_exclude': GENERAL_FIELDS_TO_EXCLUDE + ['conversation', 'ticket', 'expenses', 'organization']
     }
+   
 }
 
 
@@ -46,6 +66,7 @@ class Uploader():
         
         self.user = user
         self.client = client
+
 
     def upload_file_to_database(self, filename:str, file_type:str, table:str):
         
@@ -64,11 +85,9 @@ class Uploader():
             file:pd.DataFrame = pd.read_excel(filename)
         
         
-        current_table:dict = TABLES[table]
 
-        fields_in_db = [field.name for field in current_table['model']._meta.get_fields() 
-                        if field.name not in current_table['fields_to_exclude']]
-        
+        fields_in_db = self.get_nessary_fields(table=table)
+
         
         list_of_keys = list(file.keys())
         if list_of_keys != fields_in_db:
@@ -78,6 +97,8 @@ class Uploader():
             
 
         # start_uploading the data to the database
+        
+        current_table:dict = TABLES[table]
         return self.serialize_data_and_upload(file, current_table['serializer'])
     
         
@@ -110,15 +131,19 @@ class Uploader():
         
         if serializer.is_valid():
             #serializer.save()
-            
-            print('here')
-            print('--------------------------------')
-            
             return serializer.data, True
         
         else:
-            print('nohere')
-            print('--------------------------------')
-            
             return serializer.errors, False
 
+
+    def get_nessary_fields(self, table:str) -> list:
+        
+        current_table = TABLES[table]
+        
+        fields_in_db = [field.name for field in current_table['model']._meta.get_fields() 
+                        if field.name not in current_table['fields_to_exclude']]
+        
+        return fields_in_db
+    
+# Token 43302189e044f29f641d6305804b2b865287f098
