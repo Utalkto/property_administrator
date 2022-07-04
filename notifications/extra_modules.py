@@ -14,21 +14,21 @@ from .models import NotificationType
 
 NOTIFICATION_TYPES = {
     1: {
-        'subject': 'Your got a new message', 
+        'subject': 'you got a new message', 
         'html': '<p>You got a new sms from {message_sender}</p>', 
         'text': 'You got a new message from {message_sender}'
     },
     
     2: {
-        'subject': 'Your got a new sms', 
+        'subject': 'you got a new sms', 
         'html': '<p>You got a new sms from {message_sender}</p>', 
         'text': 'You got a new sms from {message_sender}'
     },
     
     4: {
-        'subject': 'Your got a new email', 
+        'subject': 'you got a new email', 
         'html': '<p>You got a new email from {contact_type} {contact_name}</p>', 
-        'text': 'Your got a new email from {contact_type} {contact_name}'
+        'text': 'you got a new email from {contact_type} {contact_name}'
     },
     
 }

@@ -80,7 +80,7 @@ class Property(models.Model):
     year_bought = IntegerField(null=True)
     
     datetime_created = models.DateTimeField(default=timezone.now)
-    create_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='property_create_by')
+    created_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='property_created_by')
     
     last_time_edited = models.DateTimeField(null=True, default=None)
     last_edition_made_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT, 
@@ -185,7 +185,7 @@ class Unit(models.Model):
     max_weeks_to_move = models.IntegerField(null=True, default=0)
     
     datetime_created = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='unit_create_by')
+    created_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='unit_created_by')
     
     last_time_edited = models.DateTimeField(null=True, default=None)
     last_edition_made_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT, 
@@ -245,7 +245,7 @@ class Tenants(models.Model):
     tenant_type = models.ForeignKey(TenantType, null=True, default=None, on_delete=models.CASCADE)
     
     datetime_created = models.DateTimeField(default=timezone.now)
-    create_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='tenant_create_by')
+    created_by = models.ForeignKey(CustomUser, default=1, on_delete=models.PROTECT, related_name='tenant_created_by')
     
     last_time_edited = models.DateTimeField(null=True, default=None)
     last_edition_made_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT, 

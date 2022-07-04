@@ -143,7 +143,6 @@ def vacantUnit(request, unit_id):
     return Response({"unit": 'status changed successfully', 'emails_sent_to': emails_sent_to})
 
 
-
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
@@ -329,9 +328,6 @@ class PropertyAPI(APIView):
         "client": openapi.Schema(type=openapi.TYPE_INTEGER),
         "city": openapi.Schema(type=openapi.TYPE_INTEGER),
         "property_type": openapi.Schema(type=openapi.TYPE_INTEGER),
-        #"create_by": openapi.Schema(type=openapi.TYPE_INTEGER),
-        #"last_edition_made_by": openapi.Schema(type=openapi.TYPE_INTEGER),
-
     }),
 
     responses={200: PropertySerializer()})
