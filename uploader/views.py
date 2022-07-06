@@ -43,7 +43,7 @@ class UploadAPI(APIView):
         
         qp.is_valid(raise_exception=True)
         
-        fields = uploader.get_nessary_fields(table=qp.data['table'])
+        fields = uploader.get_neccessary_fields(table=qp.data['table'])
         
         return Response({'fields': fields})
 
@@ -53,7 +53,7 @@ class UploadAPI(APIView):
         """para ingresar documentos en la base de datos mediante archivos xlsx o csv
         """
 
-        file = request.FILES['property']
+        file = request.FILES['file']
         
         filename = str(file.name).split('.')[0]
         file_extension = str(file.name).split('.')[1]

@@ -98,13 +98,6 @@ class UnitContractType(models.Model):
         return f'{self.id} - {self.contract_type}' 
 
 
-class PetType(models.Model):
-    pet_type = models.CharField(max_length=120)
-    
-    def __str__(self) -> str:
-        return f'{self.id} - {self.pet_type}'
-
-
 class Unit(models.Model):
     # foreign keys 
      
@@ -128,7 +121,7 @@ class Unit(models.Model):
     extra_resident = IntegerField(null=True, default=None)
     
     heating_type = CharField(max_length=50, null=True, default=None)
-    has_pet =  BooleanField(null=True, default=None)
+    has_pet =  BooleanField(null=True, default=False)
     
     lease_typee = models.ForeignKey(UnitContractType, null=True, default=None, on_delete=models.CASCADE)
     lease_start_date = models.DateField(default=None, null=True, blank=True, )
@@ -138,16 +131,15 @@ class Unit(models.Model):
     
     name = CharField(max_length=100, null=True, default=None)
     notes = TextField(null=True, default=None)
-    number_of_pets = IntegerField(null=True, default=None)
+    number_of_pets = IntegerField(null=True, default=0)
     number_of_residents = IntegerField(null=True, default=None)
     
     payments_email = CharField(max_length=100, null=True, default=None)
     parking_available = BooleanField()
     parking_type = CharField(max_length=50, null=True, default=None)
     
-    pet_fee = DecimalField(max_digits=19, decimal_places=2, null=True, default=None)
     pet_policy= CharField(max_length=100)
-    pets_living = models.CharField(max_length=50, null=True, default=None)
+    #pets_living = models.CharField(max_length=50, null=True, default=None)
     
     rented = BooleanField(default=False) 
     rent = DecimalField(max_digits=19, decimal_places=2, null=True, default=None) 
@@ -157,8 +149,6 @@ class Unit(models.Model):
     square_feet_area = DecimalField(max_digits=19, decimal_places=2)
     shed = BooleanField(default=False)
 
-    pet_typee = models.ForeignKey(PetType, null=True, default=None, on_delete=models.CASCADE)
-    
     unit_number = models.IntegerField(default=1)
     
     availability = models.DateField(null=True, blank=True, default=None)
@@ -176,7 +166,6 @@ class Unit(models.Model):
     people_above = models.BooleanField(null=True, blank=True, default=False)
     unemployed_people = models.BooleanField(null=True, blank=True, default=False)
     kids = models.BooleanField(null=True, blank=True, default=False)
-    pet_friendly = models.BooleanField(null=True, blank=True, default=False)
     
     utilities_cost = models.CharField(max_length=120, null=True, blank=True, default='')
     utilities_included = models.TextField(null=True, blank=True, default='')
@@ -203,7 +192,7 @@ class Unit(models.Model):
     is_store_near = models.BooleanField(default=False)
     is_bus_stop_near = models.BooleanField(default=False)
     
-
+    
     def __str__(self) -> str:
         return f'{self.id} - {self.property.name} - {self.property.id}' 
 
@@ -223,13 +212,13 @@ class Tenants(models.Model):
     
     # -------------------------------------------------------
     # fields
-    date_deposit_received = models.DateField(default=None ,null=True)
-    
+
     email = CharField(max_length=50)
     email2 = CharField(max_length=50, null=True, default=None, blank=True)
     emergency_contact = CharField(max_length=50, null=True, default=None, blank=True)
     emergency_contact_name = CharField(max_length=50, null=True, default=None, blank=True)
     
+    # these fields are in case the tenant is a main tenant
     payments_delay = IntegerField(default=0)
     payments_on_time = IntegerField(default=0)
     

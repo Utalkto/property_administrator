@@ -216,7 +216,7 @@ class RecoverPasswordAPI(APIView):
         # send email here
         try:
             SendEmail(
-                send_to="andresruse18@gmail.com",
+                send_to=user.email,
                 subject="Restore Password",
                 html= html
             )

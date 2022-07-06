@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (Team, PetType, Property, TenantType, Unit, Tenants, Links, PropertyCountries, 
+from .models import (Team, Property, TenantType, Unit, Tenants, Links, PropertyCountries, 
                      PropertyCities, PropertyType, UnitType, UnitContractType)
 
 admin.site.register(Team)
@@ -12,7 +12,6 @@ admin.site.register(PropertyCities)
 admin.site.register(PropertyType)
 admin.site.register(UnitType)
 admin.site.register(TenantType)
-admin.site.register(PetType)
 admin.site.register(UnitContractType)
 
 

@@ -86,13 +86,13 @@ class Uploader():
         
         
 
-        fields_in_db = self.get_nessary_fields(table=table)
+        fields_in_db = self.get_neccessary_fields(table=table)
 
         
-        list_of_keys = list(file.keys())
+        list_of_keys = sorted(list(file.keys()))
         if list_of_keys != fields_in_db:
             
-            raise Exception(f'Invalid list, the parameters must match the list of fields that are \
+            raise ValueError(f'Invalid list, the parameters must match the list of fields that are \
                             in the db for the model wanted: fields: {fields_in_db} and yours were {list_of_keys}')
             
 
@@ -111,9 +111,14 @@ class Uploader():
         while not df.empty:
             serializer_dict = dict(created_by=self.user.id, 
                                    datetime_created=timezone.now(),
-                                   client=self.client.id)
+                                   client=self.client.id,
+                                   last_time_edited=None,
+                                   availability=None)
             
             for key in (df.keys()):
+                
+                if key == 'last_time_edited' or key == 'availability':
+                    continue
                 
                 serializer_dict[key] = df[key][current_index]
 
@@ -137,13 +142,13 @@ class Uploader():
             return serializer.errors, False
 
 
-    def get_nessary_fields(self, table:str) -> list:
+    def get_neccessary_fields(self, table:str) -> list:
         
         current_table = TABLES[table]
         
         fields_in_db = [field.name for field in current_table['model']._meta.get_fields() 
                         if field.name not in current_table['fields_to_exclude']]
         
-        return fields_in_db
+        return sorted(fields_in_db)
     
 # Token 43302189e044f29f641d6305804b2b865287f098

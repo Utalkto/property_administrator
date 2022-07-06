@@ -3,7 +3,7 @@ import random
 
 from register.models import Country, City, KumbioPlan, UserRoles
 
-from properties.models import (PetType, PropertyType, TenantType, UnitType, PropertyCountries, 
+from properties.models import (PropertyType, TenantType, UnitType, PropertyCountries, 
                                PropertyCities, Property, Unit, Tenants)
 from properties.serializers import TenantSerializer, UnitSerializer, PropertySerializer
 
@@ -116,9 +116,6 @@ def crear_propiedades():
 
 def crear_unidades():
     """Crear datos de forma eleatorea en la tabla de Unidades"""
-    
-    p = PetType(pet_type='racoon')
-    p.save()
     
 
     resident= random.randrange(1,5)
