@@ -50,7 +50,7 @@ class UploadAPI(APIView):
     
     def post(self, request, client_id):
         
-        """para ingresas documentos en la base de datos mediante archo xlsx o csv
+        """para ingresar documentos en la base de datos mediante archivos xlsx o csv
         """
 
         file = request.FILES['property']
