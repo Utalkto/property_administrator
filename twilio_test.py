@@ -26,10 +26,27 @@ TWILIO_AUTH_TOKEN = 'c5dbc722f8f448bbbfd5197fada23bc5'
 
 client = Client(ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-calls = client.calls.list(limit=1)
+from twilio.twiml.voice_response import VoiceResponse, Say
+response = VoiceResponse()
+response.say('Hello World')
 
-for record in calls:
-    print(type(record.from_))
+# calls = client.calls.list(limit=1)
+
+# for record in calls:
+#     print(type(record.from_))
+    
+# Find your Account SID and Auth Token at twilio.com/console
+# and set the environment variables. See http://twil.io/secure
+
+
+call = client.calls.create(
+                        url='http://demo.twilio.com/docs/voice.xml',
+                        to='+15873162968',
+                        from_='+18642522485',
+                        twiml=response
+                    )
+
+print(call.sid)
     
     
 # {   

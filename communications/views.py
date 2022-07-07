@@ -367,7 +367,7 @@ def get_latest_messages(request, client_id:int):
       
         
 @api_view(['POST'])
-def twilio_in_bound(request):
+def twilio_in_bound_sms(request):
     data = dict(request.data.iterlists())
     
     now = timezone.now()

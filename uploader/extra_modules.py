@@ -128,9 +128,7 @@ class Uploader():
                     inplace=True)
             
             current_index += 1
-            
-        
-        
+
         serializer:ModelSerializer = serializer_model(data=list_of_serializers, many=True)
         
         
