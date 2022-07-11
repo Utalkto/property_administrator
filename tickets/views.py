@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from rest_framework import status
 
 from django.db.models import Q
+from django.utils import timezone
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -20,19 +21,28 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import status, authentication, permissions
 
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 # models 
 
 from .models import (SupplierWorkArea, Ticket, TicketPayment, TicketPriority, TicketType, MaintanenceType, 
                      MaintanenceIssueType, MaintanenceSubIssueType, MaintanenceIssueDescription, TicketAction,
                      TicketSteps, Suppliers)
 
-from .serializers import SupplierGetSerializer, SupplierPostSerializer, TicketAppoinmentSerializer, TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer, TicketCommentSerializer, WorkAreaSerializer
+from .serializers import (SupplierGetSerializer, SupplierPostSerializer, TicketAppoinmentSerializer, 
+                          TicketSerializer, TicketTypeSerializer, TicketPrioritySerializer,
+                          TicketCommentSerializer, WorkAreaSerializer, TicketRelatedFieldsSerializer)
 
 # properties
 from properties.models import Property, Tenants, Unit
 from properties.serializers import TenantSerializer, UnitRelatedFieldsSerializer
 
 from app_modules.decorators import check_login
+
+from .queryserializers import TicketAPIQuerySerializer
+
 
 # Create your views here.
 
@@ -50,8 +60,297 @@ def update_ticket_status(ticket:Ticket, to_status:int=None):
     ticket.save()
     
 
+# APIs
+# Token 43302189e044f29f641d6305804b2b865287f098
+
+class TicketAPI(APIView):
+    
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+    
+    
+    @swagger_auto_schema(
+        query_serializer=TicketAPIQuerySerializer()
+    )
+    def get(self, request, client_id):
+        
+        
+        qp = TicketAPIQuerySerializer(data=request.query_params)
+        qp.is_valid(raise_exception=True)
+        
+        tickets:Ticket = Ticket.objects.filter(client=client_id, 
+                                               date_closed__isnull=qp.data['check_by_opened'], 
+                                               date_opened__gte=qp.data['check_by_date_open'],)
+        
+        
+        if qp.data['check_by_priority']:
+            tickets.objects.filter(priority=qp.data['check_by_priority'])
+        
+        if qp.data['check_by_type']:
+            tickets.objects.filter(ticket_type=qp.data['check_by_type'])
+            
+        if qp.data['check_by_status']:
+            tickets.objects.filter(ticket_status=qp.data['check_by_status'])
+        
+        
+        if qp.data['limit'] is not None:
+            tickets = tickets[0:qp.data['limit']]
+        
+        
+        serializer = TicketRelatedFieldsSerializer(tickets, many=True)        
+        return Response(serializer.data)
+
+        
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT, 
+        properties={
+            'created_by': openapi.Schema(type=openapi.TYPE_INTEGER, description="El id del tenant que abrio el ticket"),
+            'ticket_type': openapi.Schema(type=openapi.TYPE_INTEGER, description="El tipo de ticket que se va a abrir"),
+            'stimated_time_for_solution_date': openapi.Schema(type=openapi.TYPE_STRING, description="la fecha para la cual se estima que estara resuelto el ticket, en formato YYYY-MM-DD"),
+            'priority': openapi.Schema(type=openapi.TYPE_INTEGER, description="El tipo de prioridad del ticket"),
+        },
+        required=['message']),
+    )
+    def post(request, client_id):
+        """to create a ticket
+
+        Args:
+            request (_type_): _description_
+            client_id (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        
+        request.data['opened_by'] = request.user.id
+        request.data['date_opened'] = timezone.now()
+        request.data['ticket_status'] = 1
+        request.data['unit'] = Tenants.objects.get(id=request.data['opened_by']).unit.id,
+        
+
+class TicketCommentApi(APIView):
+
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+    
+    
+    def get(self, request, ticket_id):
+        
+        ticket_comments =  Ticket.objects.get(id=ticket_id).ticketcomments_set.all()
+        
+        serializer = TicketCommentSerializer(ticket_comments, many=True)
+        
+        return JsonResponse(
+            {'ticket_comments': serializer.data}, status=status.HTTP_200_OK)
+        
+    
+    def post(self, request, ticket_id):
+        
+        
+        request_data = request.data.copy()
+        
+        request_data['ticket'] = ticket_id
+        request_data['date'] = datetime.datetime.now()
+        request_data['made_by'] = request.user.id
+        
+        serializer = TicketCommentSerializer(data=request_data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            
+            return Response(
+                {
+                    'message': 'comment created successfully',
+                    'comment': serializer.data,
+                    'made_by': request.user.get_full_name()
+                }, status=status.HTTP_201_CREATED)            
+            
+        else:
+            return Response(
+                {
+                    'error': True,
+                    'message': 'serializer is not valid',
+                    'message_error': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)          
+           
+
+class SuppliersApi(APIView):
+    
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+    
+    def get(self, request, supplier_id:int):
+
+        if supplier_id == 'all':
+            serializer = SupplierGetSerializer(Suppliers.objects.filter(landlord=request.user.id), many=True)
+
+        else:
+            serializer = SupplierGetSerializer(Suppliers.objects.filter(id=int(supplier_id), landlord=request.user.id), many=True)
+
+        return Response(serializer.data)
+    
+    
+    def post(self, request):
+
+        request.data['landlord'] = request.user.id
+        serializer = SupplierPostSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response(serializer.data)
+            
+        else:
+            return Response(
+                    {
+                    'error': True, 
+                     'message': 'serializer is not valid', 
+                     'serializer_error': serializer.errors
+                    }, 
+                    status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    def put(self, request, supplier_id:int):
+        
+        request.data['landlord'] = request.user.id
+
+        try:
+            supplier = Suppliers.objects.get(id=supplier_id)
+        except Suppliers.DoesNotExist:
+            return Response(
+                {
+                    'error': True, 
+                    'message ': 'Supplier with provided id does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
+            
+            
+        serializer = SupplierPostSerializer(instance=supplier, data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+    
+            return Response(serializer.data)
+        
+        else: 
+            return Response({
+                'error': True,
+                'message': 'serializer is not valid',
+                'message_error': serializer.errors 
+                })
+        
+        
+    def delete(self, request, supplier_id:int):
+        try:
+            Suppliers.objects.get(id=supplier_id).delete()
+        except Suppliers.DoesNotExist:
+            return Response(
+                {
+                    'error': True, 
+                    'message ': 'Supplier with provided id does not exist'
+                }, 
+                status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({
+            'success': True,
+        })
+
+
+class WorkAreaApi(APIView):
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,)
+
+    def get(self, request):
+        serializer = WorkAreaSerializer(SupplierWorkArea.objects.all(), many=True)
+        return Response(serializer.data)
+
+
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def close_ticket(request, ticket_id):
+    
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    ticket.date_closed = datetime.datetime.now()
+
+    update_ticket_status(ticket)
+
+    ticket.save()
+    
+    return Response({'success': True})
+        
+
+@api_view(['POST'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def return_to_coordinate_visit(request, ticket_id):
+    
+    ticket=Ticket.objects.get(id=int(ticket_id))
+    
+    update_ticket_status(ticket=ticket, to_status=3)
+    
+    comment = f'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
+    
+    appoinmnet = ticket.ticketappoinment_set.filter(completed=False)[0]
+    appoinmnet.completed = True
+
+
+    if request.data.get('no_attendance'):
+        
+        appoinmnet.supplier_attendance = False
+        comment = f'{ticket.contractor.name} did not attend the appoinment'
+
+    appoinmnet.save()
+    
+        
+    
+    data_for_comment = {
+        'ticket' : ticket_id,
+        'made_by' : request.user.id,
+        'date': datetime.datetime.now(),
+        'comment': comment
+    }
+    
+    serializer = TicketCommentSerializer(data=data_for_comment)
+    
+    if serializer.is_valid():
+        serializer.save()
+    
+    return Response({'success': True})
+    
+      
+@api_view(['DELETE'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def delete_ticket(request, ticket_id):
+    
+    ticket = Ticket.objects.get(id=int(ticket_id))
+    ticket.delete()
+    
+    return Response({'Ticket deleted': True})
+
+
+@api_view(['GET'])
+@authentication_classes([authentication.TokenAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def total_tickets(request):
+    
+    total_tickets = Ticket.objects.filter(owner=request.user.id).count()
+    opened_tickets = Ticket.objects.filter(date_closed__isnull=True, owner=request.user.id).count()
+    
+    
+    return Response({
+        'total_tickets' : total_tickets,
+        'opened_tickets' : opened_tickets
+    })
+    
+
 # views 
 # -------------------------------------------------------------------------------------
+##### DEPRECATED #####
+
 @check_login
 def home(request, token):
     
@@ -158,7 +457,6 @@ def open_ticket(request, token):
         ) 
 
 
-##### DEPRECATED #####
 
 @check_login
 def create_ticket_main_info(request, token):
@@ -234,7 +532,6 @@ def create_ticket_main_info(request, token):
             'token': token
         })
 
-##### ---------- #####
 
 @check_login
 def create_ticket_options(request,  token:str, ticket_type:int, ticket_id:int):
@@ -396,6 +693,9 @@ def contact_ticket_contractor(request, token, ticket_type, ticket_id):
         }
         )
     
+    
+##### ---------- #####
+
 
 # JSON RESPONSES --------------------------------------------
 
@@ -517,223 +817,4 @@ def register_payment_ticket(request, token:str, ticket_id:int):
 # API view
 
 
-class TicketCommentApi(APIView):
-
-    permission_classes = (IsAuthenticated,) 
-    authentication_classes = (TokenAuthentication,)
-    
-    
-    def get(self, request, ticket_id):
-        
-        ticket_comments =  Ticket.objects.get(id=ticket_id).ticketcomments_set.all()
-        
-        serializer = TicketCommentSerializer(ticket_comments, many=True)
-        
-        return JsonResponse(
-            {'ticket_comments': serializer.data}, status=status.HTTP_200_OK)
-        
-    
-    def post(self, request, ticket_id):
-        
-        
-        request_data = request.data.copy()
-        
-        request_data['ticket'] = ticket_id
-        request_data['date'] = datetime.datetime.now()
-        request_data['made_by'] = request.user.id
-        
-        serializer = TicketCommentSerializer(data=request_data)
-        
-        if serializer.is_valid():
-            serializer.save()
-            
-            
-            return Response(
-                {
-                    'message': 'comment created successfully',
-                    'comment': serializer.data,
-                    'made_by': request.user.get_full_name()
-                }, status=status.HTTP_201_CREATED)            
-            
-        else:
-            return Response(
-                {
-                    'error': True,
-                    'message': 'serializer is not valid',
-                    'message_error': serializer.errors
-                }, status=status.HTTP_400_BAD_REQUEST)          
-           
-
-class SuppliersApi(APIView):
-    
-    permission_classes = (IsAuthenticated,) 
-    authentication_classes = (TokenAuthentication,)
-    
-    def get(self, request, supplier_id:int):
-
-        if supplier_id == 'all':
-            serializer = SupplierGetSerializer(Suppliers.objects.filter(landlord=request.user.id), many=True)
-
-        else:
-            serializer = SupplierGetSerializer(Suppliers.objects.filter(id=int(supplier_id), landlord=request.user.id), many=True)
-
-        return Response(serializer.data)
-    
-    
-    def post(self, request):
-
-        request.data['landlord'] = request.user.id
-        serializer = SupplierPostSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            serializer.save()
-            
-            return Response(serializer.data)
-            
-        else:
-            return Response(
-                    {
-                    'error': True, 
-                     'message': 'serializer is not valid', 
-                     'serializer_error': serializer.errors
-                    }, 
-                    status=status.HTTP_400_BAD_REQUEST)
-        
-        
-    def put(self, request, supplier_id:int):
-        
-        request.data['landlord'] = request.user.id
-
-        try:
-            supplier = Suppliers.objects.get(id=supplier_id)
-        except Suppliers.DoesNotExist:
-            return Response(
-                {
-                    'error': True, 
-                    'message ': 'Supplier with provided id does not exist'
-                }, 
-                status=status.HTTP_404_NOT_FOUND)
-            
-            
-        serializer = SupplierPostSerializer(instance=supplier, data=request.data)
-        
-        if serializer.is_valid():
-            serializer.save()
-    
-            return Response(serializer.data)
-        
-        else: 
-            return Response({
-                'error': True,
-                'message': 'serializer is not valid',
-                'message_error': serializer.errors 
-                })
-        
-        
-    def delete(self, request, supplier_id:int):
-        try:
-            Suppliers.objects.get(id=supplier_id).delete()
-        except Suppliers.DoesNotExist:
-            return Response(
-                {
-                    'error': True, 
-                    'message ': 'Supplier with provided id does not exist'
-                }, 
-                status=status.HTTP_404_NOT_FOUND)
-        
-        return Response({
-            'success': True,
-        })
-
-
-@api_view(['POST'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
-def close_ticket(request, ticket_id):
-    
-    ticket = Ticket.objects.get(id=int(ticket_id))
-    ticket.date_closed = datetime.datetime.now()
-
-    update_ticket_status(ticket)
-
-    ticket.save()
-    
-    return Response({'success': True})
-        
-
-@api_view(['POST'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
-def return_to_coordinate_visit(request, ticket_id):
-    
-    ticket=Ticket.objects.get(id=int(ticket_id))
-    
-    update_ticket_status(ticket=ticket, to_status=3)
-    
-    comment = f'Ticket got back to coordinate visit due to the fact that the problem was not solved by contractor {ticket.contractor.name}'
-    
-    appoinmnet = ticket.ticketappoinment_set.filter(completed=False)[0]
-    appoinmnet.completed = True
-
-
-    if request.data.get('no_attendance'):
-        
-        appoinmnet.supplier_attendance = False
-        comment = f'{ticket.contractor.name} did not attend the appoinment'
-
-    appoinmnet.save()
-    
-        
-    
-    data_for_comment = {
-        'ticket' : ticket_id,
-        'made_by' : request.user.id,
-        'date': datetime.datetime.now(),
-        'comment': comment
-    }
-    
-    serializer = TicketCommentSerializer(data=data_for_comment)
-    
-    if serializer.is_valid():
-        serializer.save()
-    
-    return Response({'success': True})
-    
-      
-@api_view(['DELETE'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
-def delete_ticket(request, ticket_id):
-    
-    ticket = Ticket.objects.get(id=int(ticket_id))
-    ticket.delete()
-    
-    return Response({'Ticket deleted': True})
-
-
-@api_view(['GET'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
-def total_tickets(request):
-    
-    total_tickets = Ticket.objects.filter(owner=request.user.id).count()
-    opened_tickets = Ticket.objects.filter(date_closed__isnull=True, owner=request.user.id).count()
-    
-    
-    return Response({
-        'total_tickets' : total_tickets,
-        'opened_tickets' : opened_tickets
-    })
-    
-
-class WorkAreaApi(APIView):
-    permission_classes = (IsAuthenticated,) 
-    authentication_classes = (TokenAuthentication,)
-
-    def get(self, request):
-        serializer = WorkAreaSerializer(SupplierWorkArea.objects.all(), many=True)
-        return Response(serializer.data)
-
-
-
-    
+# Token 43302189e044f29f641d6305804b2b865287f098

@@ -213,6 +213,7 @@ def check_status_of_twilio_call(client:TwilioClient, time_after:datetime.datetim
     
 
     calls = client.calls.list(start_time_after=time_after)
+
     numbers_already_sent = list()
     
     print('getting the calls')

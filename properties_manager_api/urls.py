@@ -53,7 +53,7 @@ urlpatterns = [
    path('upload/api/v1/', include('uploader.urls')),
    
    # tickets module with django 
-   path('tickets/', include('tickets.urls')),
+   path('tickets/api/v1/', include('tickets.urls')),
    
    # part frontend part api
    

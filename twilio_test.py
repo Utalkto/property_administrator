@@ -26,27 +26,72 @@ TWILIO_AUTH_TOKEN = 'c5dbc722f8f448bbbfd5197fada23bc5'
 
 client = Client(ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-from twilio.twiml.voice_response import VoiceResponse, Say
-response = VoiceResponse()
-response.say('Hello World')
+test = '+14039995839'
+orinoco = '+15873162968'
 
-# calls = client.calls.list(limit=1)
+all_messages = list()
 
-# for record in calls:
-#     print(type(record.from_))
+message_from_client = client.messages.list(from_=test, to=orinoco, limit=20)
+message_from_orinoco = client.messages.list(from_=orinoco, to=test, limit=20)
+
+pointer_one = 0
+pointer_two = 0
+
+t = 0
+
+while True:
     
-# Find your Account SID and Auth Token at twilio.com/console
-# and set the environment variables. See http://twil.io/secure
+    index1 = message_from_client[pointer_one]
+    index2 = message_from_orinoco[pointer_two]
+    
+    # print('pointer_one:', pointer_one, 'pointer_two:', pointer_two)
+    
+    first_list_len = len(message_from_client) - 1
+    second_list_len = len(message_from_orinoco) - 1
+    
+    if  pointer_one == first_list_len and pointer_two == second_list_len:
+        break
+    
+    if index1.date_sent < index2.date_sent and pointer_two < second_list_len or pointer_one == first_list_len:
+        all_messages.append(index2)
+        pointer_two += 1
+    else:
+        all_messages.append(index1)
+        pointer_one += 1
+    
+    t += 1
+    
+for message in all_messages:
+    
+    print(message.date_sent)
+    print('-------------------------------')
 
 
-call = client.calls.create(
-                        url='http://demo.twilio.com/docs/voice.xml',
-                        to='+15873162968',
-                        from_='+18642522485',
-                        twiml=response
-                    )
 
-print(call.sid)
+
+
+
+# from twilio.twiml.voice_response import VoiceResponse, Say
+# response = VoiceResponse()
+# response.say('Hello World')
+
+# # calls = client.calls.list(limit=1)
+
+# # for record in calls:
+# #     print(type(record.from_))
+    
+# # Find your Account SID and Auth Token at twilio.com/console
+# # and set the environment variables. See http://twil.io/secure
+
+
+# call = client.calls.create(
+#                         url='http://demo.twilio.com/docs/voice.xml',
+#                         to='+15873162968',
+#                         from_='+18642522485',
+#                         twiml=response
+#                     )
+
+# print(call.sid)
     
     
 # {   

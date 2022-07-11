@@ -32,7 +32,7 @@ class UploadAPI(APIView):
         query_serializer=UploaderQuerySerializer()
     )
     def get(self, request, client_id):
-        """Regresa los campos necessarios para crear una tabla en la base de datos
+        """Regresa los campos necesarios para crear una tabla en la base de datos
         """
         
         # maybe in a future each client can have their own parameters in the database or maybe not

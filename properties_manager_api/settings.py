@@ -64,8 +64,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_yasg',
     "django_apscheduler",
-    
-    
+
 ]
 
 
