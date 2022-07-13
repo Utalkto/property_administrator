@@ -1,6 +1,14 @@
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio import twiml
 
+from twilio.rest.api.v2010.account.message import MessageInstance
+
+
+import urllib.request
+
+import requests
+
+
 
 # video to do this https://youtu.be/cZeCz_QOoXw
 
@@ -19,56 +27,111 @@ def sms_reply():
 from twilio.rest import Client
 
 
-
 ACCOUNT_SID = 'AC07f9df720f406836bf36885a0795dd66'
 TWILIO_AUTH_TOKEN = 'c5dbc722f8f448bbbfd5197fada23bc5'
 
 
-client = Client(ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+TWILIO_CLIENT = Client(ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-test = '+14039995839'
+BASE_URL = "https://%s:%s@api.twilio.com" % (ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+client = '+14035051547'
 orinoco = '+15873162968'
 
-all_messages = list()
-
-message_from_client = client.messages.list(from_=test, to=orinoco, limit=20)
-message_from_orinoco = client.messages.list(from_=orinoco, to=test, limit=20)
-
-pointer_one = 0
-pointer_two = 0
-
-t = 0
-
-while True:
-    
-    index1 = message_from_client[pointer_one]
-    index2 = message_from_orinoco[pointer_two]
-    
-    # print('pointer_one:', pointer_one, 'pointer_two:', pointer_two)
-    
-    first_list_len = len(message_from_client) - 1
-    second_list_len = len(message_from_orinoco) - 1
-    
-    if  pointer_one == first_list_len and pointer_two == second_list_len:
-        break
-    
-    if index1.date_sent < index2.date_sent and pointer_two < second_list_len or pointer_one == first_list_len:
-        all_messages.append(index2)
-        pointer_two += 1
-    else:
-        all_messages.append(index1)
-        pointer_one += 1
-    
-    t += 1
-    
-for message in all_messages:
-    
-    print(message.date_sent)
-    print('-------------------------------')
+FILE = 'media.txt'
 
 
+def retrieve_twilio_media():
+    media = TWILIO_CLIENT.media()
+
+    print(media.content_type)
 
 
+def retrieve_twilio_messages():
+
+    all_messages = list()
+
+    message_from_client = TWILIO_CLIENT.messages.list(from_=client, to=orinoco)
+    message_from_orinoco = TWILIO_CLIENT.messages.list(from_=orinoco, to=client)
+
+    pointer_one = 0
+    pointer_two = 0
+
+    t = 0
+
+    while True:
+        
+        index1 = message_from_client[pointer_one]
+        index2 = message_from_orinoco[pointer_two]
+        
+        # print('pointer_one:', pointer_one, 'pointer_two:', pointer_two)
+        
+        first_list_len = len(message_from_client) - 1
+        second_list_len = len(message_from_orinoco) - 1
+        
+        if  pointer_one == first_list_len and pointer_two == second_list_len:
+            break
+        
+        if index1.date_sent < index2.date_sent and pointer_two < second_list_len or pointer_one == first_list_len:
+            all_messages.append(index2)
+            pointer_two += 1
+        else:
+            all_messages.append(index1)
+            pointer_one += 1
+        
+        t += 1
+        
+    all_messages.reverse()
+    
+    # file = open(FILE, 'w', encoding="utf-8")
+    
+    current_image = 0
+    for message in all_messages:
+        
+        message:MessageInstance
+        
+        # this is for downloading the media files
+        if message.body == '':
+            
+            for media in message.media.list():
+                media_instance = TWILIO_CLIENT.messages(message.sid).media(media.sid).fetch()
+                uri = requests.get(BASE_URL + media_instance.uri).json()
+                uri2 = requests.get(BASE_URL + uri['uri'].replace('.json', ''))
+               
+                with open(media_instance.uri.split("/")[-1].replace(".json", ".png"), "wb") as f:
+                    f.write(uri2.content)
+                    f.close()
+                
+                
+                break
+                
+                
+                media_url = 'https://s3-external-1.amazonaws.com/media.twiliocdn.com/' + \
+                ACCOUNT_SID + '/' + media_id
+                
+                
+                
+                print(media_url)
+                urllib.request.urlretrieve('AC07f9df720f406836bf36885a0795dd66/d1a96c938aaf96c5e1066f1d1d1905ff', f"image{current_image}.jpg")
+                current_image += 1
+                
+                
+            
+            # file = open('file.png', 'w')
+        
+    #     if message.from_ == orinoco:
+            
+    #         s = f'Orinoco: {message.media.get(message.sid).fetch()} - {message.date_sent} \n'        
+       
+    #     else:
+    #         s = f'Contractor: {message.media.get(message.sid).fetch()} - {message.date_sent} \n'
+            
+    #     file.write(s)
+        
+    # file.close()
+
+
+retrieve_twilio_messages()
 
 
 # from twilio.twiml.voice_response import VoiceResponse, Say
