@@ -38,7 +38,7 @@ BASE_URL = "https://%s:%s@api.twilio.com" % (ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 client = '+14035051547'
 orinoco = '+15873162968'
 
-FILE = 'media.txt'
+FILE = 'conversation.txt'
 
 
 def retrieve_twilio_media():
@@ -64,8 +64,6 @@ def retrieve_twilio_messages():
         index1 = message_from_client[pointer_one]
         index2 = message_from_orinoco[pointer_two]
         
-        # print('pointer_one:', pointer_one, 'pointer_two:', pointer_two)
-        
         first_list_len = len(message_from_client) - 1
         second_list_len = len(message_from_orinoco) - 1
         
@@ -83,52 +81,52 @@ def retrieve_twilio_messages():
         
     all_messages.reverse()
     
-    # file = open(FILE, 'w', encoding="utf-8")
+    file = open(FILE, 'w', encoding="utf-8")
     
-    current_image = 0
+    # current_image = 0
     for message in all_messages:
         
         message:MessageInstance
         
         # this is for downloading the media files
-        if message.body == '':
+        # if message.body == '':
             
-            for media in message.media.list():
-                media_instance = TWILIO_CLIENT.messages(message.sid).media(media.sid).fetch()
-                uri = requests.get(BASE_URL + media_instance.uri).json()
-                uri2 = requests.get(BASE_URL + uri['uri'].replace('.json', ''))
+        #     for media in message.media.list():
+        #         media_instance = TWILIO_CLIENT.messages(message.sid).media(media.sid).fetch()
+        #         uri = requests.get(BASE_URL + media_instance.uri).json()
+        #         uri2 = requests.get(BASE_URL + uri['uri'].replace('.json', ''))
                
-                with open(media_instance.uri.split("/")[-1].replace(".json", ".png"), "wb") as f:
-                    f.write(uri2.content)
-                    f.close()
+        #         with open(media_instance.uri.split("/")[-1].replace(".json", ".png"), "wb") as f:
+        #             f.write(uri2.content)
+        #             f.close()
                 
                 
-                break
+        #         break
                 
                 
-                media_url = 'https://s3-external-1.amazonaws.com/media.twiliocdn.com/' + \
-                ACCOUNT_SID + '/' + media_id
+        #         media_url = 'https://s3-external-1.amazonaws.com/media.twiliocdn.com/' + \
+        #         ACCOUNT_SID + '/' + media_id
                 
                 
                 
-                print(media_url)
-                urllib.request.urlretrieve('AC07f9df720f406836bf36885a0795dd66/d1a96c938aaf96c5e1066f1d1d1905ff', f"image{current_image}.jpg")
-                current_image += 1
+        #         print(media_url)
+        #         urllib.request.urlretrieve('AC07f9df720f406836bf36885a0795dd66/d1a96c938aaf96c5e1066f1d1d1905ff', f"image{current_image}.jpg")
+        #         current_image += 1
                 
                 
             
-            # file = open('file.png', 'w')
+        #     #file = open('file.png', 'w')
         
-    #     if message.from_ == orinoco:
+        if message.from_ == orinoco:
             
-    #         s = f'Orinoco: {message.media.get(message.sid).fetch()} - {message.date_sent} \n'        
+            s = f'Orinoco: {message.body} - {message.date_sent} \n'        
        
-    #     else:
-    #         s = f'Contractor: {message.media.get(message.sid).fetch()} - {message.date_sent} \n'
+        else:
+            s = f'other_person: {message.body} - {message.date_sent} \n'
             
-    #     file.write(s)
+        file.write(s)
         
-    # file.close()
+    file.close()
 
 
 retrieve_twilio_messages()
