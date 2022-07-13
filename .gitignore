@@ -26,6 +26,11 @@ staticfiles
 # C extensions
 *.so
 
+images/*
+images/
+
+conversation.txt
+
 # Distribution / packaging
 .Python
 build/
