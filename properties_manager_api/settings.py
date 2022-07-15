@@ -73,6 +73,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://app.kumbio.com",
     "https://kumbio-beta.netlify.app",
+    "http://10.0.0.206:3000",
 ]
 
 
