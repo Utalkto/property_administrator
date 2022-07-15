@@ -40,10 +40,16 @@ from app_modules.send_email import SendEmail
 from app_modules.decorators import check_login
 from app_modules.main import convert_to_bool
 
-from .extra_modules import save_message_in_database
+from .extra_modules import save_message_in_database, check_status_of_twilio_call
 from app_modules.permission import user_has_access
 
 from drf_yasg.utils import swagger_auto_schema
+import datetime
+
+from jobs.updater import SCHEDULER
+
+ACCOUNT_SID = 'AC07f9df720f406836bf36885a0795dd66'
+TWILIO_AUTH_TOKEN = 'c5dbc722f8f448bbbfd5197fada23bc5'
 
 
 def filter_messages_by_via(filter_by:str) -> list:
@@ -263,14 +269,8 @@ class ConversationsAPI(APIView):
             else:
                 data_for_serializer['via'] = 'phone-sms'
                 
-                
-                # Twilio settings 
-                # this must change to the app twilio account
-                account_sid = "AC169f0dd1f79d9a78e183de54363307bb" 
-                auth_token  = "15c699a3cf3f29fcc776a47259e58593"
-
                 # twilio client
-                client = Client(account_sid, auth_token)
+                client = Client(ACCOUNT_SID, TWILIO_AUTH_TOKEN)
                 
                 twilio_message =  f"{message}"
                 twilio_message = client.messages.create(
@@ -367,12 +367,10 @@ def get_latest_messages(request, client_id:int):
       
         
 @api_view(['POST'])
-def twilio_in_bound(request):
+def twilio_in_bound_sms(request):
     data = dict(request.data.iterlists())
     
     now = timezone.now()
-    
-    # TODO: check which is the parameter that send the twilio number that received the message
     
     organization:Organization = Organization.objects.get(twilio_number=data['to'])
     
@@ -386,6 +384,31 @@ def twilio_in_bound(request):
             organization=organization)
     
     return Response(message_serializer)
+
+
+
+@api_view(['POST'])
+def twilio_in_bound_call(request):
+    
+
+    # Find your Account SID and Auth Token at twilio.com/console
+    # and set the environment variables. See http://twil.io/secure
+    
+    time_in_utc = datetime.datetime.utcnow() - datetime.timedelta(seconds=10)
+    client = Client(ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+    
+    # SCHEDULER.add_job(check_status_of_twilio_call, 'interval', seconds=10,
+    #                    kwargs={'client': client, 'time_after': time_in_utc})
+    
+    # SCHEDULER.start()
+    
+
+    print('receiving call from Twilio')
+    print('--------------------------------')    
+
+    
+    return Response({'message': 'success'})
+
 
 
 # ----------------------------------------------------

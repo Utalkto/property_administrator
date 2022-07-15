@@ -329,10 +329,10 @@ def property_api(request):
     else:
         unit_serializer['kids'] = "No, kids aren't allowed in the unit."
         
-    if unit_serializer['pet_friendly']:
-        unit_serializer['pet_friendly'] = f'Yes, some pets are allowed.'
+    if unit_serializer['pet_policy']:
+        unit_serializer['pet_policy'] = f'Yes, some pets are allowed.'
     else:
-        unit_serializer['pet_friendly'] = "No, pets aren't allowed in the unit."
+        unit_serializer['pet_policy'] = "No, pets aren't allowed in the unit."
 
     
     d = {**property_serializer.data, **unit_serializer}

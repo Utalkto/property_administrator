@@ -1,0 +1,11 @@
+id;address;coordinates;img;maps_url;name;number_of_units;price_paid;photos;year_built;year_bought;city_id;property_type_id;client_id;datetime_created;last_edition_made_by_id;last_time_edited;created_by_id
+4;728 Raynard Crescent SE, Calgary, Alberta, T2A1X7;{"coordenates": "coordenates"};properties/foto_4plex_Calgary_1_C2jV0bZ.JPG;https://goo.gl/maps/TRTZ3doYC8aV63PK6;728 Raynard;4;607000.00;{"photos": "photos"};1970;1900;1;2;1;2022-06-15 18:00:18.770941+00;;;1
+5;736 Raynard Crescent SE, Calgary, AB T2A 1X7;{"coordenates": "coordenates"};properties/IMG-20210628-WA0160_1_KUF1v6Q.jpg;https://acortar.link/zGgrXs;736 Raynard;4;625000.00;{"photos": "photos"};1970;2021;1;2;1;2022-06-15 18:00:18.770941+00;;;1
+36;11 Nyberg av;{"coordinates": "4"};properties/company_2_HweapQD.png;'';11 Nyberg;1;432500.00;{"photo1": "1", "photo2": "2"};1976;2018;2;2;1;2022-06-15 18:00:18.770941+00;;;1
+37;Av Ppal Los Ruices, 2587857;{"coordinates": "4"};properties/fourplex_31S1fKp.jfif;'';Primera Propiedad prueba;1;250000.00;{"photo1": "1", "photo2": "2"};1500;2010;2;6;1;2022-06-15 18:00:18.770941+00;;;1
+38;string;{};'';http://127.0.0.1:8000/swagger/;string;0;2500.00;{};0;0;1;1;1;2022-07-01 12:33:18.974365+00;;2022-07-01 12:27:33.496+00;1
+39;string;{};'';http://127.0.0.1:8000/swagger/;string;0;2500.00;{};0;0;1;1;1;2022-07-01 12:35:57.36818+00;;2022-07-01 12:27:33.496+00;1
+40;string;{};'';http://127.0.0.1:8000/swagger/;string;0;2500.00;{};0;0;1;1;1;2022-07-01 12:38:28.172497+00;;2022-07-01 12:27:33.496+00;1
+41;direccion prueba;{};'';http://127.0.0.1:8000/swagger/;nombre prueba;4;2500.00;{};1999;2015;2;2;1;2022-07-01 17:19:56.255402+00;1;2022-07-01 17:17:52.356+00;1
+3;136 Hermary St, Red Deer, AB T4N 5V2;{"coordenates": "coordenates"};properties/foto_4plex_Red_Deer_Hermary_1_SnDqRHm.JPG;https://goo.gl/maps/qanes8Gz6JU4Ug5Z9;136 Hermary;5;430000.00;{"photos": "photos"};9000;2021;2;2;1;2022-06-15 18:00:18.770941+00;;;1
+2;15 Nyberg Avenue, Red Deer, Alberta, T4P1R5;{"coordenates": "coordenates"};properties/foto_4plex_Red_Deer_15_Nyberg_1_hECveL9.JPG;https://goo.gl/maps/ZQVPhTwM4KLMnw8j7;15 Nyberg;5;489000.00;{"photos": "photos"};1900;1900;2;2;1;2022-06-15 18:00:18.770941+00;;;1

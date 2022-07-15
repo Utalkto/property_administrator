@@ -16,6 +16,8 @@ from .serializers import MessageSerializer, ConversationSerializer, Conversation
 
 from notifications.extra_modules import create_notification
 
+from twilio.rest import Client as TwilioClient
+
 
 FROM_PWD = "OrinocoV2022.." 
 FROM_PWD = "AMelendes2022$" 
@@ -205,6 +207,39 @@ def check_organization_emails():
         
         # the emails get save in this function 
         get_emails(org.email_username, email_password, org)
+    
+    
+def check_status_of_twilio_call(client:TwilioClient, time_after:datetime.datetime):
+    
+
+    calls = client.calls.list(start_time_after=time_after)
+
+    numbers_already_sent = list()
+    
+    print('getting the calls')
+    print('--------------------------------')
+    
+  
+    for call in calls:
+        # if call.status == 'no-answer':
+        
+        phone_number = call.from_
+        
+        if phone_number in numbers_already_sent: continue 
+        
+        numbers_already_sent.append(phone_number)
+        
+        twilio_message =  f"Try again"
+        twilio_message = client.messages.create(
+            from_="+18642522485", 
+            to=call.from_,
+            body= twilio_message
+        )
+        
+        
+        print('sending message')
+        print('--------------------------------')    
+            
     
     
     

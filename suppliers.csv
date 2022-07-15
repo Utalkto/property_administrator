@@ -1,0 +1,42 @@
+id;email;last_time_hired;name;phone;rating;times_hired;city_id;work_area_id;landlord_id;organization_id
+14;email@gmail.com;2020-06-02;Dean;'';0;0;1;12;1;1
+21;email@gmail.com;2020-06-09;Dean;'';0;0;1;13;1;1
+46;jsoto@ualberta.ca;;Carlitos Pliumbing;+584123058807;5;;2;3;19;1
+32;andresruse18@gmail.com;2022-05-26;Atenea, la de ojos brillantes;+584123058807;10;0;1;1;1;1
+42;casoto62@hotmail.com;;Carlitos plumbing;+584123058807;3;;1;1;16;1
+45;andresruse18@gmail.com;;Atenea, la de ojos brillosos;5445;10;;2;1;2;1
+1;mndbebbington@gmail.com;2020-05-20;Mike Bebbington;+4038771919;5;0;2;1;1;1
+2;email@gmail.com;2020-05-21;Christian;+4035053697;0;0;2;2;1;1
+3;kdlpainting@gmail.com;2020-05-22;Deanna Ritchie;+4033924162;5;0;2;3;1;1
+4;west153@outlook.com;2020-05-23;Ryan;+4033410084;4;0;2;5;1;1
+5;email@gmail.com;2020-05-24;Garth;+4038961451;5;0;2;6;1;1
+6;albertahydronics@gmail.com;2020-05-25;Michael;+2502157560;3;0;2;1;1;1
+7;mmbaymac@gmail.com;2020-05-26;Malcom McKinnon;+4035880154;4;0;2;17;1;1
+8;columbia.appliance1@gmail.com;2020-05-27;Oswaldo;+4033421055;5;0;2;8;1;1
+9;email@gmail.com;2020-05-28;Rick;+4033471755;5;0;2;9;1;1
+10;email@gmail.com;2020-05-29;Steven Holmes;+4035869991;5;0;2;17;1;1
+11;email@gmail.com;2020-05-30;Jose;+5879694207;3;0;1;5;1;1
+12;email@gmail.com;2020-05-31;Alternative Appliances;+4036710429;0;0;1;10;1;1
+13;ezappliance@outlook.com;2020-06-01;EZ APPLIANCE;+4039696797;0;0;1;11;1;1
+15;mgl202143@yahoo.com;2020-06-03;Monty Lalas;+8259893775;4;0;2;1;1;1
+16;email@gmail.com;2020-06-04;Mike;+8253653926;0;0;1;17;1;1
+17;email@gmail.com;2020-06-05;Darrel Tile;+4033991786;0;0;1;17;1;1
+18;email@gmail.com;2020-06-06;Nick;+4038305224;3;0;1;1;1;1
+19;email@gmail.com;2020-06-07;Bryan;+4033968957;4;0;2;17;1;1
+20;email@gmail.com;2020-06-08;Brian;+4033718698;0;0;1;12;1;1
+22;email@gmail.com;2020-06-10;Kurt;+4038095628;0;0;1;17;1;1
+23;email@gmail.com;2020-06-11;Mike Bebbington;+4038771919;4;0;1;1;1;1
+24;email@gmail.com;2020-06-12;Rick;+4033471755;4;0;1;9;1;1
+25;email@gmail.com;2020-06-13;Brad;+4035881576;4;0;2;8;1;1
+26;email@gmail.com;2020-06-14;Russ;+4033507715;5;0;2;3;1;1
+27;email@gmail.com;2020-06-15;Chris;+4037200003;0;0;1;5;1;1
+28;Destinyboyz@yahoo.com;2020-06-16;Chez;+4033965080;0;0;2;1;1;1
+29;alanbrunelle@msn.com;2020-06-17;Alan Brunelle;+4032275763;5;0;2;16;1;1
+30;bradcurle@hotmail.com;2020-06-18;Brad Curle;+4039980134;0;0;1;16;1;1
+31;fabianserba@ymail.com;2020-06-19;Fabian;+4036169727;0;0;1;17;1;1
+33;jorge@correo.com;;Jorge Luis Gonzalez;+4241856940;5;;2;7;1;1
+34;jorge@correo.com;;Jorge Luis Gonzalez;+4241856940;5;;2;7;1;1
+35;jorge@correo.com;;Jorge Luis Gonzalez;+4241856940;5;;2;7;1;1
+36;gonzalez@correo.com;;Jorge Luis Gonzalez;+4241856940;3;;2;6;1;1
+38;jorge@correo.com;;Jorge Luis Gonzalezzzzz;+4241856940;3;;2;7;1;1
+47;casoto62@hotmail.com;;'Lindsay''s Electric';+584123058807;2;;1;7;19;1

@@ -1,7 +1,7 @@
 from django.db import models
 from properties.models import Tenants, Unit, PropertyCities
 
-from register.models import CustomUser, Organization
+from register.models import CustomUser, Organization, OrganizationClient
 
 # ID OF EACH TABLE (EXCEPT FOR TICKET) WILL BE THE VALUE IN THE OPTIONS DISPLAYED IN FRONT 
 
@@ -156,12 +156,13 @@ class TicketSteps(models.Model):
  
 class Ticket(models.Model):
     # foreignKeys 
+    client = models.ForeignKey(OrganizationClient, null=False, default=1, on_delete=models.CASCADE)
     created_by = models.ForeignKey(Tenants, null=False, blank=False, on_delete=models.CASCADE)
     ticket_type = models.ForeignKey(TicketType, null=False, blank=False, on_delete=models.CASCADE)
     unit =  models.ForeignKey(Unit, null=False, blank=False, on_delete=models.CASCADE)
     priority =  models.ForeignKey(TicketPriority, null=False, blank=False, on_delete=models.CASCADE)
     ticket_status =  models.ForeignKey(TicketSteps, null=False, blank=False, on_delete=models.CASCADE)
-    owner = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
+    opened_by = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE, default=1)
     
     contractor = models.ForeignKey(Suppliers, null=True, blank=False, on_delete=models.CASCADE, default=None)
     action_to_do = models.ForeignKey(TicketAction, null=True, blank=False, on_delete=models.CASCADE, default=None)       

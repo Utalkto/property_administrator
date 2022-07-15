@@ -217,12 +217,12 @@ class RecoverPasswordAPI(APIView):
         
         html = f'<h1> This is your link to restore your password </h1> \
         <p>This link will be valid for only 4 hours </p> \
-        <a href=http://localhost:3000//recover-password/{user.link_to_recover_password}> Restore my password'
+        <a href=http://localhost:3000/recover-password/{user.link_to_recover_password}> Restore my password'
         
         # send email here
         try:
             SendEmail(
-                send_to="andresruse18@gmail.com",
+                send_to=user.email,
                 subject="Restore Password",
                 html= html
             )

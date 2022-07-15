@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'to_do_list',
     'inter_chat',
     'notifications',
+    'uploader',
     # third party apps
     
     'rest_framework',
@@ -63,8 +64,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_yasg',
     "django_apscheduler",
-    
-    
+
 ]
 
 
@@ -73,6 +73,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://app.kumbio.com",
     "https://kumbio-beta.netlify.app",
+    "http://10.0.0.206:3000",
 ]
 
 
@@ -124,6 +125,7 @@ DATABASES = {
 }
 
 
+
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'api_key': {
@@ -134,27 +136,10 @@ SWAGGER_SETTINGS = {
     },
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'd1nb2n9q5k1krj',
-#         'USER': 'zkxfekidfxgfnp',
-#         'PASSWORD': 'ec3b32d508ff316e08ff392647046beb63867b91aa0e72a38e8ab1fcbb682fc8',
-#         'HOST': 'ec2-3-228-235-79.compute-1.amazonaws.com',
-#         'PORT': '5432',
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.BasicAuthentication',
-#         'rest_framework.authentication.SessionAuthentication',
-#     ]
-# }
 
 REST_FRAMEWORK = {
    'DEFAULT_AUTHENTICATION_CLASSES': (
