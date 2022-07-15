@@ -526,15 +526,9 @@ class UnitsAPI(APIView):
                     units = Unit.objects.filter(property__client__in=client_list)
                     
                 else:
-                    units = Unit.objects.filter(client=client_id)
+                    units = Unit.objects.filter(property__client=client_id)
                     
                 units_serializer = UnitRelatedFieldsSerializer(units, many=True)
-                
-                print('------------------------')
-                print('------------------------')
-                print('here')
-                print('------------------------')
-                print('------------------------')
             
             else:
                 unit_id = int(unit_id)
