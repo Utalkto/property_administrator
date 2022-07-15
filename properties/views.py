@@ -526,7 +526,15 @@ class UnitsAPI(APIView):
                     units = Unit.objects.filter(property__client__in=client_list)
                     
                 else:
-                    units = Unit.objects.filter(property__client=client_id)
+                    client_id = int(client_id)
+                    if not user_has_access(request.user, client_id=client_id):
+                        return Response(
+                            {
+                                'error': 'User has not access to this client'
+                            }, status=status.HTTP_401_UNAUTHORIZED)
+                        
+                    property_list = request.user.clients_access[client_id]['properties']
+                    units = Unit.objects.filter(property__client=client_id, property__in=property_list)
                     
                 units_serializer = UnitRelatedFieldsSerializer(units, many=True)
             
