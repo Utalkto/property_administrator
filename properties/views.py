@@ -463,6 +463,29 @@ class UnitsAPI(APIView):
         view_all = request.GET.get('view_all')
         unit_id = request.GET.get('unit_id')
         units_serializer:UnitRelatedFieldsSerializer = None
+        
+        if client_id != 'all':
+            try:
+                client_id = int(client_id)
+            except:
+                return Response(
+                    {
+                        'ValueError:': 'invalid client_id, este debe ser un int o set to all'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+            if not user_has_access(request.user, client_id=client_id):
+                    return Response(
+                        {
+                            'error': 'User has not access to this client'
+                        }, status=status.HTTP_401_UNAUTHORIZED)
+            
+            property_list = request.user.clients_access[client_id]['properties']
+        
+        else:
+            property_list = list()            
+            for key in request.user.clients_access.keys():
+                property_list += request.user.clients_access[key]['properties']
+        
             
         if request.GET.get('rent_info'):
             
@@ -470,8 +493,8 @@ class UnitsAPI(APIView):
                 
                 list_of_clients = request.user.clients_access.keys()
                 
-                for_rent = Unit.objects.filter(property__client__in=list_of_clients, rented=False)
-                rented = Unit.objects.filter(property__client__in=list_of_clients, rented=True)
+                for_rent = Unit.objects.filter(property__client__in=list_of_clients, property__in=property_list, rented=False)
+                rented = Unit.objects.filter(property__client__in=list_of_clients, property__in=property_list, rented=True)
                 
             else:
                 try:
@@ -482,8 +505,8 @@ class UnitsAPI(APIView):
                 # validate the client id to see if it can be accessed to the user
                 
                 if int(client_id) in request.user.clients_access.keys():
-                    for_rent = Unit.objects.filter(property__client=client_id, rented=False)
-                    rented = Unit.objects.filter(property__client=client_id, rented=True)
+                    for_rent = Unit.objects.filter(property__client=client_id, property__in=property_list, rented=False)
+                    rented = Unit.objects.filter(property__client=client_id, property__in=property_list, rented=True)
                 else:
                     return Response({
                         'error': 'Access is not valid'
@@ -504,8 +527,9 @@ class UnitsAPI(APIView):
         
         if request.GET.get('leases_to_exp'):
             leases_to_exp = Unit.objects.filter(property__client=client_id,
-                                          lease_expiration_date__year__lte=year,
-                                          lease_expiration_date__month__lte=month)
+                                        property__in=property_list,
+                                        lease_expiration_date__year__lte=year,
+                                        lease_expiration_date__month__lte=month)
             
             response['number_of_leases_to_exp'] = leases_to_exp.count()
             if view_all:
@@ -527,13 +551,6 @@ class UnitsAPI(APIView):
                     
                 else:
                     client_id = int(client_id)
-                    if not user_has_access(request.user, client_id=client_id):
-                        return Response(
-                            {
-                                'error': 'User has not access to this client'
-                            }, status=status.HTTP_401_UNAUTHORIZED)
-                        
-                    property_list = request.user.clients_access[client_id]['properties']
                     units = Unit.objects.filter(property__client=client_id, property__in=property_list)
                     
                 units_serializer = UnitRelatedFieldsSerializer(units, many=True)
