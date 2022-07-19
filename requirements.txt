@@ -43,7 +43,7 @@ ipykernel==6.15.0
 ipython==8.4.0
 ipython-genutils==0.2.0
 itypes==1.2.0
-jedi==0.18.1
+jedi==0.17.2
 Jinja2==3.1.2
 json5==0.9.8
 jsonschema==4.6.1
