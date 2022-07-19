@@ -28,6 +28,7 @@ from app_modules.send_email import SendEmail
 
 # swagger
 from drf_yasg.utils import swagger_auto_schema
+from app_modules.permission import user_has_access 
 
 
 # CONSTANTS
@@ -349,12 +350,30 @@ class CandidatesViewSet(APIView):
     authentication_classes = (TokenAuthentication,) 
     
     @swagger_auto_schema(
+
     responses={200: CandiatesSerializer()})
-    def get(self, request, unit_id):
+    def get(self, request, client_id):
+
+        unit_id = request.GET.get("unit_id")
 
         if unit_id == 'all':
 
-            candidates = Candidate.objects.filter(property_manager=request.user.id)
+            if client_id == 'all':  
+                clients = request.user.clients_access.keys()
+                candidates = Candidate.objects.filter(client__in=clients)
+
+            else:
+                try:
+                    client_id = int(client_id)
+                except ValueError:
+                    return Response({"error":"client_id tiene que ser entero o tiene que tener el valor de all"}, 
+                    status= status.HTTP_400_BAD_REQUEST) 
+
+               
+                if not user_has_access (user=request.user, client=client_id):
+                    return Response({"error":"user has not access"}, status= status.HTTP_401_UNAUTHORIZED)
+
+            candidates = Candidate.objects.filter(client=client_id)
 
         else:
         
