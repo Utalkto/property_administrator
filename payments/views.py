@@ -31,7 +31,9 @@ class RentPaymentApi(APIView):
     permission_classes = (IsAuthenticated,) 
     authentication_classes = (TokenAuthentication,)
     
-
+    @swagger_auto_schema(
+        deprecated=True,
+    )
     def get(self, request):
         
         serializer = RentPaymentGetSerializer(UnitPayments.objects.filter(unit__property_manager=request.user.id), many=True)
@@ -39,6 +41,9 @@ class RentPaymentApi(APIView):
         return Response(serializer.data)
     
     
+    @swagger_auto_schema(
+        deprecated=True,
+    )
     def post(self, request):
         
         serializer = RentPaymentsPostSerailizer(data=request.data)
@@ -54,7 +59,10 @@ class RentPaymentApi(APIView):
                 'error_message' : serializer.errors,
             })
         
-    
+        
+    @swagger_auto_schema(
+        deprecated=True,
+    )
     def put(self, request, payment_id):
         
         payment = UnitPayments.objects.get(id=payment_id)
@@ -72,7 +80,9 @@ class RentPaymentApi(APIView):
                 'error_message' : serializer.errors,
             })
         
-        
+    @swagger_auto_schema(
+        deprecated=True,
+    )
     def delete(self, request, payment_id):
         
         try:

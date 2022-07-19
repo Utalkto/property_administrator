@@ -7,27 +7,26 @@ from properties.models import Unit
 class Candidate(models.Model):
     # foreign keys
     
-    property_manager = models.ForeignKey(CustomUser, null=False, blank=False, on_delete=models.CASCADE)
     unit = models.ForeignKey(Unit, null=False, blank=False, on_delete=models.CASCADE)
     
     # ---------------------------------
     # fields
-    
-    availability_date = models.JSONField(null=False) 
+
     adults_information = models.JSONField(null=False) # there can be more than one adult 
     
     current_address = models.CharField(max_length=400, null=False)
-    current_landlord_name = models.CharField(max_length=100, null=False)
-    current_landlord_phone = models.CharField(max_length=100, null=False)
+    children_ages = models.CharField(max_length=120, null=True, default=None)
     
     duration_of_lease = models.CharField(max_length=25, null=False)
     
     expected_renting_duration = models.CharField(null=False, max_length=100)
+    employment_information = models.CharField(null=False, max_length=120, default='')
     
     family_income = models.CharField(max_length=50)
     facebook_account = models.CharField(max_length=500, default='')
     
     length_of_time_at_current_address = models.CharField(max_length=400)
+    length_of_time_at_current_job = models.CharField(max_length=400, null=True,  default=None)
     link_to_schedule_view_sent = models.BooleanField(default=False)
     
     max_score = models.IntegerField(default=80)
@@ -36,7 +35,6 @@ class Candidate(models.Model):
     number_of_children = models.IntegerField(null=False)
 
     pets = models.CharField(max_length=100) 
-    previous_unit_time = models.CharField(max_length=255)
     preferred_move_in_date = models.DateField(null=False)
 
     reason_for_moving = models.TextField(null=False)

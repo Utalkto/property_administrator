@@ -47,15 +47,16 @@ DATA_FOR_CANDIDATE_PET = {
         '2': {'score': 0, 'str_part': '>= 3 cats'},
         '3': {'score': 4, 'str_part': '2 cats'},
         '4': {'score': 7, 'str_part': '1 cat'},
-        '5': {'score': 10, 'str_part': '0'} 
+        '5': {'score': 10, 'str_part': '0'},
+        '6': {'score': 0, 'str_part': 'Other Pet'}
     }
 
 
 DATA_FOR_TIME_AT_CURRENT_ADDRESS_AND_RENTAL_DURATION  = {
-        '0': {'score': 0, 'str_part': '0 to 6 months'},
-        '1': {'score': 2, 'str_part': '6 months to 1 year'},
-        '2': {'score': 5, 'str_part': '1 to 2 years'},
-        '3': {'score': 8, 'str_part': '2 to 5 years'},
+        '0': {'score': 0, 'str_part': '0 to 1 year'},
+        '1': {'score': 8, 'str_part': '1 to 2 years'},
+        '2': {'score': 10, 'str_part': '2 to 3 years'},
+        '3': {'score': 10, 'str_part': 'More than 3 years'},
         '4': {'score': 10, 'str_part': 'More than 5 years'},
     }
 
@@ -418,19 +419,19 @@ class CandidatesViewSet(APIView):
         
         if serializer.is_valid():
             serializer.save()
-            property_manager_email = current_unit.property_manager.email 
+            # property_manager_email = current_unit.property_manager.email 
             
-            SendEmail(
-                send_to= property_manager_email,
-                subject= f'There is a new canditate interested in {current_unit.name}',
-                html = f"""
-                        <html>
-                            <body>
-                                <h1>New candidate interested to rent a unit</h1>
-                            </body>
-                        </html>
-                        """
-                )
+            # SendEmail(
+            #     send_to= property_manager_email,
+            #     subject= f'There is a new canditate interested in {current_unit.name}',
+            #     html = f"""
+            #             <html>
+            #                 <body>
+            #                     <h1>New candidate interested to rent a unit</h1>
+            #                 </body>
+            #             </html>
+            #             """
+            #     )
                 
             return Response(
                 {

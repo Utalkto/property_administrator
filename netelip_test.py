@@ -30,7 +30,7 @@ import requests
 
 TOKEN = 'aefd105dd51348c31ddce12ddb04b5658f1ddb1980d47e6ca56b48b49c264d09'
 NUMBER = '+15873300597'
-DESTINATION = '+18642522485'
+DESTINATION = '0015873162968'
 
 SEND_MESSAGE_URL = 'https://api.netelip.com/v1/sms/api.php'
 
@@ -39,7 +39,7 @@ data = {
     'token'      : TOKEN,
     'from'       : NUMBER,
     'destination': DESTINATION,
-    'message'    : 'Testing this message'
+    'message'    : 'Using api to send message from netelip'
 }
 
 response = requests.post(url=SEND_MESSAGE_URL, data=data)

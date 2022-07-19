@@ -410,6 +410,14 @@ def twilio_in_bound_call(request):
     return Response({'message': 'success'})
 
 
+@api_view(['POST'])
+def netelip_message_view(request):
+    print(request.data)
+    
+    print(request.data['date'])
+    print(request.data['from'])
+    print(request.data['destination'])
+    print(request.data['message'])
 
 # ----------------------------------------------------
 
