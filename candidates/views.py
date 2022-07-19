@@ -31,6 +31,10 @@ from drf_yasg.utils import swagger_auto_schema
 from app_modules.permission import user_has_access 
 
 
+# query serializers 
+from .query_serializers import CandidateQuerySerializer
+
+
 # CONSTANTS
 
 DATA_FOR_HOUSEHOLD = {
@@ -350,17 +354,23 @@ class CandidatesViewSet(APIView):
     authentication_classes = (TokenAuthentication,) 
     
     @swagger_auto_schema(
-
+        
+    query_serializer=CandidateQuerySerializer(),
     responses={200: CandiatesSerializer()})
     def get(self, request, client_id):
 
-        unit_id = request.GET.get("unit_id")
+        qp = CandidateQuerySerializer(data=request.query_params)
+        qp.is_valid(raise_exception=True) 
+        
+        qp = qp.data
+        
+        unit_id = qp["unit_id"]
 
         if unit_id == 'all':
 
             if client_id == 'all':  
                 clients = request.user.clients_access.keys()
-                candidates = Candidate.objects.filter(client__in=clients)
+                candidates = Candidate.objects.filter(unit__property__client__in=clients)
 
             else:
                 try:
@@ -370,33 +380,37 @@ class CandidatesViewSet(APIView):
                     status= status.HTTP_400_BAD_REQUEST) 
 
                
-                if not user_has_access (user=request.user, client=client_id):
+                if not user_has_access (user=request.user, client_id=client_id):
                     return Response({"error":"user has not access"}, status= status.HTTP_401_UNAUTHORIZED)
 
-            candidates = Candidate.objects.filter(client=client_id)
+                candidates = Candidate.objects.filter(unit__property__client=client_id)
 
         else:
-        
-            if 'have_viewing_appoinments' in request.data.keys():
-                candidates = get_candidates_with_viewing(unit_id=unit_id)
-                return Response({'candidates': candidates})
+            try:
+                unit_id = int(unit_id)
+            except ValueError:
+                return Response({"error":"unit_id tiene que ser entero o tiene que tener el valor de all"}, 
+                status= status.HTTP_400_BAD_REQUEST) 
             
-            if 'pending_payments' in request.data.keys():
-                candidates = Candidate.objects.filter(unit=unit_id, status=3)
-                return Response({'candidates': candidates.data})
-            else:
-                
-                if 'rejected' in request.data.keys():
-                    candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'], rejected=True)
-                else:
-                    candidates = Candidate.objects.filter(unit=unit_id, score__gte=request.data['minimun_score'])
+            candidates = Candidate.objects.filter(unit=unit_id)
+        
+        
+        if qp['have_viewing_appoinments']:
+            candidates = get_candidates_with_viewing(candidates=candidates)
 
-            if not candidates:
-                return Response(
-                    {
-                        'message': 'no candidates meet the provided requirements'
-                    }, status=status.HTTP_404_NOT_FOUND)
+        if qp['pending_payments']:
+            candidates = candidates.filter(status=3)
+            
+        if qp['rejected']:
+            candidates = candidates.filter(rejected=True)
+     
+        if not candidates:
+            return Response(
+                {
+                    'message': 'no candidates meet the provided requirements'
+                }, status=status.HTTP_404_NOT_FOUND)
 
+        candidates = candidates.filter(score__gte=qp['minimun_score'])
         
         serializer = CandiatesGetSerializer(candidates, many=True)
         return Response({'candidates': serializer.data}, status=status.HTTP_200_OK)

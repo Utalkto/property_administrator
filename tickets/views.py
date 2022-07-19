@@ -187,7 +187,7 @@ class SuppliersApi(APIView):
             serializer = SupplierGetSerializer(Suppliers.objects.filter(landlord=request.user.id), many=True)
 
         else:
-            serializer = SupplierGetSerializer(Suppliers.objects.filter(id=int(supplier_id), landlord=request.user.id), many=True)
+            serializer = SupplierGetSerializer(Suppliers.objects.filter(id=int(supplier_id)), many=True)
 
         return Response(serializer.data)
     
