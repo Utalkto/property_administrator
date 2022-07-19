@@ -85,16 +85,16 @@ def data_to_create_property(request):
 @permission_classes([permissions.IsAuthenticated])
 def vacantUnit(request, unit_id):
     
-    """ 
-        Summary: Set the vacant of a unit from rented to free and send a message to the landlord notifiying
-        him and the instructions for moving out to the tenants
-        
-        Args:
-            unit_id int: unit unit_id
+    """Unidad (vacante/alquilada)
 
-        Returns:
-            Serializer Class, dictionary, JSON: list of properties that a landlord has # change here 
-            
+    Establece la desocupación de una unidad de, alquilada a libre y envia un mensaje al arrendador notificando
+    él cambio y las instrucciones para mudarse a los inquilinos
+        
+    Argumentos :
+        unit_id int: unidad unit_id
+
+    Devoluciones :
+        Clase de serializador, diccionario, JSON: lista de propiedades que un propietario tiene # cambie aquí    
         """
     unit = Unit.objects.get(id=unit_id)
     unit.rented = not unit.rented
@@ -215,21 +215,17 @@ class PropertyAPI(APIView):
     query_serializer= PropertyAPIQuerySerializer(),
     responses={200: PropertyRelatedFieldsSerializer()})
     def get(self, request,  client_id):
-        """Obtener(listar) propiedad(es)
+        """Obtiene propiedad(es)
 
-        Descripcion : 
+        Descripcion : lista todas las propiedades que pertenecen a un usuario.
 
-        """
-        """ 
-        Summary: Get a property a user has or an organization owns 
-        
-        Args:
-            client_id (int) (required) = The id of the client the sets of units are going to be created
-            property_id (int)(query_parameter) (optional) = The id of the property that is needed, 
-            leave empty to get all
+        Argumentos :
+            client_id (int) (obligatorio) = El id del cliente se van a crear los conjuntos de unidades
+            property_id (int)(query_parameter) (opcional) = El id de la propiedad que se necesita,
+            dejar vacío para obtener todo.
 
-        Returns:
-            Serializer Class, dictionary, JSON: list of properties that an organization has
+        Devoluciones :
+            Clase de serializador, diccionario, JSON: lista de propiedades que tiene una organización.
         """
         
         if request.GET.get('property_id'):
@@ -268,16 +264,13 @@ class PropertyAPI(APIView):
     def post(self, request, client_id):
         """Crea Propiedad
 
-        Documentacio : 
-        """
+        Crea la propiedad a un cliente determinado.
 
-        """ Summary: PropertyAPI POST
-        
-        paremeters:
-            client_id (int)(required): indicates the client to which the property is going to be created 
+        parámetros:
+            client_id (int)(obligatorio): indica el cliente al que se le va a crear la propiedad
 
-        Returns:
-            JSON: new property object created with provided information
+        Devoluciones:
+            JSON: nuevo objeto de propiedad creado con la información proporcionada
         """
         property_data = request.data.copy()
         
@@ -333,10 +326,14 @@ class PropertyAPI(APIView):
     responses={200: PropertySerializer()})
     def put(self, request, client_id):
         
-        """ Summary: PropertyAPI PUT
+        """ actualiza Propiedad
 
-        Returns:
-            JSON, dictionary: saying if it was a success
+        parámetros:
+            client_id (int)(obligatorio): indica el cliente al que se le va a actualizar la propiedad
+            property_id (int): indica la propiedad a acutualizar.
+
+        Devoluciones:
+            JSON, diccionario: informando si fue un éxito.
         """            
         try:
             _property:Property = Property.objects.get(int(request.data['property_id']))
@@ -386,6 +383,17 @@ class PropertyAPI(APIView):
     query_serializer= PropertyAPIQuerySerializer(),
     responses={200: PropertySerializer()})  
     def delete(self, request, client_id):
+        """Elimina Propiedad
+
+        Elimina propiedad
+
+        parámetros:
+            client_id (int)(obligatorio): indica el cliente al que se le va a eliminar la propiedad
+            property_id (int): indica la propiedad a eliminar.
+
+        Devoluciones:
+            Mansaje: informando si fue un éxito.
+        """
         try:
             _property:Property = Property.objects.get(id=int(request.GET['property_id']))
         
@@ -426,28 +434,22 @@ class UnitsAPI(APIView):
     @swagger_auto_schema(
     responses={200: UnitRelatedFieldsSerializer()})
     def get(self, request, client_id):
-        """Obtener(listar) Unidad(es)
-
-        Descripcion : 
-
-        """
+        """Obtener Unidad(es)
         
-        """ UnitsAPI GET
+        rent_info (bool)(Optional) here : indicates if number of units rented and not rented is needed
         
-        rent_info (bool)(Optional) here: indicates if number of units rented and not rented is needed
+        leases_to_exp (bool)(Optional) : indicates if the number of units which leases are going to exp 
         
-        leases_to_exp (bool)(Optional): indicates if the number of units which leases are going to exp 
-        
-        unit_id (int)(Optional): indicates the id of the unit that is needed, if set to "all" 
+        unit_id (int)(Optional) : indicates the id of the unit that is needed, if set to "all" 
         returns all the units a client owns
         
-        get_general_info (bool)(Optional): indicates to get the general infomation of units objects, when this is 
+        get_general_info (bool)(Optional) : indicates to get the general infomation of units objects, when this is 
         set, unit_id must be givem too 
         
-        'view_all (bool)(Optional)': 'idicates if send more information when "for_rent" or "lease" are set'
+        'view_all (bool)(Optional)' : 'idicates if send more information when "for_rent" or "lease" are set'
         
-        Returns:
-            JSON: Unit objects
+        Returns :
+            JSON : Unit objects
         """
 
         if not request.GET:
@@ -619,20 +621,11 @@ class UnitsAPI(APIView):
     @swagger_auto_schema(
     responses={200: UnitSerializer()})
     def put(self, request, client_id):
-        """Actualizar Unidad
-
-        Descricion : 
-
-        """
+        """Modifica Unidad
         
-        """UnitsAPI PUT
-        
-        parameters:
-            queryparameter:
-                unit_id (int)(required): the id of the unit that is going to be modified
-
-        Returns:
-            _type_: _description_
+        Parametros :
+            client_id (int) : id del cliente el cual pertenece esa unidad.
+            unit_id (int)(obligatorio): el id de la unidad que se va a modificar.
         """
         
         try:
@@ -684,9 +677,12 @@ class UnitsAPI(APIView):
     query_serializer=UnitAPIQueryserializer(),
     responses={200: "correct"})
     def delete(self, request, client_id):
-        """Elininar Propiedad
+        """Elininar Unidad
 
-        Descricion : 
+        Argumentos :
+
+            client_id (int) (obligatorio) = El id del cliente asocioado a esa unidad.
+            property_id (int)(query_parameter) (opcional) = El id de la propiedad a eliminar.
         
         """
         
@@ -728,20 +724,13 @@ class TenantViewSet(APIView):
     query_serializer= TenantAPIQuerySerializer(),
     responses={200: TenantRelatedFieldsSerializer()})
     def get(self, request, client_id):
-        """Obtener(listar) cliente(s)
+        """Obtener cliente(s)
 
-        Deccripcion : 
-        """
-        
-        """TenantViewSet GET
-        
-        client_id (str)(required): returns the tenants associeted with that client, set all to return 
-        all tenants a user has access to 
-        
-        tenant (int)(optional): returns the data associeted to that tenant id
+        Deccripcion : Devuelve los inqulinos asociados a ese usuario
 
-        Returns:
-            _type_: _description_
+        Argumentos :
+            client_id (str) (requerido): devuelve los inquilinos asociados con ese cliente
+            inquilino (int) (opcional): devuelve los datos asociados a esa identificación de inquilino
         """
         
         if client_id == 'all':
@@ -790,14 +779,12 @@ class TenantViewSet(APIView):
     responses={200: TenantRelatedFieldsSerializer()})
     def post(self, request, client_id):
         
-        """TenantViewSet POST
+        """Crear Inqulinos
         
-        client_id (int)(required): the client the tenant will be associeted with
-        
-        unit (int)(required): the unit the tenant will be associeted with
+        Argumentos : 
+            client_id (int)(obligatorio): el cliente con el que se asociará el arrendatario
+            unidad (int)(obligatorio): la unidad con la que se asociará el inquilino
 
-        Returns:
-            _type_: _description_
         """
 
         current_time = timezone.now()
@@ -836,14 +823,11 @@ class TenantViewSet(APIView):
     responses={200: TenantRelatedFieldsSerializer()})
     def put(self, request, client_id):
         
-        """TenantViewSet PUT
+        """Actualiza inquilinos
         
-        client_id (int)(required): the client the tenant will be associeted with
-        
-        tenant_id (int)(required): the tenant that will be modified
-
-        Returns:
-            _type_: _description_
+        Argumentos :
+            client_id (int)(obligatorio): el cliente con el que se asociará el arrendatario
+            tent_id (int)(obligatorio): el inquilino que se modificará
         """
         
         key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.GET)
@@ -884,14 +868,11 @@ class TenantViewSet(APIView):
     responses={200: TenantRelatedFieldsSerializer()})    
     def delete(self, request, client_id):
         
-        """TenantViewSet DELETE
+        """Elimina Inqulinos
         
-        client_id (int)(required): the client the tenant will be associeted with
-        
-        tenant_id (int)(required): the tenant that will be deleted
-
-        Returns:
-            _type_: _description_
+        Argumentos :
+            client_id (int)(obligatorio): el cliente con el que esta asociado el arrendatario
+            tent_id (int) (obligatorio): el inquilino que se eliminará
         """
 
         key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.GET)

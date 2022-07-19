@@ -93,6 +93,9 @@ def confirm_user_email(request):
 
 
 class CustomObtainAuthToken(ObtainAuthToken):
+    """Autenticacion de Usuario
+
+    """
     def post(self, request, *args, **kwargs):
 
         response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
@@ -143,6 +146,9 @@ class CustomObtainAuthToken(ObtainAuthToken):
     
 
 class CreateUserView(CreateAPIView):
+    """Crea Usuarios
+
+    """
     
     model = get_user_model()
     permission_classes = [
@@ -158,8 +164,8 @@ class RecoverPasswordAPI(APIView):
         
         """Para ver si este es un link es valido 
         
-            query parameters:
-                link (str): el link que se va a validar a ver si es valido este link 
+        query parameters :
+            link (str) : el link que se va a validar a ver si es valido este link 
         """
         
         try:
@@ -191,8 +197,8 @@ class RecoverPasswordAPI(APIView):
         
         """Para pedir la peticion de reestablecer la password,
 
-            body_parameters:
-                email (EmailField): el email de la persona que quiere reestablecer la password
+        body_parameters :
+            email (EmailField) : el email de la persona que quiere reestablecer la password
         
         """
         
@@ -231,11 +237,11 @@ class RecoverPasswordAPI(APIView):
     def put(self, request):
         """Cambiar la password del user
         
-        bory parameters:
-            user_id (id) (required): el id del usuario del que se va a cambiar la password
-            password (str) (required): la nueva password que el usuario quiere poner
+        bory parameters :
+            user_id (id) (required) : el id del usuario del que se va a cambiar la password
+            password (str) (required) : la nueva password que el usuario quiere poner
 
-        Args:
+        Args :
             request (_type_): _description_
         """
         
