@@ -41,6 +41,7 @@ urlpatterns = [
    # -------------------------------------------------
     
    # API urls 
+
    path('register/api/v1/', include('register.urls')),
    path('properties/api/v1/', include('properties.urls')),
    path('candidates/api/v1/', include('candidates.urls')),

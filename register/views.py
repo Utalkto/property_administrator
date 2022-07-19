@@ -93,10 +93,16 @@ def confirm_user_email(request):
 
 
 class CustomObtainAuthToken(ObtainAuthToken):
-    """Autenticacion de Usuario
 
-    """
     def post(self, request, *args, **kwargs):
+        """Autenticacion de Usuario
+
+        El usuario debe seguir este proceso para tener acceso al sistema (app.kumbio.com). Este
+        proceso implica identificación (decirle al sistema quién es) y autenticación
+        (demostrar que el usuario existe).
+
+        Para ello,debe ingresar su usuario y contraseña. 
+        """
 
         response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
         token:Token = Token.objects.get(key=response.data['token'])
@@ -148,6 +154,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
 class CreateUserView(CreateAPIView):
     """Crea Usuarios
 
+    doc
     """
     
     model = get_user_model()

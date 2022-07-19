@@ -24,6 +24,10 @@ class ExpensesApi(APIView):
     
     
     def get(self, request, expenses_id:str):
+        """Obtiene (lista) los gastos
+        
+        documentacion
+        """
         
         if expenses_id == 'all':
             
@@ -48,6 +52,10 @@ class ExpensesApi(APIView):
     
     
     def post(self, request):
+        """Crea Gastos
+        
+        Documentacion
+        """
         
         serializer = ExpensesPostSerializer(data=request.data)
         
@@ -66,6 +74,10 @@ class ExpensesApi(APIView):
             
     
     def put(self, request, expenses_id):
+        """Actualiza gastos
+
+        Documentacion
+        """
         
         try:
             expenses = Expenses.objects.get(id=int(expenses_id))
@@ -92,6 +104,10 @@ class ExpensesApi(APIView):
         
     
     def delete(self, request, expenses_id):
+        """Elimina gastos
+        
+        Documentacion
+        """
         
         try:
             Expenses.objects.get(id=int(expenses_id)).delete()
@@ -115,6 +131,10 @@ class BankAccountApi(APIView):
     
     
     def get(self, request, bank_account_id:str):
+        """Obtiene cuenta bancaria
+
+        Lista las cuentas bancarias existentes por id
+        """
         
         if bank_account_id == 'all':
             
@@ -138,6 +158,10 @@ class BankAccountApi(APIView):
     
     
     def post(self, request):
+        """Crea cuenta bancaria
+        
+        Documentacion
+        """
         
         serializer = BankAccountSerializer(data=request.data)
         
@@ -156,6 +180,10 @@ class BankAccountApi(APIView):
             
     
     def put(self, request, bank_account_id):
+        """Actializa cuenta bancaria
+
+        Documentacion      
+        """
         
         try:
             bank_account = BanksAccounts.objects.get(id=int(bank_account_id))
@@ -182,6 +210,10 @@ class BankAccountApi(APIView):
         
     
     def delete(self, request, bank_account_id):
+        """Elimina cuenta bancaria
+        
+        Documentacion
+        """
         
         try:
             BanksAccounts.objects.get(id=int(bank_account_id)).delete()
@@ -203,6 +235,10 @@ class CategoriesApi(APIView):
     authentication_classes = (TokenAuthentication,)
     
     def get(self, request):
+        """Lista todas las categorias de gastos
+        
+        doc
+        """
         
         serializer = CategorySerializer(Categories.objects.all(), many=True)
         return Response(serializer.data)

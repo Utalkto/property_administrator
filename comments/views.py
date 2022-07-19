@@ -39,6 +39,12 @@ class CommentsAPI(APIView):
     authentication_classes = (TokenAuthentication,)
     
     def get(self, request, client_id):
+        """obtiene comentarios
+        
+        Lista todos los cometarios que pertenecen a un cliente
+
+        Argumentos : client_id (int)
+        """
         comment_id = request.data.get('comment_id')
         
         if comment_id is not None:
@@ -62,6 +68,10 @@ class CommentsAPI(APIView):
       
         
     def post(self, request, client_id):
+        """Crea comentarios
+        
+        permite a un cliente crear comentarios 
+        """
         
         comment:str = request.data['comment']
         users_taged = check_taged_users(comment)
