@@ -285,8 +285,7 @@ class PropertyAPI(APIView):
         
         if property_serializer.is_valid():
             property_serializer.save()
-            
-            request.user.access_clients[client_id]['properties'].append(property_data.id)
+            request.user.clients_access[int(client_id)]['properties'].append(property_data.id)
             
             register_log(made_by=request.user.id, 
                         action=1, 
