@@ -21,13 +21,13 @@ from .models import Form
 
 
 class FormsAPI(APIView):
-    # permission_classes = (IsAuthenticated,) 
-    # authentication_classes = (TokenAuthentication,) 
+    permission_classes = (IsAuthenticated,) 
+    authentication_classes = (TokenAuthentication,) 
     
     @swagger_auto_schema()
     def get(self, request, client_id):
         
-        qp = FormQuerySerializer(request.query_params)
+        qp = FormQuerySerializer(data=request.query_params)
         qp.is_valid(raise_exception=True)
         qp = qp.data
         
