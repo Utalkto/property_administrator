@@ -14,3 +14,14 @@ def user_has_access(user:CustomUser, organization_id:int=None, client_id:int=Non
             return False
     
     return True
+
+
+def get_propeties_with_access(user:CustomUser) -> list[int]:
+    properties = list()
+    
+    for key in user.clients_access.keys():
+        properties += user.clients_access[key]['properties']
+        
+    
+    return properties
+    

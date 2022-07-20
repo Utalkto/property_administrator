@@ -418,19 +418,19 @@ class CandidatesViewSet(APIView):
     
     @swagger_auto_schema(
     responses={200: CandiatesSerializer()})
-    def post(self, request, unit_id):
+    def post(self, request, client_id):
         """
         
         note: the optional fields that are sent to this view must have a number associated with them 
         
         """
         try:
-            current_unit = Unit.objects.get(id=unit_id)
+            current_unit = Unit.objects.get(id=client_id)
         except ObjectDoesNotExist:
             return Response(
                 {
                     'error': True,
-                    'message': f'unit with id {unit_id} does not exist'
+                    'message': f'unit with id {client_id} does not exist'
                 }, status=status.HTTP_404_NOT_FOUND
                 )
             

@@ -10,3 +10,4 @@ def check_login(function):
             raise PermissionDenied
         return function(request, *args, **kwargs)
     return wrap
+

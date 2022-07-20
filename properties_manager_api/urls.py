@@ -52,6 +52,7 @@ urlpatterns = [
    path('to-do-list/api/v1/', include('to_do_list.urls')),
    path('inter-chat/api/v1/', include('inter_chat.urls')),
    path('upload/api/v1/', include('uploader.urls')),
+   path('forms/api/v1/', include('forms.urls')),
    
    # tickets module with django 
    path('tickets/api/v1/', include('tickets.urls')),

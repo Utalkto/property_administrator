@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'inter_chat',
     'notifications',
     'uploader',
+    'forms',
     # third party apps
     
     'rest_framework',
