@@ -338,8 +338,6 @@ class PropertyAPI(APIView):
             JSON, diccionario: informando si fue un éxito.
         """            
         
-        print(request.data)
-        print('-----------------------------')
         
         try:
             _property:Property = Property.objects.get(id=int(request.data['property_id']))
@@ -359,6 +357,10 @@ class PropertyAPI(APIView):
         current_time = timezone.now()
         
         previous_data = PropertySerializer(_property)
+        
+        if request.data.get('img') == 'null':
+            del request.data['img']
+        
         property_serializer = PropertySerializer(instance=_property, data=request.data)
         
         if property_serializer.is_valid():
