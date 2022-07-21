@@ -337,8 +337,12 @@ class PropertyAPI(APIView):
         Devoluciones:
             JSON, diccionario: informando si fue un éxito.
         """            
+        
+        print(request.data)
+        print('-----------------------------')
+        
         try:
-            _property:Property = Property.objects.get(int(request.data['property_id']))
+            _property:Property = Property.objects.get(id=int(request.data['property_id']))
         except Property.DoesNotExist:
             return Response(
                 {

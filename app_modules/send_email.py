@@ -26,6 +26,8 @@ class SendEmail:
     
     
     def send_email(self, send_to:str, subject:str, html:str, from_email:str, password:str, attach_file):
+        # document this fucking code
+
         # email settings
         email_message = MIMEMultipart('alternative')
         email_message['Subject'] = subject
