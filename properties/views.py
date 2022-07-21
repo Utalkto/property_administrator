@@ -358,10 +358,12 @@ class PropertyAPI(APIView):
         
         previous_data = PropertySerializer(_property)
         
-        if request.data.get('img') == 'null':
-            del request.data['img']
+        data_copy = request.data.copy()
         
-        property_serializer = PropertySerializer(instance=_property, data=request.data)
+        if data_copy.get('img') == 'null':
+            del data_copy['img']
+        
+        property_serializer = PropertySerializer(instance=_property, data=data_copy)
         
         if property_serializer.is_valid():
             property_serializer.save()
