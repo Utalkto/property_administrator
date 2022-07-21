@@ -366,7 +366,7 @@ class PropertyAPI(APIView):
         if property_serializer.is_valid():
             property_serializer.save()
             
-            _property.last_edition_made_by = request.user.id
+            _property.last_edition_made_by = request.user
             _property.last_time_edited = current_time
             _property.save()
             
