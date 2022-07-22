@@ -838,7 +838,7 @@ class TenantViewSet(APIView):
         
         Argumentos :
             client_id (int)(obligatorio): el cliente con el que se asociará el arrendatario
-            tent_id (int)(obligatorio): el inquilino que se modificará
+            tenant_id (int)(obligatorio): el inquilino que se modificará
         """
         
         key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.data)
