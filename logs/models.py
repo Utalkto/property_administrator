@@ -22,7 +22,7 @@ class Log(models.Model):
     tenant = models.ForeignKey(Tenants, null=True, blank=True, default=None, on_delete=models.PROTECT)
     supplier = models.ForeignKey(Suppliers, null=True, blank=True, default=None, on_delete=models.PROTECT)
     
-    # TODO: delete these fields since the data will not be deleted but disabled
+    # NOTE: to discuss about these fields since the data will not be deleted but disabled
     deleted_unit = models.IntegerField(null=True, blank=True, default=None)
     deleted_property = models.IntegerField(null=True, blank=True, default=None)
     deleted_tenant = models.IntegerField(null=True, blank=True, default=None)

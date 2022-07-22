@@ -324,7 +324,6 @@ class PropertyAPI(APIView):
         "city": openapi.Schema(type=openapi.TYPE_INTEGER),
         "property_type": openapi.Schema(type=openapi.TYPE_INTEGER),
     }),
-
     responses={200: PropertySerializer()})
     def put(self, request, client_id):
         
@@ -405,7 +404,7 @@ class PropertyAPI(APIView):
             Mansaje: informando si fue un éxito.
         """
         try:
-            _property:Property = Property.objects.get(id=int(request.GET['property_id']))
+            _property:Property = Property.objects.get(id=int(request.data['property_id']))
         
         except ValueError:
             return Response({'error': f'ValueError: property_id must be int'}, 
@@ -428,7 +427,8 @@ class PropertyAPI(APIView):
                     date_made=timezone.now(), 
                     property_id=_property.id)
         
-        _property.delete()
+        _property.deleted = True
+        _property.save()  
         
         return Response(
             {
@@ -639,7 +639,7 @@ class UnitsAPI(APIView):
         """
         
         try:
-            unit:Unit = Unit.objects.get(id=request.GET['unit_id'])
+            unit:Unit = Unit.objects.get(id=request.data['unit_id'])
         except ValueError:
             return Response({'error': f'ValueError: unit_id must be int'}, 
                             status=status.HTTP_400_BAD_REQUEST)
@@ -697,7 +697,7 @@ class UnitsAPI(APIView):
         """
         
         try:
-            unit:Unit = Unit.objects.get(id= request.GET['unit_id'])
+            unit:Unit = Unit.objects.get(id= request.data['unit_id'])
         except ValueError:
             return Response({'error': f'ValueError: unit_id must be int'}, 
                             status=status.HTTP_400_BAD_REQUEST)
@@ -716,7 +716,8 @@ class UnitsAPI(APIView):
                 date_made=timezone.now(), 
                 unit_id=unit.id)  
         
-        unit.delete()
+        unit.deleted = True
+        unit.save()
         
         return Response(
             {
@@ -726,8 +727,8 @@ class UnitsAPI(APIView):
 
 class TenantViewSet(APIView):
 
-    permission_classes = (IsAuthenticated,) 
-    authentication_classes = (TokenAuthentication,) 
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (TokenAuthentication,)
     
  
     @swagger_auto_schema(
@@ -840,7 +841,7 @@ class TenantViewSet(APIView):
             tent_id (int)(obligatorio): el inquilino que se modificará
         """
         
-        key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.GET)
+        key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.data)
         
         if not key_valid:
             return Response(response[0]['message'], status=response[0]['status'])
@@ -885,7 +886,7 @@ class TenantViewSet(APIView):
             tent_id (int) (obligatorio): el inquilino que se eliminará
         """
 
-        key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.GET)
+        key_valid, response = self.validate_key(key_name='tenant_id', get_dict=request.data)
         
         if not key_valid:
             return Response(response[0]['message'], status=response[0]['status'])

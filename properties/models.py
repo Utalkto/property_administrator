@@ -87,6 +87,9 @@ class Property(models.Model):
                                              default=None, related_name='property_last_edited_by')
 
     
+    deleted = models.BooleanField(default=False)
+    
+    
     def __str__(self) -> str:
         return f'{self.id} - {self.name}' 
     
@@ -191,6 +194,8 @@ class Unit(models.Model):
     is_mall_near = models.BooleanField(default=False)
     is_store_near = models.BooleanField(default=False)
     is_bus_stop_near = models.BooleanField(default=False)
+    
+    deleted = models.BooleanField(default=False)
     
     
     def __str__(self) -> str:
