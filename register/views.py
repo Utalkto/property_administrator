@@ -189,12 +189,14 @@ class RecoverPasswordAPI(APIView):
         now = timezone.now()
         four_hours_before = now - datetime.timedelta(hours=4)
         
+
+        if four_hours_before > user.time_recover_link_creation:
+            return Response({'error':'Este link ha expirado'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        
+        
         user.link_to_recover_password = None
         user.time_recover_link_creation = None
         user.save()
-        
-        if four_hours_before > user.time_recover_link_creation:
-            return Response({'error':'Este link ha expirado'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         
         
         user_serializer = UserSerializer(user)
