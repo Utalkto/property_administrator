@@ -73,6 +73,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             password=validated_data['password'],
             email=validated_data['email'],
+            role=3,
             
             # this organization can be None? No, the organizations will be created by us
             organization=validated_data['organization'],

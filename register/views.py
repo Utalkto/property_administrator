@@ -114,7 +114,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
                 subject='new user',
                 html='<p>There is an user trying to get into kumbio app but their account is not active</p>'
                 )
-        
+
         
         if token.user.organization.payment_status and token.user.email_is_actived:
             return Response(
@@ -122,6 +122,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
                     'token': token.key, 
                     'name': token.user.get_full_name(),
                     'active': token.user.has_access,
+                    'role': {'id': token.user.role.id, 'role': token.user.role.role},
                     'user_permissions': UserPermissionsSerializser(token.user).data
                 })
             
