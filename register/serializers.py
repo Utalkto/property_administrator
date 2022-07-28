@@ -97,4 +97,4 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
     class Meta:
         model = UserModel
-        fields = ( "id", "email", "username", "password", "organization")
+        fields = ( "id", "email", "username", "password", "organization", "role")
