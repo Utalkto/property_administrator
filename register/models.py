@@ -1,6 +1,6 @@
 # python
 
-
+import secrets
 
 # django 
 from django.db import models
@@ -92,11 +92,21 @@ class Organization(models.Model):
     
     payment_status = models.BooleanField()
     
-    plan_expired_on = models.DateTimeField(default=seven_day_hence) 
+    plan_expired_on = models.DateTimeField(default=seven_day_hence)
+    
+    invitation_link = models.CharField(max_length=120, null=True, default=None)
     
     def __str__(self) -> str:
         return f'{self.id} - {self.name}'
     
+    
+    def save(self, **kwargs):
+        if not self.id:
+            self.date_created = timezone.now()
+            self.due_date = timezone.now() + timezone.timedelta(days=30)
+            self.payment_status = False
+            self.invitation_link = secrets.token_urlsafe(20)
+        super(Organization, self).save(**kwargs)
     
     # def save(self, **kwargs):
     #     some_salt = 'jksaof23w0923df32' 

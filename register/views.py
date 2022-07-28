@@ -46,6 +46,7 @@ def get_role(request, format=None):
 
 
 @api_view(['GET'])
+@swagger_auto_schema()
 def check_if_invited(request, link):
     
     try: organization:Organization = Organization.objects.get(invitation_link=link)
@@ -87,6 +88,8 @@ def confirm_user_email(request):
     
     return Response({'message': 'success'})
     
+
+
 # --------------------------------------------------------------
 # classes 
 # --------------------------------------------------------------
