@@ -156,7 +156,8 @@ class CustomUserManager(BaseUserManager):
             email=email, 
             username=username, 
             # plan=UserPlans.objects.get(id=1), 
-            # city=UserCities.objects.get(id=1),  
+            # city=UserCities.objects.get(id=1), 
+            role=UserRoles.objects.get(id=1),  
             **extra_fields)
         user.set_password(password)
         
