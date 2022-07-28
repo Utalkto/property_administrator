@@ -73,6 +73,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             password=validated_data['password'],
             email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
             
             # this organization can be None? No, the organizations will be created by us
             organization=validated_data['organization'],
@@ -96,4 +98,4 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
     class Meta:
         model = UserModel
-        fields = ( "id", "email", "username", "password", "organization", "role")
+        fields = ( "id", "email", "username", "password", "first_name", "last_name", "organization", "role")
